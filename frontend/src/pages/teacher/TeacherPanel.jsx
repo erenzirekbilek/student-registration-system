@@ -335,7 +335,6 @@ const TeacherPanel = () => {
             <p className="text-gray-400 mt-1">ID: {id} | {specialty}</p>
           </div>
         </div>
-        </div>
         {renderContent()}
       </div>
     </div>

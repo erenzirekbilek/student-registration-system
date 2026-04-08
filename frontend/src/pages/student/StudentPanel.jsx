@@ -301,7 +301,6 @@ const StudentPanel = () => {
             <p className="text-gray-400 mt-1">{email}</p>
           </div>
         </div>
-        </div>
         {renderContent()}
       </div>
     </div>
