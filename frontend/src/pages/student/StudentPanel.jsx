@@ -270,6 +270,12 @@ const StudentPanel = () => {
                 <Button>Update Password</Button>
               </div>
             </div>
+
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-red-500/20">
+              <h3 className="text-lg font-semibold text-white mb-4">Logout</h3>
+              <p className="text-gray-400 mb-4">Sign out of your account</p>
+              <Button variant="danger" onClick={handleLogout}>Logout</Button>
+            </div>
           </div>
         );
       default:
