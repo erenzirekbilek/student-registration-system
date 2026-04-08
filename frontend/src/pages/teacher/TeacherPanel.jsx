@@ -26,10 +26,10 @@ const mockAssignments = [
 const TeacherPanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, name, department } = location.state || {};
+  const { email, id, name, specialty } = location.state || {};
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  if (!username) {
+  if (!email) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
