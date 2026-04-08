@@ -321,7 +321,7 @@ const TeacherPanel = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Teacher Dashboard</h1>
-            <p className="text-gray-400 mt-1">{specialty}</p>
+            <p className="text-gray-400 mt-1">ID: {id} | {specialty}</p>
           </div>
           <div className="flex items-center space-x-4">
             <button className="p-2 bg-slate-800 rounded-xl text-gray-400 hover:text-white transition-colors">
