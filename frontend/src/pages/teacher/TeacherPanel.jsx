@@ -251,6 +251,69 @@ const TeacherPanel = () => {
             <Button onClick={() => navigate('/ClassList')}>Manage Classes</Button>
           </div>
         );
+      case 'settings':
+        return (
+          <div className="space-y-6">
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-4">Profile Settings</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Name</label>
+                  <input
+                    type="text"
+                    defaultValue={name}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Email</label>
+                  <input
+                    type="email"
+                    defaultValue={email}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Specialty</label>
+                  <input
+                    type="text"
+                    defaultValue={specialty}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <Button>Save Changes</Button>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
+              <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Current Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">New Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Confirm Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <Button>Update Password</Button>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 text-center">
