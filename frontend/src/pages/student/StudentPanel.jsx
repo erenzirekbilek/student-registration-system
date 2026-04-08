@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const mockStudentCourses = [
   { id: 1, courseName: 'Mathematics 101', instructor: 'Dr. Smith', schedule: 'Mon/Wed 10:00', room: 'Room 101', credits: 4, color: 'from-blue-500 to-blue-600' },
@@ -26,6 +28,7 @@ const StudentPanel = () => {
   const navigate = useNavigate();
   const { email, id, name } = location.state || {};
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   if (!email) {
     return (
@@ -240,17 +243,25 @@ const StudentPanel = () => {
       </nav>
 
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-slate-800/50 backdrop-blur-lg border-r border-white/10 z-50">
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">S</span>
+      <div className={`fixed inset-y-0 left-0 ${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-800/50 backdrop-blur-lg border-r border-white/10 z-50 transition-all duration-300`}>
+        <div className="flex justify-between items-center p-4 border-b border-white/10">
+          {isSidebarOpen && (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold">S</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">{name || 'Student'}</p>
+                <p className="text-xs text-gray-400">{id}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-white">{name || 'Student'}</p>
-              <p className="text-xs text-gray-400">{id}</p>
-            </div>
-          </div>
+          )}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+          >
+            {isSidebarOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+          </button>
         </div>
         <nav className="p-4">
           <ul className="space-y-2">
@@ -258,21 +269,29 @@ const StudentPanel = () => {
               <li key={item.id}>
                 <button
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center ${isSidebarOpen ? 'px-4 py-3' : 'px-2 py-3 justify-center'} rounded-xl transition-all ${
                     activeTab === item.id
                       ? 'bg-indigo-500/20 text-indigo-400'
                       : 'text-gray-400 hover:bg-slate-700/50 hover:text-white'
                   }`}
                 >
-                  <span className="mr-3">{item.icon}</span>
-                  {item.label}
+                  <span className="text-xl">{item.icon}</span>
+                  {isSidebarOpen && <span className="ml-3">{item.label}</span>}
                 </button>
               </li>
             ))}
             <li className="pt-4 mt-4 border-t border-white/10">
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
+                className={`w-full flex items-center ${isSidebarOpen ? 'px-4 py-3' : 'px-2 py-3 justify-center'} rounded-xl text-red-400 hover:bg-red-500/10 transition-all`}
+              >
+                <span className="text-xl">🚪</span>
+                {isSidebarOpen && <span className="ml-3">Logout</span>}
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
               >
                 <span className="mr-3">🚪</span>
                 Logout
@@ -283,7 +302,7 @@ const StudentPanel = () => {
       </div>
 
       {/* Main Content */}
-      <div className="ml-64 p-8 pt-20">
+      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 pt-20 transition-all duration-300">
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Student Dashboard</h1>
