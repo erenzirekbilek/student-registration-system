@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const ClassList = () => {
   const navigate = useNavigate();
-  const { data: classes = [], isLoading } = useGetClassesQuery();
+  const { data: classes = [], isLoading, refetch } = useGetClassesQuery();
   const [addClass] = useAddClassMutation();
   const [deleteClass] = useDeleteClassMutation();
   const [newClassName, setNewClassName] = useState('');
@@ -22,6 +22,7 @@ const ClassList = () => {
     try {
       await addClass({ name: newClassName }).unwrap();
       setNewClassName('');
+      refetch();
     } catch (error) {
       alert('Failed to add class');
     }
