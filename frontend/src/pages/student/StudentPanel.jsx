@@ -292,17 +292,9 @@ const StudentPanel = () => {
           </ul>
         </nav>
       </div>
-              >
-                <span className="mr-3">🚪</span>
-                Logout
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
 
       {/* Main Content */}
-      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 pt-20 transition-all duration-300">
+      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 pt-20 transition-all duration-300`}>
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Student Dashboard</h1>
