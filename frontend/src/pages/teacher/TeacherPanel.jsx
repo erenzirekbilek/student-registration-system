@@ -277,7 +277,7 @@ const TeacherPanel = () => {
       </nav>
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 ${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-800/50 backdrop-blur-lg border-r border-white/10 z-50 transition-all duration-300`}>
+      <div className={`fixed top-16 inset-y-0 left-0 ${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-800/50 backdrop-blur-lg border-r border-white/10 z-40 transition-all duration-300`}>
         <div className="flex justify-between items-center p-4 border-b border-white/10">
           {isSidebarOpen && (
             <div className="flex items-center space-x-3">
@@ -328,7 +328,7 @@ const TeacherPanel = () => {
       </div>
 
       {/* Main Content */}
-      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 pt-20 transition-all duration-300`}>
+      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 transition-all duration-300`}>
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Teacher Dashboard</h1>
