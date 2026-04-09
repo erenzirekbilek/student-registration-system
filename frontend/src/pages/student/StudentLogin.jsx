@@ -28,7 +28,15 @@ const StudentLogin = () => {
     setIsLoading(true);
     try {
       const result = await login({ email, password }).unwrap();
-      const userData = JSON.stringify({ email: result.email, id: result.id, name: result.name });
+      const userData = JSON.stringify({ 
+        email: result.email, 
+        id: result.id, 
+        name: result.name,
+        studentNumber: result.studentNumber,
+        classId: result.classId,
+        attendance: result.attendance,
+        grade: result.grade
+      });
       localStorage.setItem('studentData', userData);
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);

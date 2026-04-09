@@ -73,7 +73,7 @@ const StudentPanel = () => {
     );
   }
 
-  const { email, id, name } = userData;
+  const { email, id, name, studentNumber } = userData;
 
   if (!email) {
     return (
@@ -352,7 +352,7 @@ const StudentPanel = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-white">{name || 'Student'}</p>
-                <p className="text-xs text-gray-400">{id}</p>
+                <p className="text-xs text-gray-400">{studentNumber || id}</p>
               </div>
             </div>
           )}
