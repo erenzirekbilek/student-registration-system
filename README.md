@@ -58,6 +58,43 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 
 ---
 
+## 🔍 Knowledge Graph Analysis (Graphify)
+
+We used **Graphify** to automatically extract and visualize the architecture of this codebase. Here's why and what it provides:
+
+### Why Graphify?
+
+| Benefit | What it gives you |
+|---------|-------------------|
+| **Persistent graph** | Relationships survive sessions - query weeks later without re-reading files |
+| **Audit trail** | Every edge tagged EXTRACTED/INFERRED/AMBIGUOUS - you know what's found vs invented |
+| **Cross-document surprise** | Community detection finds connections you'd never think to ask about |
+| **Visualization** | `graphify-out/graph.html` - interactive browser view, no server needed |
+| **Structured data** | `graphify-out/graph.json` - GraphRAG-ready for AI queries |
+
+### When to Use It
+- **New codebase** → understand architecture before touching
+- **Research corpus** → papers + notes → one navigable graph
+- **Personal `/raw` folder** → drop files, query later
+
+### Graph Analysis Results
+Our analysis extracted **200 nodes + 209 edges** from 31 files, detecting **24 communities**:
+
+**God Nodes (most connected concepts):**
+1. `Student` - 18 edges
+2. `Course` - 16 edges
+3. `Teacher` - 16 edges
+4. `SchoolClass` - 14 edges
+5. `React Frontend` - 11 edges
+6. `Spring Boot Backend` - 10 edges
+
+**Key Insights:**
+- Core entities (Student, Course, Teacher, SchoolClass) form the backbone
+- Spring Boot backend and React frontend are clearly separated but connected via API
+- 20 isolated nodes found - potential documentation gaps
+
+> Generated automatically with `/graphify` - see `graphify-out/` for full report.
+
 ## 🔧 Problems We Solved
 
 During development, we encountered and fixed several issues:
