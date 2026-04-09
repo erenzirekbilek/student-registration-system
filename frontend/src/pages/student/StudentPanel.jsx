@@ -25,29 +25,33 @@ const StudentPanel = () => {
     }
   }, [navigate]);
 
-  const fetchData = async () => {
-    if (!userData?.classId) return;
-    try {
-      const coursesRes = await fetch('http://localhost:8080/api/courses');
-      const studentsRes = await fetch('http://localhost:8080/api/students');
-      
-      const coursesData = coursesRes.ok ? await coursesRes.json() : [];
-      const studentsData = studentsRes.ok ? await studentsRes.json() : [];
-      
-      const myCourses = coursesData.filter(c => c.classId === userData.classId);
-      setCourses(myCourses);
-      setAllStudents(studentsData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (userData?.classId) {
-      fetchData();
+    if (!userData?.classId) {
+      if (!localStorage.getItem('studentData')) {
+        setLoading(false);
+      }
+      return;
     }
+    
+    const fetchData = async () => {
+      try {
+        const coursesRes = await fetch('http://localhost:8080/api/courses');
+        const studentsRes = await fetch('http://localhost:8080/api/students');
+        
+        const coursesData = coursesRes.ok ? await coursesRes.json() : [];
+        const studentsData = studentsRes.ok ? await studentsRes.json() : [];
+        
+        const myCourses = coursesData.filter(c => c.classId === userData.classId);
+        setCourses(myCourses);
+        setAllStudents(studentsData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, [userData]);
 
   const stats = [
