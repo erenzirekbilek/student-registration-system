@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -46,7 +47,13 @@ public class StudentService {
 
     public LoginResponse login(String email, String password) {
         return studentRepository.findByEmail(email)
-            .filter(s -> passwordEncoder.matches(password, s.getPassword()))
+            .filter(s -> {
+                // Support both BCrypt and plain text (legacy) passwords
+                if (s.getPassword().startsWith("$2")) {
+                    return passwordEncoder.matches(password, s.getPassword());
+                }
+                return Objects.equals(password, s.getPassword());
+            })
             .map(s -> new LoginResponse(
                 jwtService.generateToken(email, "STUDENT"),
                 s.getId(),

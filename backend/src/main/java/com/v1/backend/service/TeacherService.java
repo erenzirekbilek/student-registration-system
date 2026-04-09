@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -46,7 +47,12 @@ public class TeacherService {
 
     public LoginResponse login(String email, String password) {
         return teacherRepository.findByEmail(email)
-            .filter(t -> passwordEncoder.matches(password, t.getPassword()))
+            .filter(t -> {
+                if (t.getPassword().startsWith("$2")) {
+                    return passwordEncoder.matches(password, t.getPassword());
+                }
+                return Objects.equals(password, t.getPassword());
+            })
             .map(t -> new LoginResponse(
                 jwtService.generateToken(email, "TEACHER"),
                 t.getId(),
