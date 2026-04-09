@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import SchoolIcon from '@mui/icons-material/School';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -7,7 +7,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const TeacherPanel = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -20,7 +19,8 @@ const TeacherPanel = () => {
   useEffect(() => {
     const stored = localStorage.getItem('teacherData');
     if (stored) {
-      setUserData(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      setUserData(parsed);
     } else {
       setLoading(false);
       navigate('/TeacherLogin', { replace: true });
@@ -29,22 +29,20 @@ const TeacherPanel = () => {
 
   useEffect(() => {
     if (!userData?.id) {
-      if (!localStorage.getItem('teacherData')) {
-        setLoading(false);
-      }
+      setLoading(false);
       return;
     }
-    
+
     const fetchData = async () => {
       try {
         const coursesRes = await fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`);
         const studentsRes = await fetch('http://localhost:8080/api/students');
         const classesRes = await fetch('http://localhost:8080/api/classes');
-        
+
         const coursesData = coursesRes.ok ? await coursesRes.json() : [];
         const studentsData = studentsRes.ok ? await studentsRes.json() : [];
         const classesData = classesRes.ok ? await classesRes.json() : [];
-        
+
         setCourses(coursesData);
         setStudents(studentsData);
         setClasses(classesData);
@@ -54,7 +52,7 @@ const TeacherPanel = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [userData]);
 
@@ -124,7 +122,7 @@ const TeacherPanel = () => {
               <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4">Recent Assignments</h3>
                 <div className="space-y-3">
-                  {mockAssignments.slice(0, 3).map((assignment) => (
+                  {([]).slice(0, 3).map((assignment) => (
                     <div key={assignment.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl">
                       <div>
                         <p className="text-white font-medium">{assignment.title}</p>
@@ -248,7 +246,7 @@ const TeacherPanel = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {mockAssignments.map((assignment) => (
+                  {([]).map((assignment) => (
                     <tr key={assignment.id} className="hover:bg-slate-700/30">
                       <td className="px-6 py-4 text-white font-medium">{assignment.title}</td>
                       <td className="px-6 py-4 text-gray-300">{assignment.course}</td>

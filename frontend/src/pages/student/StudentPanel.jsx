@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const StudentPanel = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,7 +17,11 @@ const StudentPanel = () => {
   useEffect(() => {
     const stored = localStorage.getItem('studentData');
     if (stored) {
-      setUserData(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      setUserData(parsed);
+      if (!parsed.classId) {
+        setLoading(false);
+      }
     } else {
       setLoading(false);
       navigate('/StudentLogin', { replace: true });
@@ -27,9 +30,7 @@ const StudentPanel = () => {
 
   useEffect(() => {
     if (!userData?.classId) {
-      if (!localStorage.getItem('studentData')) {
-        setLoading(false);
-      }
+      setLoading(false);
       return;
     }
     
