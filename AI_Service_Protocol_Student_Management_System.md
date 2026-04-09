@@ -1,6 +1,6 @@
 # AI Service Protocol — Student Management System
 
-> **Scope:** This document defines the integration architecture, role-based behavior, prompt engineering strategy, and data-privacy requirements for embedding an AI assistant (powered by Grok) into the Student Management System (SMS) using Spring AI and PGVector.
+> **Scope:** This document defines the integration architecture, role-based behavior, prompt engineering strategy, and data-privacy requirements for embedding an AI assistant (powered by Grok via Groq) into the Student Management System (SMS) using Spring AI and PGVector.
 
 ---
 
@@ -15,8 +15,9 @@
 4. [Master Prompt Template (Grok)](#master-prompt-template-grok)
 5. [UI Placement & Component Design](#ui-placement--component-design)
 6. [Data Privacy & KVKK Compliance](#data-privacy--kvkk-compliance)
-7. [Spring AI Implementation Notes](#spring-ai-implementation-notes)
+7. [Implementation Guide](#implementation-guide)
 8. [Example Interaction Flows](#example-interaction-flows)
+9. [Configuration Reference](#configuration-reference)
 
 ---
 
@@ -28,11 +29,12 @@ The AI assistant embedded in the Student Management System serves as a **regulat
 
 | Layer | Technology |
 |---|---|
-| AI Model | Grok (via xAI API) |
+| AI Model | Grok (via Groq API - llama3-70b-8192, mixtral-8x7b-32768) |
 | AI Framework | Spring AI |
 | Vector Store | PGVector (PostgreSQL) |
 | Embedding Source | School regulation documents (chunked & vectorized) |
 | Backend | Spring Boot |
+| Embedding Model | Azure OpenAI or Voyage AI (text-embedding-3-small) |
 
 ---
 
@@ -310,6 +312,319 @@ Maximum allowed absences: 10 days (per Article 14)
 
 ---
 
+## Implementation Guide
+
+### Phase 1: Dependencies & Configuration
+
+Add these dependencies to `pom.xml`:
+
+```xml
+<!-- Spring AI Groq Starter -->
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-groq-spring-boot-starter</artifactId>
+    <version>1.0.0-M4</version>
+</dependency>
+
+<!-- PGVector Store -->
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
+    <version>1.0.0-M4</version>
+</dependency>
+
+<!-- Embedding Model (Azure OpenAI) -->
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+    <version>1.0.0-M4</version>
+</dependency>
+```
+
+Add to `application.properties`:
+
+```properties
+# Groq Configuration
+spring.ai.groq.api-key=${GROQ_API_KEY}
+spring.ai.groq.chat.options.model=llama3-70b-8192
+spring.ai.groq.chat.options.temperature=0.3
+spring.ai.groq.chat.options.max-tokens=2048
+
+# Embedding Model (Azure OpenAI for embeddings)
+spring.ai.openai.api-key=${AZURE_OPENAI_API_KEY}
+spring.ai.openai.embedding.options.model=text-embedding-3-small
+spring.ai.openai.embedding.options.dimensions=1536
+
+# PGVector Configuration
+spring.ai.vectorstore.pgvector.host=localhost
+spring.ai.vectorstore.pgvector.port=5432
+spring.ai.vectorstore.pgvector.database=school_db
+spring.ai.vectorstore.pgvector.username=postgres
+spring.ai.vectorstore.pgvector.password=${DB_PASSWORD}
+spring.ai.vectorstore.pgvector.dimensions=1536
+spring.ai.vectorstore.pgvector.schema=public
+
+# Optional: Retry & Rate Limiting
+spring.ai.retry.max-attempts=3
+spring.ai.retry.backoff.initial-interval=1000ms
+```
+
+### Phase 2: Database Setup
+
+Enable PGVector extension in PostgreSQL:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+Create documents table:
+
+```sql
+CREATE TABLE IF NOT EXISTS regulation_documents (
+    id BIGSERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    embedding VECTOR(1536),
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX ON regulation_documents USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+```
+
+### Phase 3: Document Loading Service
+
+Create a service to load and chunk regulation documents:
+
+```java
+@Service
+public class RegulationDocumentService {
+
+    @Autowired
+    private DocumentLoader documentLoader;
+    
+    @Autowired
+    private EmbeddingModel embeddingModel;
+    
+    @Autowired
+    private VectorStore vectorStore;
+
+    public void loadRegulations() {
+        // 1. Load regulation documents (PDF, TXT, or DB)
+        List<Document> documents = loadDocumentsFromSources();
+        
+        // 2. Chunk documents by article
+        List<Document> chunks = chunkByArticle(documents);
+        
+        // 3. Add metadata
+        chunks.forEach(doc -> doc.getMetadata().put("type", "regulation"));
+        
+        // 4. Generate embeddings and store in PGVector
+        vectorStore.add(chunks);
+    }
+
+    private List<Document> loadDocumentsFromSources() {
+        // Load from PDF files or database
+        // Implementation depends on source format
+    }
+
+    private List<Document> chunkByArticle(List<Document> documents) {
+        // Split by article numbers: "Article 14", "Article 9.2", etc.
+        // Use regex: (?=Article\s+\d+)
+    }
+}
+```
+
+### Phase 4: RAG Service Implementation
+
+```java
+@Service
+public class RegulationAssistantService {
+
+    private final ChatClient chatClient;
+    private final VectorStore vectorStore;
+
+    public String ask(String question, String role, Map<String, Object> anonymizedStudentData) {
+        // 1. Retrieve relevant regulation chunks from PGVector
+        List<Document> context = vectorStore.similaritySearch(
+            SearchRequest.query(question)
+                .withTopK(5)
+                .withFilterExpression("applicability == '" + role + "' OR applicability == 'both'")
+        );
+
+        // 2. Build dynamic system message based on role
+        String systemMessage = buildSystemMessage(role);
+
+        // 3. Build context string from retrieved documents
+        String contextText = context.stream()
+            .map(Document::getContent)
+            .collect(Collectors.joining("\n\n"));
+
+        // 4. Build anonymized data string
+        String dataText = formatAnonymizedData(anonymizedStudentData);
+
+        // 5. Call Groq model
+        return chatClient.prompt()
+            .system(systemMessage)
+            .user(buildUserPrompt(contextText, dataText, question))
+            .call()
+            .content();
+    }
+
+    private String buildSystemMessage(String role) {
+        return switch (role) {
+            case "STUDENT" -> """
+                You are an AI assistant for the Student Management System.
+                Adopt a GUIDANCE persona: supportive, clear, and focused on the student's personal situation.
+                Always reference the relevant article number.
+                After answering, guide the student to the relevant module (e.g., Absence Tracker, Exam Schedule).
+                Never invent rules. Only use the provided context documents.
+                """;
+            case "TEACHER" -> """
+                You are an AI assistant for the Student Management System.
+                Adopt an ADMINISTRATIVE SUPPORT persona: technical, procedural, and precise.
+                Always reference the relevant article number.
+                After answering, direct the teacher to the relevant system module (e.g., Grade Entry, Disciplinary Forms).
+                Never invent rules. Only use the provided context documents.
+                """;
+            default -> "You are a helpful assistant.";
+        };
+    }
+
+    private String formatAnonymizedData(Map<String, Object> data) {
+        if (data == null || data.isEmpty()) return "No personal data available.";
+        
+        StringBuilder sb = new StringBuilder("[Personal Data]\n");
+        data.forEach((key, value) -> sb.append(key).append(": ").append(value).append("\n"));
+        return sb.toString();
+    }
+
+    private String buildUserPrompt(String context, String data, String question) {
+        return String.format("""
+            [CONTEXT]
+            %s
+
+            [USER DATA — ANONYMIZED]
+            %s
+
+            [QUESTION]
+            %s
+            """, context, data, question);
+    }
+}
+```
+
+### Phase 5: REST API Controller
+
+```java
+@RestController
+@RequestMapping("/api/ai")
+public class AIAssistantController {
+
+    @Autowired
+    private RegulationAssistantService assistantService;
+
+    @Autowired
+    private StudentService studentService;
+
+    @PostMapping("/ask")
+    public ResponseEntity<Map<String, Object>> ask(
+            @RequestBody Map<String, String> request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        String question = request.get("question");
+        String role = determineUserRole(authHeader);
+        
+        // Get personal data (anonymized)
+        Map<String, Object> personalData = getAnonymizedData(authHeader, role);
+        
+        String answer = assistantService.ask(question, role, personalData);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("answer", answer);
+        response.put("sources", extractArticleReferences(answer));
+        
+        return ResponseEntity.ok(response);
+    }
+
+    private String determineUserRole(String authHeader) {
+        // Extract role from JWT token
+    }
+
+    private Map<String, Object> getAnonymizedData(String authHeader, String role) {
+        if (role.equals("STUDENT")) {
+            return studentService.getAnonymizedData(authHeader);
+        }
+        return Map.of();
+    }
+}
+```
+
+### Phase 6: Error Handling & Fallback
+
+```java
+@Service
+public class AIServiceFallback {
+
+    public String handleAIError(Exception e) {
+        return "I apologize, but I'm currently unable to process your request. " +
+               "Please contact the administration directly or try again later. " +
+               "For immediate assistance, call: +90 212 XXX XXXX";
+    }
+}
+```
+
+Add to Controller:
+
+```java
+@ExceptionHandler(Exception.class)
+public ResponseEntity<Map<String, String>> handleException(Exception e) {
+    Map<String, String> error = new HashMap<>();
+    error.put("error", fallbackService.handleAIError(e));
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+}
+```
+
+### Phase 7: Initial Data Loading
+
+Create a CommandLineRunner to load regulations on startup:
+
+```java
+@Component
+public class RegulationLoader implements CommandLineRunner {
+
+    @Autowired
+    private RegulationDocumentService documentService;
+
+    @Override
+    public void run(String... args) throws Exception {
+        // Load sample regulations for demo
+        loadSampleRegulations();
+    }
+
+    private void loadSampleRegulations() {
+        List<Map<String, Object>> samples = List.of(
+            Map.of(
+                "content", "Article 14: Students are allowed a maximum of 10 days of absence per semester. Exceeding this limit will result in academic probation.",
+                "metadata", Map.of("article", "14", "section", "attendance", "applicability", "STUDENT")
+            ),
+            Map.of(
+                "content", "Article 9: Medical reports must be submitted to the administration within 3 business days of the report's end date. Make-up exams are scheduled after the regular examination period.",
+                "metadata", Map.of("article", "9", "section", "exams", "applicability", "STUDENT")
+            ),
+            Map.of(
+                "content", "Article 12: To initiate a disciplinary referral, complete Form DIS-03, obtain the department head's signature, and submit to the Vice Principal's office within 5 business days.",
+                "metadata", Map.of("article", "12", "section", "discipline", "applicability", "TEACHER")
+            )
+        );
+        
+        // Add to vector store
+    }
+}
+```
+
+---
+
 ## Spring AI Implementation Notes
 
 ### Dependencies (pom.xml)
@@ -317,12 +632,15 @@ Maximum allowed absences: 10 days (per Article 14)
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-    <!-- or the relevant Grok/xAI adapter -->
+    <artifactId>spring-ai-groq-spring-boot-starter</artifactId>
 </dependency>
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
 </dependency>
 ```
 
@@ -355,7 +673,7 @@ public class RegulationAssistantService {
         // 4. Build anonymized data string
         String dataText = formatAnonymizedData(anonymizedStudentData);
 
-        // 5. Call AI model
+        // 5. Call Groq model
         return chatClient.prompt()
             .system(systemMessage)
             .user(u -> u.text(buildUserPrompt(contextText, dataText, question)))
@@ -424,4 +742,94 @@ AI Response:
 
 ---
 
-*Document Version: 1.0 | Last Updated: April 2026 | Owner: SMS Integration Team*
+## Configuration Reference
+
+### Environment Variables (Set in .env or system)
+
+```bash
+# Groq API Key (get from https://console.groq.com)
+export GROQ_API_KEY=gsk_your_key_here
+
+# Azure OpenAI for Embeddings (or use Groq embedding model)
+export AZURE_OPENAI_API_KEY=your_azure_key
+export AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+
+# Database
+export DB_PASSWORD=root123
+```
+
+### Rate Limiting Configuration
+
+Groq provides built-in rate limiting. Add application-level control:
+
+```java
+@Service
+public class RateLimitingService {
+    
+    private final Map<String, RateLimiter> userLimiters = new ConcurrentHashMap<>();
+    
+    public boolean isAllowed(String userId) {
+        return userLimiters.computeIfAbsent(userId, k -> new RateLimiter(10, Duration.ofMinutes(1)))
+            .tryAcquire();
+    }
+}
+
+@Component
+public class RateLimiter {
+    private final int maxRequests;
+    private final Duration window;
+    private final AtomicInteger count = new AtomicInteger();
+    private volatile Instant windowStart;
+    
+    public RateLimiter(int maxRequests, Duration window) {
+        this.maxRequests = maxRequests;
+        this.window = window;
+        this.windowStart = Instant.now();
+    }
+    
+    public boolean tryAcquire() {
+        Instant now = Instant.now();
+        if (Duration.between(windowStart, now).compareTo(window) > 0) {
+            count.set(0);
+            windowStart = now;
+        }
+        return count.incrementAndGet() <= maxRequests;
+    }
+}
+```
+
+### API Key Management
+
+**NEVER commit API keys to Git!**
+
+1. Use environment variables:
+```properties
+spring.ai.groq.api-key=${GROQ_API_KEY}
+```
+
+2. Add to `.gitignore`:
+```
+.env
+*.env
+```
+
+3. Create `.env.example`:
+```bash
+GROQ_API_KEY=your_key_here
+AZURE_OPENAI_API_KEY=your_key_here
+```
+
+### KVKK Checklist
+
+- [ ] Data Processing Agreement (DPA) reviewed with Groq
+- [ ] PII anonymization layer implemented and tested
+- [ ] API request/response logging excludes personal data
+- [ ] Data flow documented in the organization's KVKK register
+- [ ] Users informed (via privacy notice) that anonymized queries are processed by a third-party AI service
+- [ ] Opt-out mechanism available for AI-assisted features
+- [ ] Rate limiting implemented to prevent abuse
+- [ ] Error handling with fallback messages
+
+---
+
+*Document Version: 2.0 | Last Updated: April 2026 | Owner: SMS Integration Team*

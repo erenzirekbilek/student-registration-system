@@ -5,6 +5,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CircularProgress from '@mui/material/CircularProgress';
+import AIChat from '../../components/common/AIChat';
 
 const TeacherPanel = () => {
   const navigate = useNavigate();
@@ -717,6 +718,8 @@ const TeacherPanel = () => {
         </div>
         {renderContent()}
       </div>
+      
+      <AIChat userId={id} role="TEACHER" />
     </div>
   );
 };

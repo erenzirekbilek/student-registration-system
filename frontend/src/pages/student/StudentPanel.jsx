@@ -4,6 +4,7 @@ import Button from '../../components/common/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CircularProgress from '@mui/material/CircularProgress';
+import AIChat from '../../components/common/AIChat';
 
 const StudentPanel = () => {
   const navigate = useNavigate();
@@ -403,6 +404,8 @@ const StudentPanel = () => {
         </div>
         {renderContent()}
       </div>
+      
+      <AIChat userId={id} role="STUDENT" />
     </div>
   );
 };
