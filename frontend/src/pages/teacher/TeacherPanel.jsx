@@ -33,14 +33,16 @@ const TeacherPanel = () => {
   }, [userData]);
 
   const fetchData = async () => {
+    if (!userData?.id) return;
+    setLoading(true);
     try {
       const coursesRes = await fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`);
       const studentsRes = await fetch('http://localhost:8080/api/students');
       const classesRes = await fetch('http://localhost:8080/api/classes');
       
-      const coursesData = await coursesRes.json();
-      const studentsData = await studentsRes.json();
-      const classesData = await classesRes.json();
+      const coursesData = coursesRes.ok ? await coursesRes.json() : [];
+      const studentsData = studentsRes.ok ? await studentsRes.json() : [];
+      const classesData = classesRes.ok ? await classesRes.json() : [];
       
       setCourses(coursesData);
       setStudents(studentsData);
@@ -51,6 +53,14 @@ const TeacherPanel = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userData?.id) {
+      fetchData();
+    } else if (!userData) {
+      setLoading(false);
+    }
+  }, [userData]);
 
   const stats = [
     { label: 'Active Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-indigo-500' },
