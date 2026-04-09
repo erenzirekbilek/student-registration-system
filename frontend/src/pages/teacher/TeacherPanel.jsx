@@ -82,13 +82,6 @@ const TeacherPanel = () => {
     { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
-  const stats = [
-    { label: 'Active Courses', value: '4', icon: '📚', color: 'from-blue-500 to-indigo-500' },
-    { label: 'Total Students', value: '118', icon: '👥', color: 'from-green-500 to-emerald-500' },
-    { label: 'Pending Tasks', value: '12', icon: '⏰', color: 'from-yellow-500 to-orange-500' },
-    { label: 'This Week', value: '3', icon: '📅', color: 'from-purple-500 to-pink-500' },
-  ];
-
   const handleLogout = () => {
     localStorage.removeItem('teacherData');
     navigate('/TeacherLogin');

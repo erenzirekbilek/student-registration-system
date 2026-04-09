@@ -64,17 +64,9 @@ const StudentPanel = () => {
         </div>
       </div>
     );
-  }>
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
   }
 
   const { email, id, name } = userData;
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   if (!email) {
     return (
@@ -99,13 +91,6 @@ const StudentPanel = () => {
     { id: 'attendance', label: 'Attendance', icon: '✅' },
     { id: 'notices', label: 'Notices', icon: '🔔' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
-  ];
-
-  const stats = [
-    { label: 'GPA', value: '3.8', icon: '🎓', color: 'from-yellow-500 to-orange-500' },
-    { label: 'Courses', value: '4', icon: '📚', color: 'from-blue-500 to-indigo-500' },
-    { label: 'Credits', value: '14', icon: '💳', color: 'from-green-500 to-emerald-500' },
-    { label: 'Attendance', value: '95%', icon: '✅', color: 'from-purple-500 to-pink-500' },
   ];
 
   const handleLogout = () => {
