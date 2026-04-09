@@ -22,19 +22,13 @@ const TeacherPanel = () => {
     if (stored) {
       setUserData(JSON.parse(stored));
     } else {
+      setLoading(false);
       navigate('/TeacherLogin', { replace: true });
     }
   }, [navigate]);
 
-  useEffect(() => {
-    if (userData?.id) {
-      fetchData();
-    }
-  }, [userData]);
-
   const fetchData = async () => {
     if (!userData?.id) return;
-    setLoading(true);
     try {
       const coursesRes = await fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`);
       const studentsRes = await fetch('http://localhost:8080/api/students');
@@ -57,8 +51,6 @@ const TeacherPanel = () => {
   useEffect(() => {
     if (userData?.id) {
       fetchData();
-    } else if (!userData) {
-      setLoading(false);
     }
   }, [userData]);
 

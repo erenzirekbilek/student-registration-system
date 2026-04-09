@@ -17,8 +17,7 @@ import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children, userType }) => {
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -29,13 +28,16 @@ const ProtectedRoute = ({ children, userType }) => {
         const teacherData = localStorage.getItem('teacherData');
         setIsAuthenticated(!!teacherData);
       }
-      setLoading(false);
     };
     checkAuth();
   }, [userType]);
 
-  if (loading) {
-    return null;
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {

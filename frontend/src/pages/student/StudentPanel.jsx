@@ -20,13 +20,13 @@ const StudentPanel = () => {
     if (stored) {
       setUserData(JSON.parse(stored));
     } else {
+      setLoading(false);
       navigate('/StudentLogin', { replace: true });
     }
   }, [navigate]);
 
   const fetchData = async () => {
     if (!userData?.classId) return;
-    setLoading(true);
     try {
       const coursesRes = await fetch('http://localhost:8080/api/courses');
       const studentsRes = await fetch('http://localhost:8080/api/students');
@@ -47,8 +47,6 @@ const StudentPanel = () => {
   useEffect(() => {
     if (userData?.classId) {
       fetchData();
-    } else if (!userData) {
-      setLoading(false);
     }
   }, [userData]);
 
