@@ -24,19 +24,15 @@ const StudentPanel = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    if (userData?.id) {
-      fetchData();
-    }
-  }, [userData]);
-
   const fetchData = async () => {
+    if (!userData?.classId) return;
+    setLoading(true);
     try {
       const coursesRes = await fetch('http://localhost:8080/api/courses');
       const studentsRes = await fetch('http://localhost:8080/api/students');
       
-      const coursesData = await coursesRes.json();
-      const studentsData = await studentsRes.json();
+      const coursesData = coursesRes.ok ? await coursesRes.json() : [];
+      const studentsData = studentsRes.ok ? await studentsRes.json() : [];
       
       const myCourses = coursesData.filter(c => c.classId === userData.classId);
       setCourses(myCourses);
@@ -47,6 +43,14 @@ const StudentPanel = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userData?.classId) {
+      fetchData();
+    } else if (!userData) {
+      setLoading(false);
+    }
+  }, [userData]);
 
   const stats = [
     { label: 'Enrolled Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-blue-600' },
