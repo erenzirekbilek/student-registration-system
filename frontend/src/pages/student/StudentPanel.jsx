@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -26,7 +26,36 @@ const mockGrades = [
 const StudentPanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { email, id, name } = location.state || {};
+  const [userData, setUserData] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('studentData');
+    if (stored) {
+      setUserData(JSON.parse(stored));
+    } else {
+      navigate('/StudentLogin', { replace: true });
+    }
+  }, [navigate]);
+
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">🔒</span>
+          </div>
+          <p className="text-gray-400 mb-4">Please login first</p>
+          <Link to="/StudentLogin" className="text-indigo-400 hover:text-indigo-300">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { email, id, name } = userData;
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -63,6 +92,7 @@ const StudentPanel = () => {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem('studentData');
     navigate('/StudentLogin');
   };
 

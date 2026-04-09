@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+target/
+
+# Graphify output (generated)
+graphify-out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build
+dist/
+build/

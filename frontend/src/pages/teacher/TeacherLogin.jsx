@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTeacherLoginMutation } from '../../RTK/userAPI';
 import SchoolIcon from '@mui/icons-material/School';
@@ -16,25 +16,32 @@ const TeacherLogin = () => {
   const navigate = useNavigate();
   const [login] = useTeacherLoginMutation();
 
+  useEffect(() => {
+    const teacherData = localStorage.getItem('teacherData');
+    if (teacherData) {
+      navigate('/TeacherPanel', { replace: true });
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
       const result = await login({ email, password }).unwrap();
+      const userData = JSON.stringify({
+        email: result.email,
+        id: result.id,
+        name: result.name,
+        specialty: result.specialty,
+      });
+      localStorage.setItem('teacherData', userData);
       if (rememberMe) {
         localStorage.setItem('rememberedTeacherEmail', email);
       } else {
         localStorage.removeItem('rememberedTeacherEmail');
       }
-      navigate('/TeacherPanel', {
-        state: {
-          email: result.email,
-          id: result.id,
-          name: result.name,
-          specialty: result.specialty,
-        },
-      });
+      navigate('/TeacherPanel');
     } catch (err) {
       setError('Invalid email or password.');
     } finally {

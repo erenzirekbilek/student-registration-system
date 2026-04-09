@@ -6,8 +6,8 @@ services:
     container_name: school_db
     environment:
       POSTGRES_DB: school_db
-      POSTGRES_USER: school_user
-      POSTGRES_PASSWORD: school_pass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
     ports:
       - "5432:5432"
     volumes:

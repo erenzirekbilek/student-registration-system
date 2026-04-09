@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import StudentLogin from './pages/student/StudentLogin';
 import StudentPanel from './pages/student/StudentPanel';
@@ -12,6 +12,37 @@ import TeacherList from './pages/teacher/TeacherList';
 import TeacherSignin from './pages/teacher/TeacherSignin';
 import StudentRegister from './pages/student/StudentRegister';
 import ClassList from './pages/teacher/ClassList';
+import { useEffect, useState } from 'react';
+
+const ProtectedRoute = ({ children, userType }) => {
+  const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (userType === 'student') {
+        const studentData = localStorage.getItem('studentData');
+        setIsAuthenticated(!!studentData);
+      } else if (userType === 'teacher') {
+        const teacherData = localStorage.getItem('teacherData');
+        setIsAuthenticated(!!teacherData);
+      }
+      setLoading(false);
+    };
+    checkAuth();
+  }, [userType]);
+
+  if (loading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={userType === 'student' ? '/StudentLogin' : '/TeacherLogin'} state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -19,14 +50,42 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/StudentLogin" element={<StudentLogin />} />
-        <Route path="/StudentPanel" element={<StudentPanel />} />
-        <Route path="/StudentAdd" element={<StudentAdd />} />
-        <Route path="/CourseAdd" element={<CourseAdd />} />
-        <Route path="/Classes" element={<Classes />} />
-        <Route path="/EditStudent" element={<EditStudent />} />
+        <Route path="/StudentPanel" element={
+          <ProtectedRoute userType="student">
+            <StudentPanel />
+          </ProtectedRoute>
+        } />
+        <Route path="/StudentAdd" element={
+          <ProtectedRoute userType="student">
+            <StudentAdd />
+          </ProtectedRoute>
+        } />
+        <Route path="/CourseAdd" element={
+          <ProtectedRoute userType="student">
+            <CourseAdd />
+          </ProtectedRoute>
+        } />
+        <Route path="/Classes" element={
+          <ProtectedRoute userType="student">
+            <Classes />
+          </ProtectedRoute>
+        } />
+        <Route path="/EditStudent" element={
+          <ProtectedRoute userType="student">
+            <EditStudent />
+          </ProtectedRoute>
+        } />
         <Route path="/TeacherLogin" element={<TeacherLogin />} />
-        <Route path="/TeacherPanel" element={<TeacherPanel />} />
-        <Route path="/ClassList" element={<ClassList />} />
+        <Route path="/TeacherPanel" element={
+          <ProtectedRoute userType="teacher">
+            <TeacherPanel />
+          </ProtectedRoute>
+        } />
+        <Route path="/ClassList" element={
+          <ProtectedRoute userType="teacher">
+            <ClassList />
+          </ProtectedRoute>
+        } />
         <Route path="/TeacherList" element={<TeacherList />} />
         <Route path="/TeacherSignin" element={<TeacherSignin />} />
         <Route path="/TeacherRegister" element={<TeacherSignin />} />

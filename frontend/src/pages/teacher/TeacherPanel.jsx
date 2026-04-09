@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import SchoolIcon from '@mui/icons-material/School';
@@ -28,11 +28,20 @@ const mockAssignments = [
 const TeacherPanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { email, id, name, specialty } = location.state || {};
+  const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  if (!email) {
+  useEffect(() => {
+    const stored = localStorage.getItem('teacherData');
+    if (stored) {
+      setUserData(JSON.parse(stored));
+    } else {
+      navigate('/TeacherLogin', { replace: true });
+    }
+  }, [navigate]);
+
+  if (!userData) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -47,6 +56,8 @@ const TeacherPanel = () => {
       </div>
     );
   }
+
+  const { email, id, name, specialty } = userData;
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -66,6 +77,7 @@ const TeacherPanel = () => {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem('teacherData');
     navigate('/TeacherLogin');
   };
 

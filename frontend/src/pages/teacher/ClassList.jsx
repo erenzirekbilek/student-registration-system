@@ -13,14 +13,28 @@ const ClassList = () => {
   const [addClass] = useAddClassMutation();
   const [deleteClass] = useDeleteClassMutation();
   const [newClassName, setNewClassName] = useState('');
+  const [newClassDepartment, setNewClassDepartment] = useState('Computer Engineering');
+  const [filterDepartment, setFilterDepartment] = useState('All');
   const [isAdding, setIsAdding] = useState(false);
+
+  const departments = [
+    'All',
+    'Computer Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering'
+  ];
+
+  const filteredClasses = filterDepartment === 'All' 
+    ? classes 
+    : classes.filter(cls => cls.department === filterDepartment);
 
   const handleAddClass = async (e) => {
     e.preventDefault();
     if (!newClassName.trim()) return;
     setIsAdding(true);
     try {
-      await addClass({ name: newClassName }).unwrap();
+      await addClass({ name: newClassName, department: newClassDepartment }).unwrap();
       setNewClassName('');
       refetch();
     } catch (error) {
@@ -67,9 +81,29 @@ const ClassList = () => {
             </Link>
           </div>
 
-          {/* Add Class Form */}
+          {/* Filter and Add Class */}
           <Card className="bg-slate-800/50 backdrop-blur-xl border border-white/10 shadow-2xl mb-8">
-            <form onSubmit={handleAddClass} className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
+              <select
+                value={filterDepartment}
+                onChange={(e) => setFilterDepartment(e.target.value)}
+                className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept === 'All' ? 'All Departments' : dept}</option>
+                ))}
+              </select>
+            </div>
+            <form onSubmit={handleAddClass} className="flex flex-col sm:flex-row gap-4">
+              <select
+                value={newClassDepartment}
+                onChange={(e) => setNewClassDepartment(e.target.value)}
+                className="px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {departments.filter(d => d !== 'All').map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
               <input
                 type="text"
                 value={newClassName}
@@ -86,11 +120,11 @@ const ClassList = () => {
 
           {/* Classes List */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {classes.map((cls) => (
+            {filteredClasses.map((cls) => (
               <div key={cls.id} className="bg-slate-800/50 rounded-xl p-4 border border-white/10 flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-white">{cls.name}</h3>
-                  <p className="text-gray-400 text-sm">Class ID: {cls.id}</p>
+                  <p className="text-gray-400 text-sm">{cls.department} • Class ID: {cls.id}</p>
                 </div>
                 <button
                   onClick={() => handleDelete(cls.id)}

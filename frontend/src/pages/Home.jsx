@@ -1,9 +1,27 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const Home = () => {
+  const [redirectTo, setRedirectTo] = useState(null);
+
+  useEffect(() => {
+    const studentData = localStorage.getItem('studentData');
+    const teacherData = localStorage.getItem('teacherData');
+
+    if (studentData) {
+      setRedirectTo('/StudentPanel');
+    } else if (teacherData) {
+      setRedirectTo('/TeacherPanel');
+    }
+  }, []);
+
+  if (redirectTo) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-slate-900">
       {/* Animated Background */}
