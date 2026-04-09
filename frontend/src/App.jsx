@@ -13,6 +13,7 @@ import TeacherSignin from './pages/teacher/TeacherSignin';
 import StudentRegister from './pages/student/StudentRegister';
 import ClassList from './pages/teacher/ClassList';
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children, userType }) => {
   const location = useLocation();
@@ -42,6 +43,11 @@ const ProtectedRoute = ({ children, userType }) => {
   }
 
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  userType: PropTypes.string.isRequired,
 };
 
 function App() {
