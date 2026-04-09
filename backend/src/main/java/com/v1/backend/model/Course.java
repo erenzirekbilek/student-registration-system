@@ -1,6 +1,8 @@
 package com.v1.backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,6 +12,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank(message = "Course name is required")
     @Column(nullable = false)
     private String name;
     
@@ -21,6 +24,7 @@ public class Course {
     @Column(name = "class_id")
     private Long classId;
     
+    @NotNull(message = "Credit is required")
     private Integer credit;
     
     private String schedule;

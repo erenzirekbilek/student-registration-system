@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAddCourseMutation, useGetClassesQuery, useGetTeachersQuery } from '../../RTK/userAPI';
 import Input from '../../components/common/Input';
@@ -13,12 +13,19 @@ const CourseAdd = () => {
   const { data: classes = [] } = useGetClassesQuery();
   const { data: teachers = [] } = useGetTeachersQuery();
   
+  const teacherData = JSON.parse(localStorage.getItem('teacherData') || 'null');
+  const studentData = JSON.parse(localStorage.getItem('studentData') || 'null');
+  const isTeacher = !!teacherData;
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    teacherId: '',
+    teacherId: teacherData?.id || '',
     classId: '',
     credit: '',
+    schedule: '',
+    room: '',
+    status: 'active',
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +39,7 @@ const CourseAdd = () => {
     try {
       await addCourse(formData).unwrap();
       alert('Course added successfully!');
-      navigate('/TeacherPanel');
+      navigate(isTeacher ? '/TeacherPanel' : '/');
     } catch (error) {
       alert('Failed to add course');
     }
@@ -42,18 +49,18 @@ const CourseAdd = () => {
   return (
     <div className="min-h-screen relative flex flex-col overflow-hidden bg-slate-900">
       {/* Top Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-900/80 backdrop-blur-lg h-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
-                <SchoolIcon className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white hover:text-indigo-300 transition-colors">Student Management System</span>
-            </Link>
+          <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-900/80 backdrop-blur-lg h-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 items-center">
+              <Link to={isTeacher ? '/TeacherPanel' : '/'} className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
+                  <SchoolIcon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold text-white hover:text-indigo-300 transition-colors">{isTeacher ? 'Teacher' : 'Student'} Management System</span>
+              </Link>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
       {/* Animated Background */}
       <div className="absolute inset-0">
@@ -87,21 +94,33 @@ const CourseAdd = () => {
                   required
                   className="bg-slate-700/50 border-slate-600 text-white"
                 />
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Teacher <span className="text-red-400">*</span></label>
-                  <select
-                    name="teacherId"
-                    value={formData.teacherId}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Select Teacher</option>
-                    {teachers.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </div>
+                {isTeacher ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Teacher</label>
+                    <input
+                      type="text"
+                      value={teacherData?.name || ''}
+                      disabled
+                      className="w-full px-4 py-3 bg-slate-600/50 border border-slate-600 rounded-xl text-gray-300"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Teacher <span className="text-red-400">*</span></label>
+                    <select
+                      name="teacherId"
+                      value={formData.teacherId}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">Select Teacher</option>
+                      {teachers.map((t) => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Class <span className="text-red-400">*</span></label>
                   <select
@@ -125,6 +144,22 @@ const CourseAdd = () => {
                   onChange={handleChange}
                   placeholder="4"
                   required
+                  className="bg-slate-700/50 border-slate-600 text-white"
+                />
+                <Input
+                  label="Schedule"
+                  name="schedule"
+                  value={formData.schedule}
+                  onChange={handleChange}
+                  placeholder="Mon/Wed 10:00 AM"
+                  className="bg-slate-700/50 border-slate-600 text-white"
+                />
+                <Input
+                  label="Room"
+                  name="room"
+                  value={formData.room}
+                  onChange={handleChange}
+                  placeholder="Room 101"
                   className="bg-slate-700/50 border-slate-600 text-white"
                 />
               </div>

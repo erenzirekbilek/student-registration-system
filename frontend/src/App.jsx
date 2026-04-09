@@ -94,6 +94,11 @@ function App() {
             <ClassList />
           </ProtectedRoute>
         } />
+        <Route path="/TeacherCourseAdd" element={
+          <ProtectedRoute userType="teacher">
+            <CourseAdd />
+          </ProtectedRoute>
+        } />
         <Route path="/TeacherList" element={<TeacherList />} />
         <Route path="/TeacherSignin" element={<TeacherSignin />} />
         <Route path="/TeacherRegister" element={<TeacherSignin />} />

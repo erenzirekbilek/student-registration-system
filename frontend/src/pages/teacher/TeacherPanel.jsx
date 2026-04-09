@@ -15,6 +15,25 @@ const TeacherPanel = () => {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [showGradeModal, setShowGradeModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [assignments, setAssignments] = useState([]);
+  const [studentGrades, setStudentGrades] = useState({});
+  const [gradeForm, setGradeForm] = useState({
+    assignmentId: '',
+    studentId: '',
+    score: '',
+    feedback: ''
+  });
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: '',
+    description: '',
+    courseId: '',
+    dueDate: '',
+    totalPoints: 100
+  });
 
   useEffect(() => {
     const stored = localStorage.getItem('teacherData');
@@ -144,7 +163,7 @@ const TeacherPanel = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">My Courses</h2>
-              <Button>+ Add Course</Button>
+              <Button onClick={() => navigate('/TeacherCourseAdd')}>+ Add Course</Button>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {courses.map((course) => (
@@ -232,37 +251,133 @@ const TeacherPanel = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Assignments</h2>
-              <Button>+ Create Assignment</Button>
+              <Button onClick={() => setShowAssignmentModal(true)}>+ Create Assignment</Button>
             </div>
             <div className="bg-slate-800/50 rounded-2xl border border-white/10 overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-slate-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Assignment</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Due Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Submissions</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {([]).map((assignment) => (
-                    <tr key={assignment.id} className="hover:bg-slate-700/30">
-                      <td className="px-6 py-4 text-white font-medium">{assignment.title}</td>
-                      <td className="px-6 py-4 text-gray-300">{assignment.course}</td>
-                      <td className="px-6 py-4 text-gray-300">{assignment.dueDate}</td>
-                      <td className="px-6 py-4 text-gray-300">{assignment.submissions}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex space-x-2">
-                          <Button variant="secondary" size="sm">View</Button>
-                          <Button size="sm">Grade</Button>
-                        </div>
-                      </td>
+              {assignments.length === 0 ? (
+                <div className="p-8 text-center text-gray-400">
+                  No assignments yet. Create your first assignment!
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-slate-700/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Assignment</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Due Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Points</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {assignments.map((assignment) => (
+                      <tr key={assignment.id} className="hover:bg-slate-700/30">
+                        <td className="px-6 py-4 text-white font-medium">{assignment.title}</td>
+                        <td className="px-6 py-4 text-gray-300">{courses.find(c => c.id === assignment.courseId)?.name || 'N/A'}</td>
+                        <td className="px-6 py-4 text-gray-300">{assignment.dueDate}</td>
+                        <td className="px-6 py-4 text-gray-300">{assignment.totalPoints}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex space-x-2">
+                            <Button variant="secondary" size="sm">View</Button>
+                            <Button size="sm">Grade</Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
+
+            {showAssignmentModal && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-white/20 shadow-2xl">
+                  <h3 className="text-xl font-bold text-white mb-6">Create New Assignment</h3>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const newAssignment = {
+                      ...assignmentForm,
+                      id: Date.now(),
+                      courseId: parseInt(assignmentForm.courseId)
+                    };
+                    setAssignments([...assignments, newAssignment]);
+                    setShowAssignmentModal(false);
+                    setAssignmentForm({ title: '', description: '', courseId: '', dueDate: '', totalPoints: 100 });
+                  }} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
+                      <input
+                        type="text"
+                        value={assignmentForm.title}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, title: e.target.value})}
+                        placeholder="Assignment title"
+                        required
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Course</label>
+                      <select
+                        value={assignmentForm.courseId}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, courseId: e.target.value})}
+                        required
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="">Select Course</option>
+                        {courses.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Due Date</label>
+                      <input
+                        type="date"
+                        value={assignmentForm.dueDate}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, dueDate: e.target.value})}
+                        required
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Total Points</label>
+                      <input
+                        type="number"
+                        value={assignmentForm.totalPoints}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, totalPoints: e.target.value})}
+                        required
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                      <textarea
+                        value={assignmentForm.description}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, description: e.target.value})}
+                        placeholder="Assignment description..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowAssignmentModal(false)}
+                        className="px-6 py-2 bg-slate-600 text-white rounded-xl hover:bg-slate-500 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         );
       case 'classes':
@@ -340,6 +455,180 @@ const TeacherPanel = () => {
               <p className="text-gray-400 mb-4">Sign out of your account</p>
               <Button variant="danger" onClick={handleLogout}>Logout</Button>
             </div>
+          </div>
+        );
+      case 'grades':
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Grade Book</h2>
+              <select
+                onChange={(e) => {
+                  const course = courses.find(c => c.id === parseInt(e.target.value));
+                  setSelectedCourse(course);
+                }}
+                className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">Select Course</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {selectedCourse ? (
+              <div className="bg-slate-800/50 rounded-2xl border border-white/10 overflow-hidden">
+                <div className="p-4 border-b border-white/10 bg-slate-700/30">
+                  <h3 className="text-lg font-medium text-white">{selectedCourse.name}</h3>
+                  <p className="text-sm text-gray-400">{selectedCourse.schedule} | Room: {selectedCourse.room}</p>
+                </div>
+                
+                {assignments.filter(a => a.courseId === selectedCourse.id).length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-slate-700/50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Student</th>
+                          {assignments.filter(a => a.courseId === selectedCourse.id).map(a => (
+                            <th key={a.id} className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">{a.title}</th>
+                          ))}
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Average</th>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {students.slice(0, 10).map((student) => {
+                          const studentGradesList = assignments
+                            .filter(a => a.courseId === selectedCourse.id)
+                            .map(a => studentGrades[`${a.id}-${student.id}`]?.score || 0);
+                          const avg = studentGradesList.length > 0 
+                            ? (studentGradesList.reduce((a, b) => a + b, 0) / studentGradesList.length).toFixed(1)
+                            : 'N/A';
+                          
+                          return (
+                            <tr key={student.id} className="hover:bg-slate-700/30">
+                              <td className="px-4 py-3 text-white font-medium">{student.name}</td>
+                              {assignments.filter(a => a.courseId === selectedCourse.id).map(a => (
+                                <td key={a.id} className="px-4 py-3 text-center">
+                                  <span className={`px-2 py-1 rounded text-sm font-medium ${
+                                    (studentGrades[`${a.id}-${student.id}`]?.score || 0) >= (a.totalPoints * 0.6)
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : 'bg-yellow-500/20 text-yellow-400'
+                                  }`}>
+                                    {studentGrades[`${a.id}-${student.id}`]?.score || '-'} / {a.totalPoints}
+                                  </span>
+                                </td>
+                              ))}
+                              <td className="px-4 py-3 text-center">
+                                <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-sm font-medium">
+                                  {avg}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedStudent(student);
+                                    setShowGradeModal(true);
+                                  }}
+                                  className="text-indigo-400 hover:text-indigo-300 text-sm"
+                                >
+                                  Manage
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-gray-400">
+                    No assignments for this course. Create assignments first.
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-2xl p-8 border border-white/10 text-center">
+                <p className="text-gray-400">Select a course to view and manage grades</p>
+              </div>
+            )}
+
+            {showGradeModal && selectedStudent && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-white/20 shadow-2xl">
+                  <h3 className="text-xl font-bold text-white mb-6">
+                    Grade: {selectedStudent.name}
+                  </h3>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (gradeForm.assignmentId && gradeForm.score) {
+                      const key = `${gradeForm.assignmentId}-${selectedStudent.id}`;
+                      setStudentGrades({
+                        ...studentGrades,
+                        [key]: {
+                          score: parseFloat(gradeForm.score),
+                          feedback: gradeForm.feedback
+                        }
+                      });
+                    }
+                    setShowGradeModal(false);
+                    setGradeForm({ assignmentId: '', studentId: '', score: '', feedback: '' });
+                  }} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Assignment</label>
+                      <select
+                        value={gradeForm.assignmentId}
+                        onChange={(e) => setGradeForm({...gradeForm, assignmentId: e.target.value})}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="">Select Assignment</option>
+                        {assignments.filter(a => a.courseId === selectedCourse?.id).map(a => (
+                          <option key={a.id} value={a.id}>{a.title} ({a.totalPoints} pts)</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Score</label>
+                      <input
+                        type="number"
+                        value={gradeForm.score}
+                        onChange={(e) => setGradeForm({...gradeForm, score: e.target.value})}
+                        placeholder="Enter score"
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Feedback</label>
+                      <textarea
+                        value={gradeForm.feedback}
+                        onChange={(e) => setGradeForm({...gradeForm, feedback: e.target.value})}
+                        placeholder="Optional feedback for student..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowGradeModal(false);
+                          setGradeForm({ assignmentId: '', studentId: '', score: '', feedback: '' });
+                        }}
+                        className="px-6 py-2 bg-slate-600 text-white rounded-xl hover:bg-slate-500 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
+                      >
+                        Save Grade
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         );
       default:

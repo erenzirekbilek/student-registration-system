@@ -1,24 +1,24 @@
 package com.v1.backend.controller;
 
 import com.v1.backend.dto.LoginRequest;
+import com.v1.backend.dto.LoginResponse;
 import com.v1.backend.model.Student;
 import com.v1.backend.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 public class StudentController {
     @Autowired
     private StudentService studentService;
 
     @GetMapping
-    public List<Student> getAllStudents() {
-        return studentService.getAllStudents();
+    public ResponseEntity<?> getAllStudents() {
+        return ResponseEntity.ok(studentService.getAllStudents());
     }
 
     @GetMapping("/{id}")
@@ -29,34 +29,25 @@ public class StudentController {
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentService.saveStudent(student);
+    public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
+        return ResponseEntity.ok(studentService.saveStudent(student));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
-        return studentService.getStudentById(id)
-            .map(existing -> {
-                student.setId(id);
-                return ResponseEntity.ok(studentService.saveStudent(student));
-            })
-            .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @Valid @RequestBody Student student) {
+        student.setId(id);
+        return ResponseEntity.ok(studentService.saveStudent(student));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        if (studentService.getStudentById(id).isPresent()) {
-            studentService.deleteStudent(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        studentService.deleteStudent(id);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Student> login(@RequestBody LoginRequest request) {
-        return studentService.login(request.getEmail(), request.getPassword())
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(studentService.login(request.getEmail(), request.getPassword()));
     }
 
     @GetMapping("/check-email")
