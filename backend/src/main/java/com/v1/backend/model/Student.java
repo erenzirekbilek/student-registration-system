@@ -29,6 +29,13 @@ public class Student {
     @Column(name = "class_id")
     private Long classId;
     
+    @Column(name = "student_number")
+    private String studentNumber;
+    
+    private Integer attendance;
+    
+    private String grade;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -50,4 +57,10 @@ public class Student {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public Long getClassId() { return classId; }
     public void setClassId(Long classId) { this.classId = classId; }
+    public String getStudentNumber() { return studentNumber; }
+    public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
+    public Integer getAttendance() { return attendance; }
+    public void setAttendance(Integer attendance) { this.attendance = attendance; }
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
 }

@@ -23,6 +23,12 @@ public class Course {
     
     private Integer credit;
     
+    private String schedule;
+    
+    private String room;
+    
+    private String status;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -43,6 +49,12 @@ public class Course {
     public void setClassId(Long classId) { this.classId = classId; }
     public Integer getCredit() { return credit; }
     public void setCredit(Integer credit) { this.credit = credit; }
+    public String getSchedule() { return schedule; }
+    public void setSchedule(String schedule) { this.schedule = schedule; }
+    public String getRoom() { return room; }
+    public void setRoom(String room) { this.room = room; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

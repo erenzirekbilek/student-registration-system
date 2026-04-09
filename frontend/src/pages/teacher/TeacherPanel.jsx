@@ -4,26 +4,7 @@ import Button from '../../components/common/Button';
 import SchoolIcon from '@mui/icons-material/School';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-
-const mockCourses = [
-  { id: 1, name: 'Mathematics 101', students: 30, schedule: 'Mon/Wed 10:00', room: 'Room 101', status: 'active' },
-  { id: 2, name: 'Physics 201', students: 25, schedule: 'Tue/Thu 14:00', room: 'Room 205', status: 'active' },
-  { id: 3, name: 'Computer Science 101', students: 35, schedule: 'Fri 09:00', room: 'Lab 301', status: 'active' },
-  { id: 4, name: 'Data Structures', students: 28, schedule: 'Mon/Wed 14:00', room: 'Lab 102', status: 'pending' },
-];
-
-const mockStudents = [
-  { id: 1, name: 'John Doe', studentNumber: 'STU001', email: 'john@example.com', attendance: 95, grade: 'A' },
-  { id: 2, name: 'Jane Smith', studentNumber: 'STU002', email: 'jane@example.com', attendance: 92, grade: 'A-' },
-  { id: 3, name: 'Bob Wilson', studentNumber: 'STU003', email: 'bob@example.com', attendance: 88, grade: 'B+' },
-  { id: 4, name: 'Alice Brown', studentNumber: 'STU004', email: 'alice@example.com', attendance: 90, grade: 'B' },
-];
-
-const mockAssignments = [
-  { id: 1, title: 'Problem Set 1', course: 'Mathematics 101', dueDate: 'Oct 20, 2024', submissions: 25 },
-  { id: 2, title: 'Lab Report', course: 'Physics 201', dueDate: 'Oct 22, 2024', submissions: 18 },
-  { id: 3, title: 'Programming Assignment', course: 'Computer Science 101', dueDate: 'Oct 25, 2024', submissions: 30 },
-];
+import CircularProgress from '@mui/material/CircularProgress';
 
 const TeacherPanel = () => {
   const location = useLocation();
@@ -31,6 +12,10 @@ const TeacherPanel = () => {
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('teacherData');
@@ -41,17 +26,45 @@ const TeacherPanel = () => {
     }
   }, [navigate]);
 
-  if (!userData) {
+  useEffect(() => {
+    if (userData?.id) {
+      fetchData();
+    }
+  }, [userData]);
+
+  const fetchData = async () => {
+    try {
+      const coursesRes = await fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`);
+      const studentsRes = await fetch('http://localhost:8080/api/students');
+      const classesRes = await fetch('http://localhost:8080/api/classes');
+      
+      const coursesData = await coursesRes.json();
+      const studentsData = await studentsRes.json();
+      const classesData = await classesRes.json();
+      
+      setCourses(coursesData);
+      setStudents(studentsData);
+      setClasses(classesData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stats = [
+    { label: 'Active Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-indigo-500' },
+    { label: 'Total Students', value: students.length, icon: '👥', color: 'from-green-500 to-emerald-500' },
+    { label: 'Classes', value: classes.length, icon: '🏫', color: 'from-yellow-500 to-orange-500' },
+    { label: 'This Week', value: '3', icon: '📅', color: 'from-purple-500 to-pink-500' },
+  ];
+
+  if (!userData || loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🔒</span>
-          </div>
-          <p className="text-gray-400 mb-4">Please login first</p>
-          <Link to="/TeacherLogin" className="text-violet-400 hover:text-violet-300">
-            Go to Login
-          </Link>
+          <CircularProgress className="text-violet-500" />
+          <p className="text-gray-400 mt-4">Loading...</p>
         </div>
       </div>
     );
@@ -137,7 +150,7 @@ const TeacherPanel = () => {
               <Button>+ Add Course</Button>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-              {mockCourses.map((course) => (
+              {courses.map((course) => (
                 <div key={course.id} className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -152,8 +165,8 @@ const TeacherPanel = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 text-sm text-gray-400">
-                      <span>👥 {course.students} students</span>
                       <span>📅 {course.schedule}</span>
+                      <span>🚪 {course.room}</span>
                     </div>
                     <Button variant="secondary" size="sm">View</Button>
                   </div>
@@ -189,22 +202,22 @@ const TeacherPanel = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {mockStudents.map((student) => (
+                  {students.map((student) => (
                     <tr key={student.id} className="hover:bg-slate-700/30">
                       <td className="px-6 py-4 text-white font-medium">{student.name}</td>
-                      <td className="px-6 py-4 text-gray-300">{student.studentNumber}</td>
+                      <td className="px-6 py-4 text-gray-300">{student.studentNumber || 'N/A'}</td>
                       <td className="px-6 py-4 text-gray-300">{student.email}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
                           <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: `${student.attendance}%` }}></div>
+                            <div className="h-full bg-green-500" style={{ width: `${student.attendance || 0}%` }}></div>
                           </div>
-                          <span className="text-gray-400 text-sm">{student.attendance}%</span>
+                          <span className="text-gray-400 text-sm">{student.attendance || 0}%</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="px-3 py-1 bg-violet-500/20 text-violet-400 rounded-full text-sm font-medium">
-                          {student.grade}
+                          {student.grade || 'N/A'}
                         </span>
                       </td>
                       <td className="px-6 py-4">

@@ -3,25 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-
-const mockStudentCourses = [
-  { id: 1, courseName: 'Mathematics 101', instructor: 'Dr. Smith', schedule: 'Mon/Wed 10:00', room: 'Room 101', credits: 4, color: 'from-blue-500 to-blue-600' },
-  { id: 2, courseName: 'Physics 201', instructor: 'Dr. Johnson', schedule: 'Tue/Thu 14:00', room: 'Room 205', credits: 3, color: 'from-green-500 to-green-600' },
-  { id: 3, courseName: 'Computer Science', instructor: 'Dr. Williams', schedule: 'Fri 09:00', room: 'Lab 301', credits: 4, color: 'from-purple-500 to-purple-600' },
-  { id: 4, courseName: 'English Literature', instructor: 'Dr. Brown', schedule: 'Mon/Wed 15:00', room: 'Room 102', credits: 3, color: 'from-orange-500 to-orange-600' },
-];
-
-const mockNotices = [
-  { id: 1, title: 'Midterm Exam', date: 'Oct 15, 2024', content: 'Midterm exam will be held on October 20th in the main auditorium.', type: 'exam' },
-  { id: 2, title: 'Assignment Due', date: 'Oct 12, 2024', content: 'Submit your assignment by October 12th at 11:59 PM.', type: 'assignment' },
-  { id: 3, title: 'Holiday Notice', date: 'Oct 10, 2024', content: 'No classes on October 17th due to university event.', type: 'notice' },
-];
-
-const mockGrades = [
-  { course: 'Mathematics 101', grade: 'A', score: 92 },
-  { course: 'Physics 201', grade: 'B+', score: 87 },
-  { course: 'Computer Science', grade: 'A-', score: 89 },
-];
+import CircularProgress from '@mui/material/CircularProgress';
 
 const StudentPanel = () => {
   const location = useLocation();
@@ -29,6 +11,9 @@ const StudentPanel = () => {
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [allStudents, setAllStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('studentData');
@@ -39,15 +24,47 @@ const StudentPanel = () => {
     }
   }, [navigate]);
 
-  if (!userData) {
+  useEffect(() => {
+    if (userData?.id) {
+      fetchData();
+    }
+  }, [userData]);
+
+  const fetchData = async () => {
+    try {
+      const coursesRes = await fetch('http://localhost:8080/api/courses');
+      const studentsRes = await fetch('http://localhost:8080/api/students');
+      
+      const coursesData = await coursesRes.json();
+      const studentsData = await studentsRes.json();
+      
+      const myCourses = coursesData.filter(c => c.classId === userData.classId);
+      setCourses(myCourses);
+      setAllStudents(studentsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stats = [
+    { label: 'Enrolled Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-blue-600' },
+    { label: 'Total Students', value: allStudents.length, icon: '👥', color: 'from-green-500 to-green-600' },
+    { label: 'Attendance', value: userData?.attendance || 'N/A', icon: '📊', color: 'from-purple-500 to-purple-600' },
+    { label: 'Grade', value: userData?.grade || 'N/A', icon: '🎓', color: 'from-orange-500 to-orange-600' },
+  ];
+
+  if (!userData || loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🔒</span>
-          </div>
-          <p className="text-gray-400 mb-4">Please login first</p>
-          <Link to="/StudentLogin" className="text-indigo-400 hover:text-indigo-300">
+          <CircularProgress className="text-indigo-500" />
+          <p className="text-gray-400 mt-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }>
             Go to Login
           </Link>
         </div>
@@ -117,13 +134,13 @@ const StudentPanel = () => {
               <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4">Current Courses</h3>
                 <div className="space-y-3">
-                  {mockStudentCourses.slice(0, 3).map((course) => (
+                  {courses.slice(0, 3).map((course) => (
                     <div key={course.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl">
                       <div>
-                        <p className="text-white font-medium">{course.courseName}</p>
-                        <p className="text-gray-400 text-sm">{course.instructor}</p>
+                        <p className="text-white font-medium">{course.name}</p>
+                        <p className="text-gray-400 text-sm">Credits: {course.credit}</p>
                       </div>
-                      <span className="text-indigo-400 text-sm">{course.credits} CR</span>
+                      <span className="text-indigo-400 text-sm">{course.credit} CR</span>
                     </div>
                   ))}
                 </div>
@@ -135,13 +152,13 @@ const StudentPanel = () => {
               <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4">Recent Notices</h3>
                 <div className="space-y-3">
-                  {mockNotices.slice(0, 3).map((notice) => (
-                    <div key={notice.id} className="p-3 bg-slate-700/50 rounded-xl">
+                  {allStudents.slice(0, 3).map((notice, idx) => (
+                    <div key={idx} className="p-3 bg-slate-700/50 rounded-xl">
                       <div className="flex justify-between items-start mb-1">
-                        <p className="text-white font-medium">{notice.title}</p>
-                        <span className="text-xs text-gray-400">{notice.date}</span>
+                        <p className="text-white font-medium">{notice.name}</p>
+                        <span className="text-xs text-gray-400">{notice.email}</span>
                       </div>
-                      <p className="text-gray-400 text-sm line-clamp-1">{notice.content}</p>
+                      <p className="text-gray-400 text-sm line-clamp-1">{notice.email}</p>
                     </div>
                   ))}
                 </div>
@@ -155,27 +172,27 @@ const StudentPanel = () => {
       case 'courses':
         return (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockStudentCourses.map((course) => (
+            {courses.map((course) => (
               <div key={course.id} className="bg-slate-800/50 rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all hover:shadow-xl">
-                <div className={`bg-gradient-to-r ${course.color} h-2`}></div>
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2"></div>
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{course.courseName}</h3>
-                      <p className="text-gray-400 text-sm">{course.instructor}</p>
+                      <h3 className="text-lg font-semibold text-white">{course.name}</h3>
+                      <p className="text-gray-400 text-sm">{course.description || 'No description'}</p>
                     </div>
                     <span className="px-3 py-1 bg-white/10 text-white text-sm font-medium rounded-full">
-                      {course.credits} CR
+                      {course.credit} CR
                     </span>
                   </div>
                   <div className="space-y-2 text-sm text-gray-400 mb-4">
                     <div className="flex items-center">
                       <span className="w-5">📅</span>
-                      <span className="ml-2">{course.schedule}</span>
+                      <span className="ml-2">{course.schedule || 'TBA'}</span>
                     </div>
                     <div className="flex items-center">
                       <span className="w-5">📍</span>
-                      <span className="ml-2">{course.room}</span>
+                      <span className="ml-2">{course.room || 'TBA'}</span>
                     </div>
                   </div>
                   <div className="flex space-x-2">
@@ -204,17 +221,17 @@ const StudentPanel = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {mockGrades.map((grade, i) => (
+                  {courses.map((course, i) => (
                     <tr key={i} className="hover:bg-slate-700/30">
-                      <td className="px-6 py-4 text-white">{grade.course}</td>
-                      <td className="px-6 py-4 text-gray-300">{grade.score}</td>
+                      <td className="px-6 py-4 text-white">{course.name}</td>
+                      <td className="px-6 py-4 text-gray-300">-</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          grade.grade.startsWith('A') ? 'bg-green-500/20 text-green-400' :
-                          grade.grade.startsWith('B') ? 'bg-blue-500/20 text-blue-400' :
+                          userData?.grade?.startsWith('A') ? 'bg-green-500/20 text-green-400' :
+                          userData?.grade?.startsWith('B') ? 'bg-blue-500/20 text-blue-400' :
                           'bg-yellow-500/20 text-yellow-400'
                         }`}>
-                          {grade.grade}
+                          {userData?.grade || 'N/A'}
                         </span>
                       </td>
                     </tr>
@@ -227,24 +244,24 @@ const StudentPanel = () => {
       case 'notices':
         return (
           <div className="space-y-4">
-            {mockNotices.map((notice) => (
-              <div key={notice.id} className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
+            {allStudents.length > 0 ? allStudents.slice(0, 5).map((student, idx) => (
+              <div key={idx} className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center space-x-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      notice.type === 'exam' ? 'bg-red-500/20 text-red-400' :
-                      notice.type === 'assignment' ? 'bg-blue-500/20 text-blue-400' :
-                      'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {notice.type.toUpperCase()}
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                      STUDENT
                     </span>
-                    <h4 className="text-lg font-semibold text-white">{notice.title}</h4>
+                    <h4 className="text-lg font-semibold text-white">{student.name}</h4>
                   </div>
-                  <span className="text-sm text-gray-400">{notice.date}</span>
+                  <span className="text-sm text-gray-400">{student.email}</span>
                 </div>
-                <p className="text-gray-400">{notice.content}</p>
+                <p className="text-gray-400">Class ID: {student.classId || 'N/A'}</p>
               </div>
-            ))}
+            )) : (
+              <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 text-center">
+                <p className="text-gray-400">No notices available</p>
+              </div>
+            )}
           </div>
         );
       case 'settings':
