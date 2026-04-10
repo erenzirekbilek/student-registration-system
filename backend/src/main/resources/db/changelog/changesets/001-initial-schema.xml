@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="001-create-classes-table" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="classes"/>
+            </not>
+        </preConditions>
+        <createTable tableName="classes">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" nullable="false"/>
+            <column name="department" type="VARCHAR(255)"/>
+            <column name="section" type="VARCHAR(50)"/>
+            <column name="year" type="INT"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-create-students-table" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="students"/>
+            </not>
+        </preConditions>
+        <createTable tableName="students">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" nullable="false"/>
+            <column name="email" type="VARCHAR(255)" nullable="false">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)" nullable="false"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="address" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="class_id" type="BIGINT"/>
+            <column name="student_number" type="VARCHAR(50)"/>
+            <column name="attendance" type="INT"/>
+            <column name="grade" type="VARCHAR(10)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-create-teachers-table" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="teachers"/>
+            </not>
+        </preConditions>
+        <createTable tableName="teachers">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" nullable="false"/>
+            <column name="email" type="VARCHAR(255)" nullable="false">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)" nullable="false"/>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="specialty" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-create-courses-table" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="courses"/>
+            </not>
+        </preConditions>
+        <createTable tableName="courses">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" nullable="false"/>
+            <column name="description" type="TEXT"/>
+            <column name="teacher_id" type="BIGINT"/>
+            <column name="class_id" type="BIGINT"/>
+            <column name="credit" type="INT" nullable="false"/>
+            <column name="schedule" type="VARCHAR(255)"/>
+            <column name="room" type="VARCHAR(100)"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-create-enrollments-table" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="enrollments"/>
+            </not>
+        </preConditions>
+        <createTable tableName="enrollments">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="student_id" type="BIGINT" nullable="false"/>
+            <column name="course_id" type="BIGINT" nullable="false"/>
+            <column name="grade" type="DOUBLE PRECISION"/>
+            <column name="attendance" type="INT"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="enrolled_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-add-foreign-keys" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_student_class"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_student_class"
+            referencedTableName="classes"
+            baseTableName="students"
+            baseColumnNames="class_id"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="001-add-fk-course-teacher" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_course_teacher"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_course_teacher"
+            referencedTableName="teachers"
+            baseTableName="courses"
+            baseColumnNames="teacher_id"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="001-add-fk-course-class" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_course_class"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_course_class"
+            referencedTableName="classes"
+            baseTableName="courses"
+            baseColumnNames="class_id"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="001-add-fk-enrollment-student" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_enrollment_student"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_enrollment_student"
+            referencedTableName="students"
+            baseTableName="enrollments"
+            baseColumnNames="student_id"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="001-add-fk-enrollment-course" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="fk_enrollment_course"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_enrollment_course"
+            referencedTableName="courses"
+            baseTableName="enrollments"
+            baseColumnNames="course_id"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="001-create-ai-schema" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <schemaExists schemaName="ai_schema"/>
+            </not>
+        </preConditions>
+        <sql>CREATE EXTENSION IF NOT EXISTS vector</sql>
+        <sql>CREATE SCHEMA IF NOT EXISTS ai_schema</sql>
+        <createTable tableName="regulations" schemaName="ai_schema">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="content" type="TEXT" nullable="false"/>
+            <column name="embedding" type="vector(384)"/>
+            <column name="metadata" type="JSONB"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-create-vector-index" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_regulations_embedding"/>
+            </not>
+        </preConditions>
+        <sql>CREATE INDEX IF NOT EXISTS idx_regulations_embedding ON ai_schema.regulations USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)</sql>
+    </changeSet>
+
+</databaseChangeLog>
