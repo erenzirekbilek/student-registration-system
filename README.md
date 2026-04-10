@@ -44,8 +44,9 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 |------------|-------------|
 | Java 17 | Programming Language |
 | Spring Boot | Framework |
-| H2/PostgreSQL | Database |
+| PostgreSQL | Database |
 | JPA/Hibernate | ORM |
+| **Liquibase** | **Database Migrations** |
 
 ### Frontend
 | Technology | Description |
@@ -55,6 +56,102 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 | Tailwind CSS | Styling |
 | Vite | Build Tool |
 | React Router | Navigation |
+
+---
+
+## 🗄️ Database Migrations (Liquibase)
+
+We use **Liquibase** for managing database schema changes. Here's why and how to use it:
+
+### Why Liquibase?
+
+| Problem | Solution |
+|---------|----------|
+| **Manual schema changes** are hard to track | Version-controlled XML changelogs |
+| **Team coordination** - who changed what? | Every change is a documented changeset |
+| **Different environments** - dev/staging/prod | Liquibase tracks what's applied where |
+| **Rollback** - need to undo a change? | One command to rollback |
+| **Existing database** - how to migrate? | preConditions handle existing tables |
+
+### How It Works
+
+1. **Changelogs**: XML files that describe schema changes
+2. **Master.xml**: Links to all changeset files
+3. **Changesets**: Individual changes (create table, add column, etc.)
+4. **DATABASECHANGELOG table**: Liquibase tracks what's been run
+
+### Project Structure
+
+```
+backend/src/main/resources/db/
+└── changelog/
+    ├── master.xml                    # Main changelog (entry point)
+    └── changesets/
+        └── 001-initial-schema.xml   # Initial tables
+```
+
+### Configuration
+
+In `application.properties`:
+```properties
+spring.liquibase.change-log=classpath:db/changelog/master.xml
+spring.liquibase.enabled=true
+spring.jpa.hibernate.ddl-auto=validate  # Don't let Hibernate create tables
+```
+
+### Adding New Changes
+
+**1. Create a new changeset file** (`db/changelog/changesets/002-add-column.xml`):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog">
+    <changeSet id="002-add-new-column" author="your-name">
+        <addColumn tableName="students">
+            <column name="new_field" type="VARCHAR(100)"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
+```
+
+**2. Add it to master.xml**:
+```xml
+<include file="db/changelog/changesets/002-add-column.xml"/>
+```
+
+**3. Run the app** - Liquibase runs automatically on startup!
+
+### Existing Database
+
+If you already have a database, don't worry - Liquibase uses `preConditions` to skip creating tables that already exist:
+```xml
+<preConditions onFail="MARK_RAN">
+    <not>
+        <tableExists tableName="students"/>
+    </not>
+</preConditions>
+```
+
+This ensures:
+- **Existing tables**: Marked as "RAN" (already applied)
+- **New tables**: Created normally
+
+### Common Commands
+
+| Command | Description |
+|---------|-------------|
+| Automatic | Runs on Spring Boot startup |
+| `mvn liquibase:update` | Manually run pending changes |
+| `mvn liquibase:rollback -Dliquibase.rollbackTag=1.0` | Rollback to tag |
+| `mvn liquibase:dropAll` | Drop all tables (use with caution!) |
+
+### Available Changeset Types
+
+- `createTable` - Create new tables
+- `addColumn` / `dropColumn` - Modify columns
+- `addForeignKeyConstraint` - Add foreign keys
+- `createIndex` / `dropIndex` - Manage indexes
+- `sql` - Run raw SQL
+- And many more in [Liquibase docs](https://docs.liquibase.com/)
 
 ---
 
@@ -209,7 +306,9 @@ student-registration-system/
 │   │   ├── repository/   # Data Repositories
 │   │   └── service/      # Business Logic
 │   └── src/main/resources/
-│       └── application.properties
+│       ├── application.properties
+│       └── db/                    # Liquibase migrations
+│           └── changelog/
 │
 ├── frontend/
 │   ├── src/
