@@ -7,11 +7,7 @@
 
     <changeSet id="002-insert-classes" author="liquibase">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <rowCount tableName="classes">
-                    <where>id = 1</where>
-                </rowCount>
-            </not>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM classes</sqlCheck>
         </preConditions>
         <insert tableName="classes">
             <column name="name">Class 10-A</column>
@@ -35,11 +31,7 @@
 
     <changeSet id="002-insert-teachers" author="liquibase">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <rowCount tableName="teachers">
-                    <where>id = 1</where>
-                </rowCount>
-            </not>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM teachers</sqlCheck>
         </preConditions>
         <insert tableName="teachers">
             <column name="name">John Smith</column>
@@ -66,11 +58,7 @@
 
     <changeSet id="002-insert-students" author="liquibase">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <rowCount tableName="students">
-                    <where>id = 1</where>
-                </rowCount>
-            </not>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM students</sqlCheck>
         </preConditions>
         <insert tableName="students">
             <column name="name">Alice Brown</column>
@@ -106,11 +94,7 @@
 
     <changeSet id="002-insert-courses" author="liquibase">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <rowCount tableName="courses">
-                    <where>id = 1</where>
-                </rowCount>
-            </not>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM courses</sqlCheck>
         </preConditions>
         <insert tableName="courses">
             <column name="name">Calculus I</column>
@@ -146,11 +130,7 @@
 
     <changeSet id="002-insert-enrollments" author="liquibase">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <rowCount tableName="enrollments">
-                    <where>id = 1</where>
-                </rowCount>
-            </not>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM enrollments</sqlCheck>
         </preConditions>
         <insert tableName="enrollments">
             <column name="student_id">1</column>
