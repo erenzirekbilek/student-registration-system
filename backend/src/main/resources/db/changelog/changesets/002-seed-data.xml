@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="002-insert-classes" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <rowCount tableName="classes">
+                    <where>id = 1</where>
+                </rowCount>
+            </not>
+        </preConditions>
+        <insert tableName="classes">
+            <column name="name">Class 10-A</column>
+            <column name="department">Science</column>
+            <column name="section">A</column>
+            <column name="year">2024</column>
+        </insert>
+        <insert tableName="classes">
+            <column name="name">Class 10-B</column>
+            <column name="department">Science</column>
+            <column name="section">B</column>
+            <column name="year">2024</column>
+        </insert>
+        <insert tableName="classes">
+            <column name="name">Class 11-A</column>
+            <column name="department">Mathematics</column>
+            <column name="section">A</column>
+            <column name="year">2024</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-insert-teachers" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <rowCount tableName="teachers">
+                    <where>id = 1</where>
+                </rowCount>
+            </not>
+        </preConditions>
+        <insert tableName="teachers">
+            <column name="name">John Smith</column>
+            <column name="email">john.smith@school.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+1234567890</column>
+            <column name="specialty">Mathematics</column>
+        </insert>
+        <insert tableName="teachers">
+            <column name="name">Sarah Johnson</column>
+            <column name="email">sarah.johnson@school.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+1234567891</column>
+            <column name="specialty">Physics</column>
+        </insert>
+        <insert tableName="teachers">
+            <column name="name">Mike Davis</column>
+            <column name="email">mike.davis@school.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+1234567892</column>
+            <column name="specialty">Chemistry</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-insert-students" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <rowCount tableName="students">
+                    <where>id = 1</where>
+                </rowCount>
+            </not>
+        </preConditions>
+        <insert tableName="students">
+            <column name="name">Alice Brown</column>
+            <column name="email">alice.brown@student.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+9876543210</column>
+            <column name="student_number">STU001</column>
+            <column name="class_id">1</column>
+            <column name="attendance">95</column>
+            <column name="grade">A</column>
+        </insert>
+        <insert tableName="students">
+            <column name="name">Bob Wilson</column>
+            <column name="email">bob.wilson@student.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+9876543211</column>
+            <column name="student_number">STU002</column>
+            <column name="class_id">1</column>
+            <column name="attendance">90</column>
+            <column name="grade">B+</column>
+        </insert>
+        <insert tableName="students">
+            <column name="name">Charlie Davis</column>
+            <column name="email">charlie.davis@student.com</column>
+            <column name="password">password123</column>
+            <column name="phone">+9876543212</column>
+            <column name="student_number">STU003</column>
+            <column name="class_id">2</column>
+            <column name="attendance">85</column>
+            <column name="grade">B</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-insert-courses" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <rowCount tableName="courses">
+                    <where>id = 1</where>
+                </rowCount>
+            </not>
+        </preConditions>
+        <insert tableName="courses">
+            <column name="name">Calculus I</column>
+            <column name="description">Introduction to Calculus</column>
+            <column name="teacher_id">1</column>
+            <column name="class_id">1</column>
+            <column name="credit">4</column>
+            <column name="schedule">Mon/Wed 09:00-10:30</column>
+            <column name="room">Room 101</column>
+            <column name="status">ACTIVE</column>
+        </insert>
+        <insert tableName="courses">
+            <column name="name">Physics I</column>
+            <column name="description">Introduction to Physics</column>
+            <column name="teacher_id">2</column>
+            <column name="class_id">1</column>
+            <column name="credit">4</column>
+            <column name="schedule">Tue/Thu 10:00-11:30</column>
+            <column name="room">Lab 201</column>
+            <column name="status">ACTIVE</column>
+        </insert>
+        <insert tableName="courses">
+            <column name="name">Chemistry I</column>
+            <column name="description">Introduction to Chemistry</column>
+            <column name="teacher_id">3</column>
+            <column name="class_id">2</column>
+            <column name="credit">3</column>
+            <column name="schedule">Mon/Wed 11:00-12:00</column>
+            <column name="room">Lab 202</column>
+            <column name="status">ACTIVE</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002-insert-enrollments" author="liquibase">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <rowCount tableName="enrollments">
+                    <where>id = 1</where>
+                </rowCount>
+            </not>
+        </preConditions>
+        <insert tableName="enrollments">
+            <column name="student_id">1</column>
+            <column name="course_id">1</column>
+            <column name="grade">92.5</column>
+            <column name="attendance">95</column>
+            <column name="status">ENROLLED</column>
+        </insert>
+        <insert tableName="enrollments">
+            <column name="student_id">1</column>
+            <column name="course_id">2</column>
+            <column name="grade">88.0</column>
+            <column name="attendance">90</column>
+            <column name="status">ENROLLED</column>
+        </insert>
+        <insert tableName="enrollments">
+            <column name="student_id">2</column>
+            <column name="course_id">1</column>
+            <column name="grade">85.5</column>
+            <column name="attendance">88</column>
+            <column name="status">ENROLLED</column>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

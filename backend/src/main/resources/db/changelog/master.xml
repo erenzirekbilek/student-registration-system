@@ -6,4 +6,5 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
     
     <include file="db/changelog/changesets/001-initial-schema.xml"/>
+    <include file="db/changelog/changesets/002-seed-data.xml"/>
 </databaseChangeLog>
