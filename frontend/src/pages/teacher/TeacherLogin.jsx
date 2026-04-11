@@ -56,9 +56,9 @@ const TeacherLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-surface-950">
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md">
+      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-white/[0.06] bg-surface-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
@@ -73,7 +73,7 @@ const TeacherLogin = () => {
 
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-violet-600/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -transurface-x-1/2 w-[600px] h-[400px] bg-violet-600/10 rounded-full blur-[100px]" />
       </div>
 
       {/* Content */}
@@ -86,14 +86,14 @@ const TeacherLogin = () => {
               <PeopleAltIcon style={{ fontSize: 22 }} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Sign in to your account</h1>
-            <p className="mt-1.5 text-sm text-slate-400">Enter your credentials to continue</p>
+            <p className="mt-1.5 text-sm text-surface-400">Enter your credentials to continue</p>
           </div>
 
           {/* Card */}
-          <div className="bg-slate-900 border border-white/[0.08] rounded-2xl p-8">
+          <div className="bg-surface-900 border border-white/[0.08] rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                <label className="block text-xs font-medium text-surface-400 mb-1.5">
                   Email address
                 </label>
                 <input
@@ -102,14 +102,14 @@ const TeacherLogin = () => {
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   placeholder="teacher@example.com"
                   required
-                  className={`w-full h-10 px-3 rounded-lg bg-slate-800 border text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-violet-500 focus:ring-1 focus:ring-violet-500 ${
+                  className={`w-full h-10 px-3 rounded-lg bg-surface-800 border text-sm text-white placeholder-surface-500 outline-none transition-colors focus:border-violet-500 focus:ring-1 focus:ring-violet-500 ${
                     error ? 'border-red-500/60' : 'border-white/[0.08]'
                   }`}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                <label className="block text-xs font-medium text-surface-400 mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -119,14 +119,14 @@ const TeacherLogin = () => {
                     onChange={(e) => { setPassword(e.target.value); setError(''); }}
                     placeholder="••••••••"
                     required
-                    className={`w-full h-10 px-3 pr-10 rounded-lg bg-slate-800 border text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-violet-500 focus:ring-1 focus:ring-violet-500 ${
+                    className={`w-full h-10 px-3 pr-10 rounded-lg bg-surface-800 border text-sm text-white placeholder-surface-500 outline-none transition-colors focus:border-violet-500 focus:ring-1 focus:ring-violet-500 ${
                       error ? 'border-red-500/60' : 'border-white/[0.08]'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                    className="absolute right-3 top-1/2 -transurface-y-1/2 text-surface-500 hover:text-surface-300 transition-colors"
                     tabIndex={-1}
                   >
                     {showPassword
@@ -143,9 +143,9 @@ const TeacherLogin = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded border-slate-600 bg-slate-800 accent-violet-500 cursor-pointer"
+                  className="w-3.5 h-3.5 rounded border-surface-600 bg-surface-800 accent-violet-500 cursor-pointer"
                 />
-                <label htmlFor="remember" className="text-xs text-slate-400 cursor-pointer select-none">
+                <label htmlFor="remember" className="text-xs text-surface-400 cursor-pointer select-none">
                   Remember me
                 </label>
               </div>
@@ -177,7 +177,7 @@ const TeacherLogin = () => {
             </form>
 
             <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-between">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-surface-500">
                 New teacher?{' '}
                 <button
                   onClick={() => navigate('/TeacherSignin')}
@@ -188,7 +188,7 @@ const TeacherLogin = () => {
               </p>
               <Link
                 to="/TeacherList"
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                className="text-xs text-surface-500 hover:text-surface-300 transition-colors"
               >
                 View Teachers →
               </Link>
@@ -199,7 +199,7 @@ const TeacherLogin = () => {
           <button
             type="button"
             onClick={fillDemo}
-            className="mt-3 w-full h-9 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-white/[0.06] rounded-xl text-xs text-slate-500 hover:text-slate-300 transition-all"
+            className="mt-3 w-full h-9 flex items-center justify-center gap-1.5 bg-surface-900 hover:bg-surface-800 border border-white/[0.06] rounded-xl text-xs text-surface-500 hover:text-surface-300 transition-all"
           >
             <span>Use demo credentials</span>
             <span className="text-violet-400 font-medium">teacher1 / pass1</span>

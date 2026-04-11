@@ -1,12 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface-950 text-surface-100;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           bg-primary-500 hover:bg-primary-600 text-white font-medium 
+           rounded-xl transition-all duration-300 
+           hover:shadow-glow-primary hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           bg-surface-700 hover:bg-surface-600 text-white font-medium 
+           rounded-xl border border-surface-600 
+           transition-all duration-300 hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           bg-accent-500 hover:bg-accent-600 text-white font-medium 
+           rounded-xl transition-all duration-300 
+           hover:shadow-glow-accent hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-surface-800 border border-surface-600 
+           rounded-xl text-white placeholder-surface-400
+           focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-surface-800/50 backdrop-blur-sm border border-surface-700 
+           rounded-2xl p-6 transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:bg-surface-800 hover:border-surface-600 hover:-translate-y-1 hover:shadow-soft;
+  }
+
+  .glass {
+    @apply bg-surface-900/60 backdrop-blur-xl border border-white/5;
+  }
+}
+
 @layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 
+           bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .animate-blob {
     animation: blob 7s infinite;
   }
-  
+
   @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
     33% { transform: translate(30px, -50px) scale(1.1); }
@@ -17,13 +97,6 @@
 
 * {
   box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
