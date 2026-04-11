@@ -1,11 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAddCourseMutation, useGetClassesQuery, useGetTeachersQuery } from '../../RTK/userAPI';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
-import SchoolIcon from '@mui/icons-material/School';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+
+const Icons = {
+  School: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  BookPlus: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      <line x1="12" y1="6" x2="12" y2="14"/><line x1="8" y1="10" x2="16" y2="10"/>
+    </svg>
+  ),
+};
 
 const CourseAdd = () => {
   const navigate = useNavigate();
@@ -14,7 +26,6 @@ const CourseAdd = () => {
   const { data: teachers = [] } = useGetTeachersQuery();
   
   const teacherData = JSON.parse(localStorage.getItem('teacherData') || 'null');
-  const studentData = JSON.parse(localStorage.getItem('studentData') || 'null');
   const isTeacher = !!teacherData;
   
   const [formData, setFormData] = useState({
@@ -46,73 +57,67 @@ const CourseAdd = () => {
     setIsLoading(false);
   };
 
+  const inputBase = 'w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition';
+
   return (
-    <div className="min-h-screen relative flex flex-col overflow-hidden bg-slate-900">
-      {/* Top Navbar */}
-          <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-900/80 backdrop-blur-lg h-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
-              <Link to={isTeacher ? '/TeacherPanel' : '/'} className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
-                  <SchoolIcon className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white hover:text-indigo-300 transition-colors">{isTeacher ? 'Teacher' : 'Student'} Management System</span>
-              </Link>
-            </div>
+    <div className="min-h-screen bg-slate-50">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-lg h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <Link to={isTeacher ? '/TeacherPanel' : '/'} className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
+                <span className="text-white"><Icons.School /></span>
+              </div>
+              <span className="text-xl font-bold text-slate-700 hover:text-indigo-600 transition-colors">{isTeacher ? 'Teacher' : 'Student'} Management System</span>
+            </Link>
           </div>
-        </nav>
+        </div>
+      </nav>
 
-      {/* Animated Background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" style={{ animationDelay: '4s' }}></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-slate-900"></div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center w-full px-4 pt-24 pb-12">
+      <div className="flex-1 flex items-center justify-center w-full px-4 pt-24 pb-12">
         <div className="w-full max-w-2xl">
-          {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-4 shadow-lg shadow-indigo-500/30">
-              <LibraryAddIcon className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-2xl mb-4">
+              <span className="text-indigo-600"><Icons.BookPlus /></span>
             </div>
-            <h1 className="text-3xl font-bold text-white">Add New Course</h1>
-            <p className="text-gray-400 mt-2">Fill in the details to create a new curriculum entry</p>
+            <h1 className="text-2xl font-bold text-slate-800">Add New Course</h1>
+            <p className="text-slate-400 mt-2">Fill in the details to create a new curriculum entry</p>
           </div>
 
-          <Card className="bg-slate-800/50 backdrop-blur-xl border border-white/10 shadow-2xl">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <Card className="bg-white border border-slate-100 shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Course Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Introduction to Programming"
-                  required
-                  className="bg-slate-700/50 border-slate-600 text-white"
-                />
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Course Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Introduction to Programming"
+                    required
+                    className={inputBase}
+                  />
+                </div>
                 {isTeacher ? (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Teacher</label>
+                    <label className="block text-xs font-medium text-slate-500 mb-1.5">Teacher</label>
                     <input
                       type="text"
                       value={teacherData?.name || ''}
                       disabled
-                      className="w-full px-4 py-3 bg-slate-600/50 border border-slate-600 rounded-xl text-gray-300"
+                      className={`${inputBase} opacity-60`}
                     />
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Teacher <span className="text-red-400">*</span></label>
+                    <label className="block text-xs font-medium text-slate-500 mb-1.5">Teacher <span className="text-red-400">*</span></label>
                     <select
                       name="teacherId"
                       value={formData.teacherId}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className={inputBase}
                     >
                       <option value="">Select Teacher</option>
                       {teachers.map((t) => (
@@ -122,13 +127,13 @@ const CourseAdd = () => {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Class <span className="text-red-400">*</span></label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Class <span className="text-red-400">*</span></label>
                   <select
                     name="classId"
                     value={formData.classId}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className={inputBase}
                   >
                     <option value="">Select Class</option>
                     {classes.map((c) => (
@@ -136,61 +141,65 @@ const CourseAdd = () => {
                     ))}
                   </select>
                 </div>
-                <Input
-                  label="Credits"
-                  name="credit"
-                  type="number"
-                  value={formData.credit}
-                  onChange={handleChange}
-                  placeholder="4"
-                  required
-                  className="bg-slate-700/50 border-slate-600 text-white"
-                />
-                <Input
-                  label="Schedule"
-                  name="schedule"
-                  value={formData.schedule}
-                  onChange={handleChange}
-                  placeholder="Mon/Wed 10:00 AM"
-                  className="bg-slate-700/50 border-slate-600 text-white"
-                />
-                <Input
-                  label="Room"
-                  name="room"
-                  value={formData.room}
-                  onChange={handleChange}
-                  placeholder="Room 101"
-                  className="bg-slate-700/50 border-slate-600 text-white"
-                />
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Credits</label>
+                  <input
+                    type="number"
+                    name="credit"
+                    value={formData.credit}
+                    onChange={handleChange}
+                    placeholder="4"
+                    required
+                    className={inputBase}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Schedule</label>
+                  <input
+                    type="text"
+                    name="schedule"
+                    value={formData.schedule}
+                    onChange={handleChange}
+                    placeholder="Mon/Wed 10:00 AM"
+                    className={inputBase}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Room</label>
+                  <input
+                    type="text"
+                    name="room"
+                    value={formData.room}
+                    onChange={handleChange}
+                    placeholder="Room 101"
+                    className={inputBase}
+                  />
+                </div>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Description
-                </label>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Enter course description..."
-                  rows={4}
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  rows={3}
+                  className={`${inputBase} resize-none`}
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end gap-3 pt-2">
                 <Button 
                   type="button" 
                   variant="secondary" 
                   onClick={() => navigate(-1)}
-                  className="px-6"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={isLoading}
-                  className="px-8 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 shadow-lg shadow-indigo-500/20"
                 >
                   {isLoading ? 'Adding...' : 'Add Course'}
                 </Button>

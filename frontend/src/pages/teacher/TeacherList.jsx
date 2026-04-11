@@ -45,45 +45,44 @@ const TeacherList = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-indigo-500"></div>
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-300 font-sans">
-      {/* Navbar - Daha ince ve yüksek kontrastlı cam efekti */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl h-14">
+    <div className="min-h-screen bg-surface-50 text-surface-600 font-sans">
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-surface-100 bg-white/80 backdrop-blur-xl h-14">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2.5 group">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:bg-indigo-500 transition-colors">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <SchoolIcon className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm font-bold tracking-tight text-white uppercase">
-              SMS <span className="text-slate-500 font-medium">Portal</span>
+            <span className="text-sm font-bold tracking-tight text-surface-800">
+              SMS <span className="text-surface-400 font-medium">Portal</span>
             </span>
           </Link>
         </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 pt-28 pb-12">
-        {/* Header - Tipografi Hiyerarşisi Düzenlendi */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Faculty Members</h1>
-            <p className="text-slate-500 text-sm">Manage academic staff profiles and department assignments.</p>
+            <h1 className="text-2xl font-bold text-surface-800 tracking-tight font-display">Faculty Members</h1>
+            <p className="text-surface-500 text-sm">Manage academic staff profiles and department assignments.</p>
           </div>
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/TeacherPanel')}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-all uppercase tracking-wider"
+              className="px-4 py-2 text-xs font-semibold text-surface-500 hover:text-surface-700 transition-all uppercase tracking-wider"
             >
               Dashboard
             </button>
             <Button 
               onClick={() => navigate('/AddTeacher')}
-              className="!bg-indigo-600 hover:!bg-indigo-500 !text-white !rounded-lg !px-4 !py-2 !text-xs !font-bold !shadow-none ring-1 ring-white/10"
             >
               <AddIcon className="w-4 h-4 mr-2" />
               ADD TEACHER
@@ -91,34 +90,34 @@ const TeacherList = () => {
           </div>
         </div>
 
-        {/* Search - Minimalist & Modern Focus States */}
+        {/* Search */}
         <div className="relative mb-6">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
           <input
             type="text"
             placeholder="Filter by name, specialty or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:bg-slate-900 transition-all shadow-inner"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-surface-200 rounded-xl text-sm text-surface-700 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
           />
         </div>
 
-        {/* Table - Bento Grid Esintili & Temiz Satırlar */}
-        <div className="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
+        {/* Table */}
+        <div className="bg-white border border-surface-100 rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 bg-white/[0.01]">
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Instructor</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Specialty</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Contact</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] text-center">Status</th>
+                <tr className="border-b border-surface-100 bg-surface-50">
+                  <th className="px-6 py-4 text-[10px] font-bold text-surface-400 uppercase tracking-[0.2em]">Instructor</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-surface-400 uppercase tracking-[0.2em]">Specialty</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-surface-400 uppercase tracking-[0.2em]">Contact</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-surface-400 uppercase tracking-[0.2em] text-center">Status</th>
                   <th className="px-6 py-4 text-right"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.02]">
+              <tbody className="divide-y divide-surface-100">
                 {filteredTeachers.map((teacher) => (
-                  <tr key={teacher.id} className="group hover:bg-indigo-500/[0.03] transition-colors">
+                  <tr key={teacher.id} className="group hover:bg-primary-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <Avatar 
@@ -127,34 +126,35 @@ const TeacherList = () => {
                             height: 36, 
                             fontSize: '14px', 
                             fontWeight: 700,
-                            bgcolor: '#1e293b',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            color: '#818cf8'
+                            bgcolor: 'primary.50',
+                            border: '1px solid',
+                            borderColor: 'primary.100',
+                            color: 'primary.600'
                           }}
                         >
                           {teacher.name.charAt(0)}
                         </Avatar>
                         <div>
-                          <div className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">
+                          <div className="text-sm font-semibold text-surface-700 group-hover:text-surface-900 transition-colors">
                             {teacher.name}
                           </div>
-                          <div className="text-[11px] text-slate-500 font-medium">Faculty Member</div>
+                          <div className="text-[11px] text-surface-400 font-medium">Faculty Member</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-[11px] font-bold text-indigo-400 bg-indigo-400/5 px-2 py-1 rounded-md border border-indigo-400/10">
+                      <span className="text-[11px] font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-md border border-primary-100">
                         {teacher.specialty?.toUpperCase() || 'GENERAL'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center text-xs text-slate-400">
+                      <div className="flex items-center text-xs text-surface-500">
                         <MailOutlineIcon className="w-3.5 h-3.5 mr-2 opacity-40" />
                         {teacher.email}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 tracking-tight uppercase">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 tracking-tight uppercase">
                         Online
                       </span>
                     </td>
@@ -163,7 +163,7 @@ const TeacherList = () => {
                         onClick={(e) => handleMenuOpen(e, teacher.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                         size="small"
-                        sx={{ color: '#64748b' }}
+                        sx={{ color: 'surface.400' }}
                       >
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
@@ -175,16 +175,16 @@ const TeacherList = () => {
           </div>
         </div>
 
-        {/* Empty State - Daha Profesyonel */}
+        {/* Empty State */}
         {filteredTeachers.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 bg-slate-900/20 rounded-2xl border border-dashed border-white/5 mt-4">
-            <SearchIcon className="w-12 h-12 text-slate-800 mb-4" />
-            <p className="text-sm font-medium text-slate-500">No matching faculty members found.</p>
+          <div className="flex flex-col items-center justify-center py-24 bg-surface-50 rounded-2xl border border-dashed border-surface-200 mt-4">
+            <SearchIcon className="w-12 h-12 text-surface-300 mb-4" />
+            <p className="text-sm font-medium text-surface-400">No matching faculty members found.</p>
           </div>
         )}
       </div>
 
-      {/* Action Menu - SaaS Stili */}
+      {/* Action Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -192,19 +192,20 @@ const TeacherList = () => {
         disableScrollLock
         PaperProps={{
           sx: {
-            bgcolor: '#0f172a',
+            bgcolor: 'white',
             backgroundImage: 'none',
-            color: '#94a3b8',
-            border: '1px solid rgba(255,255,255,0.08)',
+            color: 'surface.600',
+            border: '1px solid',
+            borderColor: 'surface.200',
             borderRadius: '10px',
             mt: 1,
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             '& .MuiMenuItem-root': {
               fontSize: '12px',
               fontWeight: 600,
               gap: '12px',
               py: 1.5,
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.03)', color: '#fff' }
+              '&:hover': { bgcolor: 'surface.50', color: 'surface.900' }
             }
           }
         }}
@@ -212,7 +213,7 @@ const TeacherList = () => {
         <MenuItem onClick={() => { navigate(`/EditTeacher/${selectedTeacherId}`); handleMenuClose(); }}>
           <EditIcon sx={{ fontSize: 16 }} /> Edit Profile
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: '#f87171', '&:hover': { color: '#ef4444 !important' } }}>
+        <MenuItem onClick={handleDelete} sx={{ color: 'red.500', '&:hover': { color: 'red.600 !important', bgcolor: 'red.50' } }}>
           <DeleteOutlineIcon sx={{ fontSize: 16 }} /> Remove Member
         </MenuItem>
       </Menu>
