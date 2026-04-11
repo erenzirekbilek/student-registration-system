@@ -11,7 +11,7 @@
   }
 
   body {
-    @apply bg-surface-950 text-surface-100;
+    @apply bg-surface-50 text-surface-900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -28,15 +28,15 @@
            bg-primary-500 hover:bg-primary-600 text-white font-medium 
            rounded-xl transition-all duration-300 
            hover:shadow-glow-primary hover:-translate-y-0.5
-           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center px-6 py-3 
-           bg-surface-700 hover:bg-surface-600 text-white font-medium 
-           rounded-xl border border-surface-600 
+           bg-surface-100 hover:bg-surface-200 text-surface-700 font-medium 
+           rounded-xl border border-surface-200 
            transition-all duration-300 hover:-translate-y-0.5
-           focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+           focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2;
   }
 
   .btn-accent {
@@ -44,33 +44,32 @@
            bg-accent-500 hover:bg-accent-600 text-white font-medium 
            rounded-xl transition-all duration-300 
            hover:shadow-glow-accent hover:-translate-y-0.5
-           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2 focus:ring-offset-surface-900;
+           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-surface-800 border border-surface-600 
-           rounded-xl text-white placeholder-surface-400
+    @apply w-full px-4 py-3 bg-white border border-surface-200 
+           rounded-xl text-surface-900 placeholder-surface-400
            focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
            transition-all duration-200;
   }
 
   .card {
-    @apply bg-surface-800/50 backdrop-blur-sm border border-surface-700 
-           rounded-2xl p-6 transition-all duration-300;
+    @apply bg-white border border-surface-100 rounded-2xl p-6 shadow-sm;
   }
 
   .card-hover {
-    @apply hover:bg-surface-800 hover:border-surface-600 hover:-translate-y-1 hover:shadow-soft;
+    @apply hover:border-surface-200 hover:-translate-y-1 hover:shadow-md transition-all duration-300;
   }
 
   .glass {
-    @apply bg-surface-900/60 backdrop-blur-xl border border-white/5;
+    @apply bg-white/80 backdrop-blur-xl border border-surface-100;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 
+    @apply bg-gradient-to-r from-primary-500 via-accent-500 to-primary-500 
            bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer;
   }
 

@@ -1,12 +1,163 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Button from '../../components/common/Button';
-import SchoolIcon from '@mui/icons-material/School';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
 
+/* ─── Inline SVG icon system ─── */
+const Icons = {
+  Dashboard: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  ),
+  Courses: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+  ),
+  Classes: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  Students: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  Assignments: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  ),
+  Grades: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  ),
+  Settings: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M12 2v2M4.93 4.93l1.41 1.41M2 12h2M4.93 19.07l1.41-1.41M12 22v-2M19.07 19.07l-1.41-1.41M22 12h-2"/>
+    </svg>
+  ),
+  Logout: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+  ),
+  ChevronLeft: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  ),
+  Menu: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  ),
+  Plus: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  ),
+  X: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  ),
+  Search: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  ),
+  ArrowRight: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+  ),
+  BookOpen: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
+  ),
+  Users: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  School: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  Calendar: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  ),
+  EmptyBox: () => (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+  ),
+  MapPin: () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  ),
+  Clock: () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+  ),
+};
+
+/* ─── Shared primitives ─── */
+const EmptyState = ({ icon, title, description }) => (
+  <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="text-slate-300 mb-4">{icon || <Icons.EmptyBox />}</div>
+    <p className="text-sm font-medium text-slate-500">{title || 'No data yet'}</p>
+    {description && <p className="text-xs text-slate-400 mt-1 max-w-xs">{description}</p>}
+  </div>
+);
+
+const Field = ({ label, type = 'text', value, onChange, placeholder, required }) => (
+  <div>
+    <label className="block text-xs font-medium text-slate-500 mb-1.5">{label}</label>
+    <input
+      type={type} value={value} onChange={onChange} placeholder={placeholder} required={required}
+      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition"
+    />
+  </div>
+);
+
+/* ─── Modal wrapper ─── */
+const Modal = ({ title, onClose, onSubmit, children }) => (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg border border-slate-100">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50">
+        <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
+        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors">
+          <Icons.X />
+        </button>
+      </div>
+      <form onSubmit={onSubmit}>
+        <div className="px-6 py-5 space-y-4">{children}</div>
+        <div className="px-6 py-4 border-t border-slate-50 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
+          <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+);
+
+/* ─── Main component ─── */
 const TeacherPanel = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
@@ -22,703 +173,591 @@ const TeacherPanel = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [studentGrades, setStudentGrades] = useState({});
-  const [gradeForm, setGradeForm] = useState({
-    assignmentId: '',
-    studentId: '',
-    score: '',
-    feedback: ''
-  });
-  const [assignmentForm, setAssignmentForm] = useState({
-    title: '',
-    description: '',
-    courseId: '',
-    dueDate: '',
-    totalPoints: 100
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [gradeForm, setGradeForm] = useState({ assignmentId: '', score: '', feedback: '' });
+  const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', courseId: '', dueDate: '', totalPoints: 100 });
 
   useEffect(() => {
     const stored = localStorage.getItem('teacherData');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setUserData(parsed);
-    } else {
-      setLoading(false);
-      navigate('/TeacherLogin', { replace: true });
-    }
+    if (stored) setUserData(JSON.parse(stored));
+    else { setLoading(false); navigate('/TeacherLogin', { replace: true }); }
   }, [navigate]);
 
   useEffect(() => {
-    if (!userData?.id) {
-      setLoading(false);
-      return;
-    }
-
+    if (!userData?.id) { setLoading(false); return; }
     const fetchData = async () => {
       try {
-        const coursesRes = await fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`);
-        const studentsRes = await fetch('http://localhost:8080/api/students');
-        const classesRes = await fetch('http://localhost:8080/api/classes');
-
-        const coursesData = coursesRes.ok ? await coursesRes.json() : [];
-        const studentsData = studentsRes.ok ? await studentsRes.json() : [];
-        const classesData = classesRes.ok ? await classesRes.json() : [];
-
-        setCourses(coursesData);
-        setStudents(studentsData);
-        setClasses(classesData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
+        const [cRes, sRes, clRes] = await Promise.all([
+          fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`),
+          fetch('http://localhost:8080/api/students'),
+          fetch('http://localhost:8080/api/classes'),
+        ]);
+        setCourses(cRes.ok ? await cRes.json() : []);
+        setStudents(sRes.ok ? await sRes.json() : []);
+        setClasses(clRes.ok ? await clRes.json() : []);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
     };
-
     fetchData();
   }, [userData]);
 
-  const stats = [
-    { label: 'Active Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-indigo-500' },
-    { label: 'Total Students', value: students.length, icon: '👥', color: 'from-green-500 to-emerald-500' },
-    { label: 'Classes', value: classes.length, icon: '🏫', color: 'from-yellow-500 to-orange-500' },
-    { label: 'This Week', value: '3', icon: '📅', color: 'from-purple-500 to-pink-500' },
-  ];
+  const handleLogout = () => { localStorage.removeItem('teacherData'); navigate('/TeacherLogin'); };
 
-  if (!userData || loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <CircularProgress className="text-violet-500" />
-          <p className="text-gray-400 mt-4">Loading...</p>
-        </div>
+  if (!userData || loading) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-center">
+        <CircularProgress size={28} thickness={4} sx={{ color: '#7c3aed' }} />
+        <p className="text-slate-400 text-sm mt-3 font-medium">Loading your dashboard…</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   const { email, id, name, specialty } = userData;
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'courses', label: 'My Courses', icon: '📚' },
-    { id: 'classes', label: 'Classes', icon: '🏫' },
-    { id: 'students', label: 'My Students', icon: '👥' },
-    { id: 'assignments', label: 'Assignments', icon: '📝' },
-    { id: 'grades', label: 'Grade Book', icon: '📊' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
+  const statCards = [
+    { label: 'Active Courses', value: courses.length,  icon: <Icons.BookOpen />, accent: '#7c3aed', bg: '#f5f3ff' },
+    { label: 'Total Students', value: students.length, icon: <Icons.Users />,    accent: '#0ea5e9', bg: '#f0f9ff' },
+    { label: 'Classes',        value: classes.length,  icon: <Icons.School />,   accent: '#10b981', bg: '#ecfdf5' },
+    { label: 'This Week',      value: '3',             icon: <Icons.Calendar />, accent: '#f59e0b', bg: '#fffbeb' },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('teacherData');
-    navigate('/TeacherLogin');
-  };
+  const menuItems = [
+    { id: 'dashboard',   label: 'Dashboard',   Icon: Icons.Dashboard },
+    { id: 'courses',     label: 'My Courses',  Icon: Icons.Courses },
+    { id: 'classes',     label: 'Classes',     Icon: Icons.Classes },
+    { id: 'students',    label: 'My Students', Icon: Icons.Students },
+    { id: 'assignments', label: 'Assignments', Icon: Icons.Assignments },
+    { id: 'grades',      label: 'Grade Book',  Icon: Icons.Grades },
+    { id: 'settings',    label: 'Settings',    Icon: Icons.Settings },
+  ];
 
+  const tabLabel = menuItems.find(m => m.id === activeTab)?.label ?? 'Dashboard';
+  const sidebarW  = isSidebarOpen ? 'w-56' : 'w-16';
+  const contentML = isSidebarOpen ? 'ml-56' : 'ml-16';
+
+  const filteredStudents = students.filter(s =>
+    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  /* ────────────── RENDER CONTENT ────────────── */
   const renderContent = () => {
     switch (activeTab) {
+
+      /* ── DASHBOARD ── */
       case 'dashboard':
         return (
           <div className="space-y-6">
-            {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {stats.map((stat, i) => (
-                <div key={i} className={`bg-gradient-to-br ${stat.color} rounded-2xl p-6 text-white shadow-lg`}>
-                  <div className="text-3xl mb-2">{stat.icon}</div>
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <div className="text-white/80 text-sm">{stat.label}</div>
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+              {statCards.map((s, i) => (
+                <div key={i} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: s.bg, color: s.accent }}>
+                    {s.icon}
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-slate-800 leading-none">{s.value}</p>
+                    <p className="text-xs text-slate-400 mt-1 font-medium">{s.label}</p>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Quick Actions & Recent */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button variant="secondary" onClick={() => setActiveTab('courses')}>Manage Courses</Button>
-                  <Button variant="secondary" onClick={() => setActiveTab('students')}>View Students</Button>
-                  <Button variant="secondary" onClick={() => setActiveTab('assignments')}>Create Assignment</Button>
-                  <Button variant="secondary" onClick={() => setActiveTab('grades')}>Update Grades</Button>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Quick actions */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-50">
+                  <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
+                </div>
+                <div className="p-5 grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Manage Courses',    tab: 'courses' },
+                    { label: 'View Students',     tab: 'students' },
+                    { label: 'Create Assignment', tab: 'assignments' },
+                    { label: 'Update Grades',     tab: 'grades' },
+                  ].map(a => (
+                    <button key={a.tab} onClick={() => setActiveTab(a.tab)}
+                      className="text-sm font-medium py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors text-left flex items-center justify-between group">
+                      {a.label}
+                      <span className="text-slate-300 group-hover:text-violet-500 transition-colors"><Icons.ArrowRight /></span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Recent Assignments</h3>
-                <div className="space-y-3">
-                  {([]).slice(0, 3).map((assignment) => (
-                    <div key={assignment.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl">
-                      <div>
-                        <p className="text-white font-medium">{assignment.title}</p>
-                        <p className="text-gray-400 text-sm">{assignment.course}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-indigo-400 text-sm">{assignment.submissions}/30</p>
-                        <p className="text-gray-500 text-xs">submitted</p>
-                      </div>
-                    </div>
-                  ))}
+              {/* Recent assignments */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-slate-700">Recent Assignments</h3>
+                  <button onClick={() => setActiveTab('assignments')} className="text-xs text-violet-500 hover:text-violet-600 font-medium flex items-center gap-1">
+                    View all <Icons.ArrowRight />
+                  </button>
                 </div>
+                {assignments.length === 0
+                  ? <EmptyState title="No assignments yet" description="Create your first assignment to track student progress." />
+                  : (
+                    <div className="divide-y divide-slate-50">
+                      {assignments.slice(0, 4).map(a => (
+                        <div key={a.id} className="px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-slate-700">{a.title}</p>
+                            <p className="text-xs text-slate-400">{courses.find(c => c.id === a.courseId)?.name || '—'}</p>
+                          </div>
+                          <span className="text-xs text-slate-400">{a.dueDate}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }
               </div>
             </div>
           </div>
         );
+
+      /* ── COURSES ── */
       case 'courses':
         return (
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">My Courses</h2>
-              <Button onClick={() => navigate('/TeacherCourseAdd')}>+ Add Course</Button>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">{courses.length} course{courses.length !== 1 ? 's' : ''} found</p>
+              <button onClick={() => navigate('/TeacherCourseAdd')}
+                className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors">
+                <Icons.Plus /> Add Course
+              </button>
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              {courses.map((course) => (
-                <div key={course.id} className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{course.name}</h3>
-                      <p className="text-gray-400 text-sm">{course.schedule} • {course.room}</p>
+            {courses.length === 0
+              ? <div className="bg-white rounded-2xl border border-slate-100 shadow-sm"><EmptyState icon={<Icons.Courses />} title="No courses yet" description="Add your first course to get started." /></div>
+              : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {courses.map(c => (
+                    <div key={c.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-violet-100 transition-all overflow-hidden">
+                      <div className="h-1 bg-gradient-to-r from-violet-500 to-indigo-500" />
+                      <div className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0 pr-3">
+                            <h3 className="text-sm font-semibold text-slate-800 truncate">{c.name}</h3>
+                            <p className="text-xs text-slate-400 mt-0.5">{c.schedule} · {c.room}</p>
+                          </div>
+                          <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                            c.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                          }`}>
+                            {(c.status || 'active').toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-slate-400 mb-4">
+                          <span className="flex items-center gap-1"><Icons.Clock />{c.schedule || 'TBA'}</span>
+                          <span className="flex items-center gap-1"><Icons.MapPin />{c.room || 'TBA'}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button className="flex-1 text-xs font-medium py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Details</button>
+                          <button className="flex-1 text-xs font-medium py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors">Manage</button>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      course.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {course.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-gray-400">
-                      <span>📅 {course.schedule}</span>
-                      <span>🚪 {course.room}</span>
-                    </div>
-                    <Button variant="secondary" size="sm">View</Button>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )
+            }
           </div>
         );
+
+      /* ── CLASSES ── */
+      case 'classes':
+        return (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center">
+            <div className="text-slate-300 mb-4"><Icons.School /></div>
+            <p className="text-sm font-medium text-slate-600 mb-1">Manage class sections</p>
+            <p className="text-xs text-slate-400 mb-5">View and edit all class sections assigned to you.</p>
+            <button onClick={() => navigate('/ClassList')}
+              className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors inline-flex items-center gap-2">
+              Go to Class List <Icons.ArrowRight />
+            </button>
+          </div>
+        );
+
+      /* ── STUDENTS ── */
       case 'students':
         return (
-          <div className="bg-slate-800/50 rounded-2xl border border-white/10 overflow-hidden">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">My Students</h3>
-                <p className="text-gray-400 text-sm">All enrolled students across courses</p>
+                <h3 className="text-sm font-semibold text-slate-700">My Students</h3>
+                <p className="text-xs text-slate-400 mt-0.5">{filteredStudents.length} students enrolled</p>
               </div>
-              <input
-                type="text"
-                placeholder="Search students..."
-                className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
+                <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search students…"
+                  className="pl-8 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition w-56" />
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Student Number</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Attendance</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Grade</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-slate-700/30">
-                      <td className="px-6 py-4 text-white font-medium">{student.name}</td>
-                      <td className="px-6 py-4 text-gray-300">{student.studentNumber || 'N/A'}</td>
-                      <td className="px-6 py-4 text-gray-300">{student.email}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-green-500" style={{ width: `${student.attendance || 0}%` }}></div>
-                          </div>
-                          <span className="text-gray-400 text-sm">{student.attendance || 0}%</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 bg-violet-500/20 text-violet-400 rounded-full text-sm font-medium">
-                          {student.grade || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Button variant="secondary" size="sm">View</Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {filteredStudents.length === 0
+              ? <EmptyState title="No students found" description="Try a different search term." />
+              : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-50">
+                        {['Name', 'Student No.', 'Email', 'Attendance', 'Grade', ''].map(h => (
+                          <th key={h} className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filteredStudents.map(s => (
+                        <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-3.5 font-semibold text-slate-700">{s.name}</td>
+                          <td className="px-6 py-3.5 text-slate-500">{s.studentNumber || '—'}</td>
+                          <td className="px-6 py-3.5 text-slate-500">{s.email}</td>
+                          <td className="px-6 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${s.attendance || 0}%` }} />
+                              </div>
+                              <span className="text-xs text-slate-500">{s.attendance || 0}%</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-50 text-violet-700">
+                              {s.grade || 'N/A'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <button className="text-xs font-medium text-violet-600 hover:text-violet-700">View →</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            }
           </div>
         );
+
+      /* ── ASSIGNMENTS ── */
       case 'assignments':
         return (
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">Assignments</h2>
-              <Button onClick={() => setShowAssignmentModal(true)}>+ Create Assignment</Button>
-            </div>
-            <div className="bg-slate-800/50 rounded-2xl border border-white/10 overflow-hidden">
-              {assignments.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                  No assignments yet. Create your first assignment!
-                </div>
-              ) : (
-                <table className="w-full">
-                  <thead className="bg-slate-700/50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Assignment</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Course</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Due Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Points</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {assignments.map((assignment) => (
-                      <tr key={assignment.id} className="hover:bg-slate-700/30">
-                        <td className="px-6 py-4 text-white font-medium">{assignment.title}</td>
-                        <td className="px-6 py-4 text-gray-300">{courses.find(c => c.id === assignment.courseId)?.name || 'N/A'}</td>
-                        <td className="px-6 py-4 text-gray-300">{assignment.dueDate}</td>
-                        <td className="px-6 py-4 text-gray-300">{assignment.totalPoints}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex space-x-2">
-                            <Button variant="secondary" size="sm">View</Button>
-                            <Button size="sm">Grade</Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">{assignments.length} assignment{assignments.length !== 1 ? 's' : ''}</p>
+              <button onClick={() => setShowAssignmentModal(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors">
+                <Icons.Plus /> Create Assignment
+              </button>
             </div>
 
-            {showAssignmentModal && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-white/20 shadow-2xl">
-                  <h3 className="text-xl font-bold text-white mb-6">Create New Assignment</h3>
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const newAssignment = {
-                      ...assignmentForm,
-                      id: Date.now(),
-                      courseId: parseInt(assignmentForm.courseId)
-                    };
-                    setAssignments([...assignments, newAssignment]);
-                    setShowAssignmentModal(false);
-                    setAssignmentForm({ title: '', description: '', courseId: '', dueDate: '', totalPoints: 100 });
-                  }} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
-                      <input
-                        type="text"
-                        value={assignmentForm.title}
-                        onChange={(e) => setAssignmentForm({...assignmentForm, title: e.target.value})}
-                        placeholder="Assignment title"
-                        required
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Course</label>
-                      <select
-                        value={assignmentForm.courseId}
-                        onChange={(e) => setAssignmentForm({...assignmentForm, courseId: e.target.value})}
-                        required
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        <option value="">Select Course</option>
-                        {courses.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Due Date</label>
-                      <input
-                        type="date"
-                        value={assignmentForm.dueDate}
-                        onChange={(e) => setAssignmentForm({...assignmentForm, dueDate: e.target.value})}
-                        required
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Total Points</label>
-                      <input
-                        type="number"
-                        value={assignmentForm.totalPoints}
-                        onChange={(e) => setAssignmentForm({...assignmentForm, totalPoints: e.target.value})}
-                        required
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                      <textarea
-                        value={assignmentForm.description}
-                        onChange={(e) => setAssignmentForm({...assignmentForm, description: e.target.value})}
-                        placeholder="Assignment description..."
-                        rows={3}
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <button
-                        type="button"
-                        onClick={() => setShowAssignmentModal(false)}
-                        className="px-6 py-2 bg-slate-600 text-white rounded-xl hover:bg-slate-500 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
-                      >
-                        Create
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      case 'classes':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">Classes</h2>
-            <p className="text-gray-400">Manage class sections from here.</p>
-            <Button onClick={() => navigate('/ClassList')}>Manage Classes</Button>
-          </div>
-        );
-      case 'settings':
-        return (
-          <div className="space-y-6">
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
-              <h3 className="text-lg font-semibold text-white mb-4">Profile Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Name</label>
-                  <input
-                    type="text"
-                    defaultValue={name}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Email</label>
-                  <input
-                    type="email"
-                    defaultValue={email}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Specialty</label>
-                  <input
-                    type="text"
-                    defaultValue={specialty}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <Button>Save Changes</Button>
-              </div>
-            </div>
-
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10">
-              <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Current Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">New Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Confirm Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-                <Button>Update Password</Button>
-              </div>
-            </div>
-
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-red-500/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Logout</h3>
-              <p className="text-gray-400 mb-4">Sign out of your account</p>
-              <Button variant="danger" onClick={handleLogout}>Logout</Button>
-            </div>
-          </div>
-        );
-      case 'grades':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">Grade Book</h2>
-              <select
-                onChange={(e) => {
-                  const course = courses.find(c => c.id === parseInt(e.target.value));
-                  setSelectedCourse(course);
-                }}
-                className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">Select Course</option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {selectedCourse ? (
-              <div className="bg-slate-800/50 rounded-2xl border border-white/10 overflow-hidden">
-                <div className="p-4 border-b border-white/10 bg-slate-700/30">
-                  <h3 className="text-lg font-medium text-white">{selectedCourse.name}</h3>
-                  <p className="text-sm text-gray-400">{selectedCourse.schedule} | Room: {selectedCourse.room}</p>
-                </div>
-                
-                {assignments.filter(a => a.courseId === selectedCourse.id).length > 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              {assignments.length === 0
+                ? <EmptyState icon={<Icons.Assignments />} title="No assignments yet" description="Create your first assignment and start tracking submissions." />
+                : (
                   <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-slate-700/50">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Student</th>
-                          {assignments.filter(a => a.courseId === selectedCourse.id).map(a => (
-                            <th key={a.id} className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">{a.title}</th>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-50">
+                          {['Title', 'Course', 'Due Date', 'Points', ''].map(h => (
+                            <th key={h} className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{h}</th>
                           ))}
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Average</th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {students.slice(0, 10).map((student) => {
-                          const studentGradesList = assignments
-                            .filter(a => a.courseId === selectedCourse.id)
-                            .map(a => studentGrades[`${a.id}-${student.id}`]?.score || 0);
-                          const avg = studentGradesList.length > 0 
-                            ? (studentGradesList.reduce((a, b) => a + b, 0) / studentGradesList.length).toFixed(1)
-                            : 'N/A';
-                          
-                          return (
-                            <tr key={student.id} className="hover:bg-slate-700/30">
-                              <td className="px-4 py-3 text-white font-medium">{student.name}</td>
-                              {assignments.filter(a => a.courseId === selectedCourse.id).map(a => (
-                                <td key={a.id} className="px-4 py-3 text-center">
-                                  <span className={`px-2 py-1 rounded text-sm font-medium ${
-                                    (studentGrades[`${a.id}-${student.id}`]?.score || 0) >= (a.totalPoints * 0.6)
-                                      ? 'bg-green-500/20 text-green-400'
-                                      : 'bg-yellow-500/20 text-yellow-400'
-                                  }`}>
-                                    {studentGrades[`${a.id}-${student.id}`]?.score || '-'} / {a.totalPoints}
-                                  </span>
-                                </td>
-                              ))}
-                              <td className="px-4 py-3 text-center">
-                                <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-sm font-medium">
-                                  {avg}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <button
-                                  onClick={() => {
-                                    setSelectedStudent(student);
-                                    setShowGradeModal(true);
-                                  }}
-                                  className="text-indigo-400 hover:text-indigo-300 text-sm"
-                                >
-                                  Manage
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                      <tbody className="divide-y divide-slate-50">
+                        {assignments.map(a => (
+                          <tr key={a.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-3.5 font-semibold text-slate-700">{a.title}</td>
+                            <td className="px-6 py-3.5 text-slate-500">{courses.find(c => c.id === a.courseId)?.name || '—'}</td>
+                            <td className="px-6 py-3.5 text-slate-500">{a.dueDate}</td>
+                            <td className="px-6 py-3.5">
+                              <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-lg">{a.totalPoints} pts</span>
+                            </td>
+                            <td className="px-6 py-3.5">
+                              <div className="flex gap-2">
+                                <button className="text-xs font-medium text-slate-500 hover:text-slate-700">View</button>
+                                <span className="text-slate-200">·</span>
+                                <button className="text-xs font-medium text-violet-600 hover:text-violet-700">Grade</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
-                ) : (
-                  <div className="p-8 text-center text-gray-400">
-                    No assignments for this course. Create assignments first.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-slate-800/50 rounded-2xl p-8 border border-white/10 text-center">
-                <p className="text-gray-400">Select a course to view and manage grades</p>
-              </div>
-            )}
+                )
+              }
+            </div>
 
-            {showGradeModal && selectedStudent && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-white/20 shadow-2xl">
-                  <h3 className="text-xl font-bold text-white mb-6">
-                    Grade: {selectedStudent.name}
-                  </h3>
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (gradeForm.assignmentId && gradeForm.score) {
-                      const key = `${gradeForm.assignmentId}-${selectedStudent.id}`;
-                      setStudentGrades({
-                        ...studentGrades,
-                        [key]: {
-                          score: parseFloat(gradeForm.score),
-                          feedback: gradeForm.feedback
-                        }
-                      });
-                    }
-                    setShowGradeModal(false);
-                    setGradeForm({ assignmentId: '', studentId: '', score: '', feedback: '' });
-                  }} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Assignment</label>
-                      <select
-                        value={gradeForm.assignmentId}
-                        onChange={(e) => setGradeForm({...gradeForm, assignmentId: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        <option value="">Select Assignment</option>
-                        {assignments.filter(a => a.courseId === selectedCourse?.id).map(a => (
-                          <option key={a.id} value={a.id}>{a.title} ({a.totalPoints} pts)</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Score</label>
-                      <input
-                        type="number"
-                        value={gradeForm.score}
-                        onChange={(e) => setGradeForm({...gradeForm, score: e.target.value})}
-                        placeholder="Enter score"
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Feedback</label>
-                      <textarea
-                        value={gradeForm.feedback}
-                        onChange={(e) => setGradeForm({...gradeForm, feedback: e.target.value})}
-                        placeholder="Optional feedback for student..."
-                        rows={3}
-                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowGradeModal(false);
-                          setGradeForm({ assignmentId: '', studentId: '', score: '', feedback: '' });
-                        }}
-                        className="px-6 py-2 bg-slate-600 text-white rounded-xl hover:bg-slate-500 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors"
-                      >
-                        Save Grade
-                      </button>
-                    </div>
-                  </form>
+            {showAssignmentModal && (
+              <Modal title="Create New Assignment" onClose={() => setShowAssignmentModal(false)}
+                onSubmit={e => {
+                  e.preventDefault();
+                  setAssignments([...assignments, { ...assignmentForm, id: Date.now(), courseId: parseInt(assignmentForm.courseId) }]);
+                  setShowAssignmentModal(false);
+                  setAssignmentForm({ title: '', description: '', courseId: '', dueDate: '', totalPoints: 100 });
+                }}>
+                <Field label="Title" value={assignmentForm.title} onChange={e => setAssignmentForm({...assignmentForm, title: e.target.value})} placeholder="Assignment title" required />
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Course</label>
+                  <select value={assignmentForm.courseId} onChange={e => setAssignmentForm({...assignmentForm, courseId: e.target.value})} required
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition">
+                    <option value="">Select a course</option>
+                    {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                 </div>
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Due Date" type="date" value={assignmentForm.dueDate} onChange={e => setAssignmentForm({...assignmentForm, dueDate: e.target.value})} required />
+                  <Field label="Total Points" type="number" value={assignmentForm.totalPoints} onChange={e => setAssignmentForm({...assignmentForm, totalPoints: e.target.value})} required />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Description</label>
+                  <textarea value={assignmentForm.description} onChange={e => setAssignmentForm({...assignmentForm, description: e.target.value})}
+                    placeholder="Optional description…" rows={3}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition resize-none" />
+                </div>
+              </Modal>
             )}
           </div>
         );
+
+      /* ── GRADE BOOK ── */
+      case 'grades':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">Select a course to view grades</p>
+              <select onChange={e => setSelectedCourse(courses.find(c => c.id === parseInt(e.target.value)) || null)}
+                className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition shadow-sm">
+                <option value="">Choose course…</option>
+                {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+
+            {!selectedCourse
+              ? (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
+                  <EmptyState icon={<Icons.Grades />} title="No course selected" description="Choose a course above to view and manage student grades." />
+                </div>
+              )
+              : (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 border-b border-slate-50">
+                    <h3 className="text-sm font-semibold text-slate-700">{selectedCourse.name}</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">{selectedCourse.schedule} · Room {selectedCourse.room}</p>
+                  </div>
+                  {assignments.filter(a => a.courseId === selectedCourse.id).length === 0
+                    ? <EmptyState title="No assignments for this course" description="Create assignments first to start grading." />
+                    : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-slate-50">
+                              <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Student</th>
+                              {assignments.filter(a => a.courseId === selectedCourse.id).map(a => (
+                                <th key={a.id} className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{a.title}</th>
+                              ))}
+                              <th className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Avg</th>
+                              <th className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider"></th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-50">
+                            {students.slice(0, 10).map(s => {
+                              const courseAssignments = assignments.filter(a => a.courseId === selectedCourse.id);
+                              const scores = courseAssignments.map(a => studentGrades[`${a.id}-${s.id}`]?.score || 0);
+                              const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '—';
+                              return (
+                                <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-6 py-3.5 font-semibold text-slate-700">{s.name}</td>
+                                  {courseAssignments.map(a => {
+                                    const g = studentGrades[`${a.id}-${s.id}`];
+                                    const pct = g ? (g.score / a.totalPoints) * 100 : null;
+                                    return (
+                                      <td key={a.id} className="px-4 py-3.5 text-center">
+                                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg ${
+                                          pct === null ? 'text-slate-400 bg-slate-50' :
+                                          pct >= 60 ? 'text-emerald-700 bg-emerald-50' : 'text-amber-700 bg-amber-50'
+                                        }`}>
+                                          {g ? `${g.score}/${a.totalPoints}` : '—'}
+                                        </span>
+                                      </td>
+                                    );
+                                  })}
+                                  <td className="px-4 py-3.5 text-center">
+                                    <span className="text-xs font-bold text-violet-700 bg-violet-50 px-2.5 py-0.5 rounded-full">{avg}</span>
+                                  </td>
+                                  <td className="px-4 py-3.5 text-center">
+                                    <button onClick={() => { setSelectedStudent(s); setShowGradeModal(true); }}
+                                      className="text-xs font-medium text-violet-600 hover:text-violet-700">Manage</button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
+                  }
+                </div>
+              )
+            }
+
+            {showGradeModal && selectedStudent && (
+              <Modal title={`Grade: ${selectedStudent.name}`} onClose={() => { setShowGradeModal(false); setGradeForm({ assignmentId: '', score: '', feedback: '' }); }}
+                onSubmit={e => {
+                  e.preventDefault();
+                  if (gradeForm.assignmentId && gradeForm.score) {
+                    setStudentGrades({ ...studentGrades, [`${gradeForm.assignmentId}-${selectedStudent.id}`]: { score: parseFloat(gradeForm.score), feedback: gradeForm.feedback } });
+                  }
+                  setShowGradeModal(false);
+                  setGradeForm({ assignmentId: '', score: '', feedback: '' });
+                }}>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Assignment</label>
+                  <select value={gradeForm.assignmentId} onChange={e => setGradeForm({...gradeForm, assignmentId: e.target.value})}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition">
+                    <option value="">Select assignment</option>
+                    {assignments.filter(a => a.courseId === selectedCourse?.id).map(a => (
+                      <option key={a.id} value={a.id}>{a.title} ({a.totalPoints} pts)</option>
+                    ))}
+                  </select>
+                </div>
+                <Field label="Score" type="number" value={gradeForm.score} onChange={e => setGradeForm({...gradeForm, score: e.target.value})} placeholder="Enter score" />
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Feedback <span className="text-slate-300">(optional)</span></label>
+                  <textarea value={gradeForm.feedback} onChange={e => setGradeForm({...gradeForm, feedback: e.target.value})}
+                    placeholder="Leave a note for the student…" rows={3}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition resize-none" />
+                </div>
+              </Modal>
+            )}
+          </div>
+        );
+
+      /* ── SETTINGS ── */
+      case 'settings':
+        return (
+          <div className="max-w-2xl space-y-5">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">Profile Settings</h3>
+              <div className="space-y-4">
+                {[{ label: 'Full Name', type: 'text', val: name }, { label: 'Email Address', type: 'email', val: email }, { label: 'Specialty', type: 'text', val: specialty }].map(f => (
+                  <div key={f.label}>
+                    <label className="block text-xs font-medium text-slate-500 mb-1.5">{f.label}</label>
+                    <input type={f.type} defaultValue={f.val}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition" />
+                  </div>
+                ))}
+                <button className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors">Save Changes</button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">Change Password</h3>
+              <div className="space-y-4">
+                {['Current Password', 'New Password', 'Confirm New Password'].map(lbl => (
+                  <div key={lbl}>
+                    <label className="block text-xs font-medium text-slate-500 mb-1.5">{lbl}</label>
+                    <input type="password"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition" />
+                  </div>
+                ))}
+                <button className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-xl transition-colors">Update Password</button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-rose-100 shadow-sm p-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-1">Sign Out</h3>
+              <p className="text-xs text-slate-400 mb-4">This will end your current session.</p>
+              <button onClick={handleLogout}
+                className="px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-medium rounded-xl border border-rose-100 transition-colors">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        );
+
       default:
         return (
-          <div className="bg-slate-800/50 rounded-2xl p-6 border border-white/10 text-center">
-            <p className="text-gray-400">Coming soon...</p>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center">
+            <p className="text-slate-400 text-sm">Coming soon…</p>
           </div>
         );
     }
   };
 
+  /* ────────────────────── SHELL ────────────────────── */
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Top Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-900/80 backdrop-blur-lg h-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <SchoolIcon className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white hover:text-indigo-300 transition-colors">Teacher Management System</span>
-            </Link>
+    <div className="min-h-screen bg-slate-50 font-sans">
+
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-100 h-14 flex items-center px-6">
+        <Link to="/" className="flex items-center gap-2.5 select-none">
+          <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
+            <span className="text-white font-bold text-sm">T</span>
+          </div>
+          <span className="text-sm font-semibold text-slate-700 tracking-tight">Teacher Management</span>
+        </Link>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <p className="text-xs font-semibold text-slate-700">{name}</p>
+            <p className="text-[11px] text-slate-400">{specialty}</p>
+          </div>
+          <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center">
+            <span className="text-violet-700 font-bold text-sm">{(name || 'T')[0].toUpperCase()}</span>
           </div>
         </div>
       </nav>
 
       {/* Sidebar */}
-      <div className={`fixed top-16 inset-y-0 left-0 ${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-800/50 backdrop-blur-lg border-r border-white/10 z-40 transition-all duration-300`}>
-        <div className="flex justify-between items-center p-4 border-b border-white/10">
+      <aside className={`fixed top-14 left-0 bottom-0 ${sidebarW} bg-white border-r border-slate-100 z-40 transition-all duration-200 flex flex-col`}>
+        <div className="h-12 flex items-center px-3 border-b border-slate-50">
           {isSidebarOpen && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold">T</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">{name || 'Teacher'}</p>
-                <p className="text-xs text-gray-400">{specialty}</p>
-              </div>
+            <div className="flex-1 min-w-0 px-1">
+              <p className="text-xs font-semibold text-slate-700 truncate">{name || 'Teacher'}</p>
+              <p className="text-[11px] text-slate-400 truncate">{specialty || 'Faculty'}</p>
             </div>
           )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
-          >
-            {isSidebarOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+          <button onClick={() => setIsSidebarOpen(v => !v)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors shrink-0">
+            {isSidebarOpen ? <Icons.ChevronLeft /> : <Icons.Menu />}
           </button>
         </div>
-        <nav className="p-4">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center ${isSidebarOpen ? 'px-4 py-3' : 'px-2 py-3 justify-center'} rounded-xl transition-all ${
-                    activeTab === item.id
-                      ? 'bg-violet-500/20 text-violet-400'
-                      : 'text-gray-400 hover:bg-slate-700/50 hover:text-white'
-                  }`}
-                >
-                  <span className="text-xl">{item.icon}</span>
-                  {isSidebarOpen && <span className="ml-3">{item.label}</span>}
-                </button>
-              </li>
-            ))}
-            <li className="pt-4 mt-4 border-t border-white/10">
-              <button
-                onClick={handleLogout}
-                className={`w-full flex items-center ${isSidebarOpen ? 'px-4 py-3' : 'px-2 py-3 justify-center'} rounded-xl text-red-400 hover:bg-red-500/10 transition-all`}
-              >
-                <span className="text-xl">🚪</span>
-                {isSidebarOpen && <span className="ml-3">Logout</span>}
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
 
-      {/* Main Content */}
-      <div className={`${isSidebarOpen ? 'ml-64' : 'ml-20'} p-8 transition-all duration-300`}>
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Teacher Dashboard</h1>
-            <p className="text-gray-400 mt-1">ID: {id} | {specialty}</p>
-          </div>
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+          {menuItems.map(({ id, label, Icon }) => {
+            const active = activeTab === id;
+            return (
+              <button key={id} onClick={() => setActiveTab(id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors
+                  ${active ? 'bg-violet-50 text-violet-700' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'}`}>
+                <span className={`shrink-0 ${active ? 'text-violet-600' : ''}`}><Icon /></span>
+                {isSidebarOpen && (
+                  <span className={`text-sm font-medium truncate ${active ? 'text-violet-700' : ''}`}>{label}</span>
+                )}
+                {active && isSidebarOpen && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0" />}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="px-2 pb-3 pt-2 border-t border-slate-50">
+          <button onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:bg-rose-50 hover:text-rose-500 transition-colors">
+            <span className="shrink-0"><Icons.Logout /></span>
+            {isSidebarOpen && <span className="text-sm font-medium">Sign Out</span>}
+          </button>
         </div>
-        {renderContent()}
-      </div>
-      
+      </aside>
+
+      {/* Main */}
+      <main className={`${contentML} pt-14 transition-all duration-200`}>
+        <div className="p-6 max-w-6xl">
+          <div className="mb-6">
+            <h1 className="text-xl font-bold text-slate-800">{tabLabel}</h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {activeTab === 'dashboard' ? `Welcome back, ${name?.split(' ')[0] || 'Teacher'}` : `Manage your ${tabLabel.toLowerCase()}`}
+            </p>
+          </div>
+          {renderContent()}
+        </div>
+      </main>
+
       <AIChat userId={id} role="TEACHER" />
     </div>
   );

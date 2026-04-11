@@ -58,24 +58,24 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface-950">
+    <div className="min-h-screen flex flex-col bg-surface-50">
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-white/[0.06] bg-surface-950/80 backdrop-blur-md">
+      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-surface-100 bg-white backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
               <SchoolIcon style={{ fontSize: 18 }} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-white tracking-tight">
+            <span className="text-sm font-semibold text-surface-800 tracking-tight">
               Student Management System
             </span>
           </Link>
         </div>
       </nav>
 
-      {/* Background glow */}
+      {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -transurface-x-1/2 w-[600px] h-[400px] bg-primary-600/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary-100 rounded-full blur-[100px]" />
       </div>
 
       {/* Content */}
@@ -84,18 +84,18 @@ const StudentLogin = () => {
 
           {/* Header */}
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-600 mb-5">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 mb-5 shadow-lg shadow-primary-100">
               <SchoolIcon style={{ fontSize: 22 }} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Sign in to your account</h1>
-            <p className="mt-1.5 text-sm text-surface-400">Enter your credentials to continue</p>
+            <h1 className="text-2xl font-bold text-surface-800 tracking-tight font-display">Sign in to your account</h1>
+            <p className="mt-1.5 text-sm text-surface-500">Enter your credentials to continue</p>
           </div>
 
           {/* Card */}
-          <div className="bg-surface-900 border border-white/[0.08] rounded-2xl p-8">
+          <div className="bg-white border border-surface-100 rounded-2xl p-8 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-surface-400 mb-1.5">
+                <label className="block text-xs font-medium text-surface-600 mb-1.5">
                   Email address
                 </label>
                 <input
@@ -104,14 +104,14 @@ const StudentLogin = () => {
                   onChange={(e) => { setEmail(e.target.value); setError(''); }}
                   placeholder="student@example.com"
                   required
-                  className={`w-full h-10 px-3 rounded-lg bg-surface-800 border text-sm text-white placeholder-surface-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 ${
-                    error ? 'border-red-500/60' : 'border-white/[0.08]'
+                  className={`w-full h-10 px-3 rounded-lg bg-surface-50 border border-surface-200 text-sm text-surface-800 placeholder-surface-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 ${
+                    error ? 'border-red-500/60' : ''
                   }`}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-surface-400 mb-1.5">
+                <label className="block text-xs font-medium text-surface-600 mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -121,14 +121,14 @@ const StudentLogin = () => {
                     onChange={(e) => { setPassword(e.target.value); setError(''); }}
                     placeholder="••••••••"
                     required
-                    className={`w-full h-10 px-3 pr-10 rounded-lg bg-surface-800 border text-sm text-white placeholder-surface-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 ${
-                      error ? 'border-red-500/60' : 'border-white/[0.08]'
+                    className={`w-full h-10 px-3 pr-10 rounded-lg bg-surface-50 border border-surface-200 text-sm text-surface-800 placeholder-surface-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 ${
+                      error ? 'border-red-500/60' : ''
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -transurface-y-1/2 text-surface-500 hover:text-surface-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
                     tabIndex={-1}
                   >
                     {showPassword
@@ -145,24 +145,24 @@ const StudentLogin = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded border-surface-600 bg-surface-800 accent-primary-500 cursor-pointer"
+                  className="w-3.5 h-3.5 rounded border-surface-300 bg-surface-50 accent-primary-500 cursor-pointer"
                 />
-                <label htmlFor="remember" className="text-xs text-surface-400 cursor-pointer select-none">
+                <label htmlFor="remember" className="text-xs text-surface-500 cursor-pointer select-none">
                   Remember me
                 </label>
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <span className="text-red-400 text-xs leading-none">⚠</span>
-                  <p className="text-xs text-red-400">{error}</p>
+                <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-100 rounded-lg">
+                  <span className="text-red-500 text-xs leading-none">⚠</span>
+                  <p className="text-xs text-red-600">{error}</p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-10 mt-1 bg-primary-600 hover:bg-primary-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full h-10 mt-1 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-primary-100"
               >
                 {isLoading ? (
                   <>
@@ -178,10 +178,10 @@ const StudentLogin = () => {
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-white/[0.06] text-center">
-              <p className="text-xs text-surface-500">
+            <div className="mt-6 pt-5 border-t border-surface-100 text-center">
+              <p className="text-xs text-surface-400">
                 Don&apos;t have an account?{' '}
-                <button onClick={() => navigate('/StudentRegister')} className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
+                <button onClick={() => navigate('/StudentRegister')} className="text-primary-500 hover:text-primary-600 font-medium transition-colors">
                   Register here
                 </button>
               </p>
@@ -192,10 +192,10 @@ const StudentLogin = () => {
           <button
             type="button"
             onClick={fillDemo}
-            className="mt-3 w-full h-9 flex items-center justify-center gap-1.5 bg-surface-900 hover:bg-surface-800 border border-white/[0.06] rounded-xl text-xs text-surface-500 hover:text-surface-300 transition-all"
+            className="mt-3 w-full h-9 flex items-center justify-center gap-1.5 bg-surface-50 hover:bg-surface-100 border border-surface-200 rounded-xl text-xs text-surface-500 hover:text-surface-700 transition-all"
           >
             <span>Use demo credentials</span>
-            <span className="text-primary-400 font-medium">student@example.com / 123</span>
+            <span className="text-primary-500 font-medium">student@example.com / 123</span>
           </button>
         </div>
       </div>

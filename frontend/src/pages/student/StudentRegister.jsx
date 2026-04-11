@@ -40,28 +40,28 @@ const StudentRegister = () => {
     }
   };
 
-  const inputClass = 'w-full h-10 px-3 rounded-lg bg-surface-800 border border-white/[0.08] text-sm text-white placeholder-surface-500 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500';
-  const labelClass = 'block text-xs font-medium text-surface-400 mb-1.5';
+  const inputClass = 'w-full h-10 px-3 rounded-lg bg-surface-50 border border-surface-200 text-sm text-surface-800 placeholder-surface-400 outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20';
+  const labelClass = 'block text-xs font-medium text-surface-600 mb-1.5';
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface-950">
+    <div className="min-h-screen flex flex-col bg-surface-50">
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-white/[0.06] bg-surface-950/80 backdrop-blur-md">
+      <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b border-surface-100 bg-white backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
               <SchoolIcon style={{ fontSize: 18 }} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-white tracking-tight">
+            <span className="text-sm font-semibold text-surface-800 tracking-tight">
               Student Management System
             </span>
           </Link>
         </div>
       </nav>
 
-      {/* Background glow */}
+      {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -transurface-x-1/2 w-[600px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary-100 rounded-full blur-[100px]" />
       </div>
 
       {/* Content */}
@@ -70,130 +70,58 @@ const StudentRegister = () => {
 
           {/* Header */}
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-5">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 mb-5 shadow-lg shadow-primary-100">
               <SchoolIcon style={{ fontSize: 22 }} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Create your account</h1>
-            <p className="mt-1.5 text-sm text-surface-400">Fill in the details below to register</p>
+            <h1 className="text-2xl font-bold text-surface-800 tracking-tight font-display">Create your account</h1>
+            <p className="mt-1.5 text-sm text-surface-500">Fill in the details below to register</p>
           </div>
 
           {/* Card */}
-          <div className="bg-surface-900 border border-white/[0.08] rounded-2xl p-8">
+          <div className="bg-white border border-surface-100 rounded-2xl p-8 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Full name</label>
-                  <input
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="John Doe"
-                    required
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClass}>Email address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="student@university.edu"
-                    required
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClass}>Password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      required
-                      className={`${inputClass} pr-10`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -transurface-y-1/2 text-surface-500 hover:text-surface-300 transition-colors"
-                      tabIndex={-1}
-                    >
-                      {showPassword
-                        ? <VisibilityOffIcon style={{ fontSize: 16 }} />
-                        : <VisibilityIcon style={{ fontSize: 16 }} />
-                      }
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={labelClass}>Phone <span className="text-surface-600">(optional)</span></label>
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+1 234 567 890"
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>
-                    Class
-                  </label>
-                  <select
-                    name="classId"
-                    value={formData.classId}
-                    onChange={handleChange}
-                    className={`${inputClass} appearance-none cursor-pointer`}
-                  >
-                    <option value="">Select a class</option>
-                    {classes?.map((cls) => (
-                      <option key={cls.id} value={cls.id}>{cls.name}</option>
-                    ))}
-                  </select>
+              <div>
+                <label className={labelClass}>Full Name</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="John Doe" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Email Address</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="student@example.com" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Password</label>
+                <div className="relative">
+                  <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" className={`${inputClass} pr-10`} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600">
+                    {showPassword ? <VisibilityOffIcon style={{ fontSize: 16 }} /> : <VisibilityIcon style={{ fontSize: 16 }} />}
+                  </button>
                 </div>
               </div>
-
+              <div>
+                <label className={labelClass}>Phone Number</label>
+                <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1234567890" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Class</label>
+                <select name="classId" value={formData.classId} onChange={handleChange} required className={inputClass}>
+                  <option value="">Select a class</option>
+                  {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
               {error && (
-                <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <span className="text-red-400 text-xs">⚠</span>
-                  <p className="text-xs text-red-400">{error}</p>
+                <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-100 rounded-lg">
+                  <span className="text-red-500 text-xs">⚠</span>
+                  <p className="text-xs text-red-600">{error}</p>
                 </div>
               )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-10 mt-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Registering...
-                  </>
-                ) : (
-                  'Create account'
-                )}
+              <button type="submit" disabled={isLoading} className="w-full h-10 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-primary-100">
+                {isLoading ? 'Creating account...' : 'Create Account'}
               </button>
             </form>
-
-            <div className="mt-6 pt-5 border-t border-white/[0.06] text-center">
-              <p className="text-xs text-surface-500">
+            <div className="mt-6 pt-5 border-t border-surface-100 text-center">
+              <p className="text-xs text-surface-400">
                 Already have an account?{' '}
-                <button
-                  onClick={() => navigate('/StudentLogin')}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
-                >
+                <button onClick={() => navigate('/StudentLogin')} className="text-primary-500 hover:text-primary-600 font-medium">
                   Sign in
                 </button>
               </p>
