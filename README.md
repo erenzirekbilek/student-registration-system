@@ -28,7 +28,8 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 - ⚙️ Settings page with profile & password management
 
 ### System Features
-- 🎨 Modern responsive UI with dark theme
+- 🎨 Modern responsive UI with light theme (consistent across all pages)
+- 📊 Interactive charts and visualizations using Chart.js
 - 🔒 JWT-ready authentication structure
 - 📱 Mobile-friendly design
 - 🚀 Production-ready structure
@@ -54,6 +55,7 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 | React 18 | UI Framework |
 | Redux Toolkit | State Management |
 | Tailwind CSS | Styling |
+| **Chart.js** | **Data Visualization** |
 | Vite | Build Tool |
 | React Router | Navigation |
 
@@ -152,6 +154,81 @@ This ensures:
 - `createIndex` / `dropIndex` - Manage indexes
 - `sql` - Run raw SQL
 - And many more in [Liquibase docs](https://docs.liquibase.com/)
+
+---
+
+## 📊 Chart.js Integration
+
+We use **Chart.js** with `react-chartjs-2` for data visualization in the dashboard.
+
+### Installation
+
+Chart.js is already included in the project dependencies:
+```json
+"chart.js": "^4.5.1",
+"react-chartjs-2": "^5.3.1"
+```
+
+### Usage Example
+
+```jsx
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const ChartComponent = () => {
+  const data = {
+    labels: ['Math', 'Science', 'History', 'Art'],
+    datasets: [
+      {
+        label: 'Student Grades',
+        data: [85, 92, 78, 88],
+        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+        borderColor: 'rgb(99, 102, 241)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Student Performance' },
+    },
+  };
+
+  return <Bar options={options} data={data} />;
+};
+```
+
+### Available Chart Types
+
+| Chart | Component | Use Case |
+|-------|-----------|----------|
+| Bar Chart | `<Bar />` | Compare values across categories |
+| Line Chart | `<Line />` | Show trends over time |
+| Pie Chart | `<Pie />` | Show distribution/percentages |
+| Doughnut | `<Doughnut />` | Show distribution (with hole) |
+| Scatter | `<Scatter />` | Show correlation between values |
+| Radar | `<Radar />` | Show multi-variable comparison |
 
 ---
 
@@ -260,6 +337,16 @@ During development, we encountered and fixed several issues:
 - **Problem**: Notification and settings icons in header (duplicate with sidebar)
 - **Solution**: Removed icons from top bar header, kept only in sidebar
 - **Files**: `TeacherPanel.jsx`, `StudentPanel.jsx`
+
+### 14. Light Theme Migration
+- **Problem**: Inconsistent UI theme across pages (mix of dark/light)
+- **Solution**: Updated all pages to use consistent light theme with bg-slate-50, white cards, indigo/violet accents
+- **Files**: All page components in `pages/student/` and `pages/teacher/`
+
+### 15. Chart.js Integration
+- **Problem**: Need data visualization for dashboards
+- **Solution**: Added Chart.js and react-chartjs-2 dependencies for interactive charts
+- **Files**: `package.json`, README.md documentation
 
 ---
 
