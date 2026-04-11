@@ -8,6 +8,7 @@ services:
       POSTGRES_DB: school_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root123
+    command: ["postgres", "-c", "shared_preload_libraries=vector"]
     ports:
       - "5432:5432"
     volumes:

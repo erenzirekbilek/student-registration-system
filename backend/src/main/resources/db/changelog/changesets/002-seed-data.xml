@@ -6,7 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
     <changeSet id="002-insert-classes" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM classes</sqlCheck>
         </preConditions>
         <insert tableName="classes">
@@ -30,7 +30,7 @@
     </changeSet>
 
     <changeSet id="002-insert-teachers" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM teachers</sqlCheck>
         </preConditions>
         <insert tableName="teachers">
@@ -57,7 +57,7 @@
     </changeSet>
 
     <changeSet id="002-insert-students" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM students</sqlCheck>
         </preConditions>
         <insert tableName="students">
@@ -93,7 +93,7 @@
     </changeSet>
 
     <changeSet id="002-insert-courses" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM courses</sqlCheck>
         </preConditions>
         <insert tableName="courses">
@@ -129,7 +129,7 @@
     </changeSet>
 
     <changeSet id="002-insert-enrollments" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM enrollments</sqlCheck>
         </preConditions>
         <insert tableName="enrollments">

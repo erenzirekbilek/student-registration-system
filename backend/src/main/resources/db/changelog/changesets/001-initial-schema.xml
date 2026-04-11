@@ -6,7 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
     <changeSet id="001-create-classes-table" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="classes"/>
             </not>
@@ -24,7 +24,7 @@
     </changeSet>
 
     <changeSet id="001-create-students-table" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="students"/>
             </not>
@@ -49,7 +49,7 @@
     </changeSet>
 
     <changeSet id="001-create-teachers-table" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="teachers"/>
             </not>
@@ -70,7 +70,7 @@
     </changeSet>
 
     <changeSet id="001-create-courses-table" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="courses"/>
             </not>
@@ -92,7 +92,7 @@
     </changeSet>
 
     <changeSet id="001-create-enrollments-table" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="enrollments"/>
             </not>
@@ -111,7 +111,7 @@
     </changeSet>
 
     <changeSet id="001-add-foreign-keys" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_student_class"/>
             </not>
@@ -124,7 +124,7 @@
     </changeSet>
 
     <changeSet id="001-add-fk-course-teacher" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_course_teacher"/>
             </not>
@@ -137,7 +137,7 @@
     </changeSet>
 
     <changeSet id="001-add-fk-course-class" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_course_class"/>
             </not>
@@ -150,7 +150,7 @@
     </changeSet>
 
     <changeSet id="001-add-fk-enrollment-student" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_enrollment_student"/>
             </not>
@@ -163,7 +163,7 @@
     </changeSet>
 
     <changeSet id="001-add-fk-enrollment-course" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <foreignKeyConstraintExists foreignKeyName="fk_enrollment_course"/>
             </not>
@@ -176,7 +176,7 @@
     </changeSet>
 
     <changeSet id="001-create-ai-schema" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <schemaExists schemaName="ai_schema"/>
             </not>
@@ -195,7 +195,7 @@
     </changeSet>
 
     <changeSet id="001-create-vector-index" author="liquibase">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <indexExists indexName="idx_regulations_embedding"/>
             </not>

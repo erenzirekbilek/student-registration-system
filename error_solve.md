@@ -154,3 +154,68 @@ DATABASECHANGELOG → EXECTYPE sütununu kontrol et
 ---
 
 > 💡 **İpucu:** Sorun giderme sırasında Liquibase log seviyesini `--log-level=DEBUG` olarak ayarlarsan, hangi changeset'lerin neden atlandığını çok daha net görebilirsin.
+
+---
+
+## 🔴 Liquibase Çalışmama Sorunu - Tespit Edilen Problemler ve Çözümler
+
+### Problem 1: PostgreSQL'de `pgvector` Uzantısı Eksik
+
+**Sorun:** `001-initial-schema.xml` dosyasında `vector` uzantısı ve `ai_schema` kullanılıyor, ancak PostgreSQL'de bu uzantı yüklü değil.
+
+**Çözüm:** `docker-compose.yml`'i güncelledim:
+```yaml
+postgres:
+  image: pgvector/pgvector:0.8.2-pg16-bookworm  # PostgreSQL yerine pgvector imajı
+  command: ["postgres", "-c", "shared_preload_libraries=vector"]
+```
+
+**Not:** Uzantıyı manuel olarak oluşturman gerekebilir:
+```bash
+docker exec school_db psql -U postgres -d school_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+```
+
+---
+
+### Problem 2: `onFail="MARK_RAN"` Kullanımı
+
+**Sorun:** Tüm changeset'lerde `onFail="MARK_RAN"` kullanılıyor. Bu, precondition sağlanmadığında changeset çalışmadan "başarılı" olarak işaretlenir.
+
+**Çözüm:** Tüm changeset'lerde `onFail="MARK_RAN"` → `onFail="HALT"` olarak değiştirildi.
+
+**Dosyalar:**
+- `backend/src/main/resources/db/changelog/changesets/001-initial-schema.xml`
+- `backend/src/main/resources/db/changelog/changesets/002-seed-data.xml`
+
+---
+
+### Problem 3: Liquibase Log Seviyesi
+
+**Çözüm:** Log seviyesi `DEBUG` olarak değiştirildi:
+```properties
+logging.level.liquibase=DEBUG
+```
+
+---
+
+### Test Etmek İçin
+
+1. PostgreSQL'i yeniden başlat (tüm volume'leri silerek):
+   ```bash
+   docker compose down -v && docker compose up -d
+   ```
+
+2. Uzantıyı manuel yükle:
+   ```bash
+   docker exec school_db psql -U postgres -d school_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+   ```
+
+3. Spring Boot uygulamasını çalıştır:
+   ```bash
+   cd backend && mvn spring-boot:run
+   ```
+
+4. `DATABASECHANGELOG` tablosunu kontrol et:
+   ```bash
+   docker exec school_db psql -U postgres -d school_db -c "SELECT id, author, exectype, description FROM databasechangelog;"
+   ```
