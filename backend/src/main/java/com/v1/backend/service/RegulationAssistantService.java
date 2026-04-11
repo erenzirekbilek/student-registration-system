@@ -1,14 +1,21 @@
 package com.v1.backend.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class RegulationAssistantService {
 
     @Value("${groq.api.key:}")
@@ -16,70 +23,77 @@ public class RegulationAssistantService {
 
     private final String model = "llama3-70b-8192";
     private final String baseUrl = "https://api.groq.com/openai/v1/chat/completions";
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    @PostConstruct
+    public void validateConfig() {
+        if (groqApiKey == null || groqApiKey.isBlank() || groqApiKey.startsWith("${")) {
+            log.warn("Groq API key not configured — AI assistant will return placeholder responses.");
+        }
+    }
 
     public String ask(String question, String role, Map<String, Object> personalData) {
-        if (groqApiKey == null || groqApiKey.isEmpty() || groqApiKey.startsWith("${")) {
-            return getPlaceholderResponse(question, role, personalData);
+
+        if (groqApiKey == null || groqApiKey.isBlank() || groqApiKey.startsWith("${")) {
+            return getPlaceholderResponse(question);
         }
 
         try {
             String systemPrompt = buildSystemMessage(role);
-            String contextText = buildContextText(personalData);
+            String userMessage = buildContextText(personalData) + "\n\nQuestion: " + question;
 
-            String userMessage = contextText + "\n\nQuestion: " + question;
+            ObjectNode requestBody = objectMapper.createObjectNode();
+            requestBody.put("model", model);
+            requestBody.put("temperature", 0.3);
+            requestBody.put("max_tokens", 2048);
 
-            String requestBody = String.format("""
-                {
-                    "model": "%s",
-                    "messages": [
-                        {"role": "system", "content": "%s"},
-                        {"role": "user", "content": "%s"}
-                    ],
-                    "temperature": 0.3,
-                    "max_tokens": 2048
-                }
-                """, model, systemPrompt.replace("\"", "\\\"").replace("\n", "\\n"), 
-                userMessage.replace("\"", "\\\"").replace("\n", "\\n"));
+            ArrayNode messages = requestBody.putArray("messages");
+            messages.addObject().put("role", "system").put("content", systemPrompt);
+            messages.addObject().put("role", "user").put("content", userMessage);
 
-            RestTemplate restTemplate = new RestTemplate();
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            String requestBodyJson = objectMapper.writeValueAsString(requestBody);
+
+            HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + groqApiKey);
-            headers.set("Content-Type", "application/json");
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestBody, headers);
-            
-            String response = restTemplate.postForObject(baseUrl, entity, String.class);
-            
-            JsonNode jsonNode = objectMapper.readTree(response);
-            return jsonNode.path("choices").get(0).path("message").path("content").asText();
+            HttpEntity<String> entity = new HttpEntity<>(requestBodyJson, headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(baseUrl, entity, String.class);
+
+            return objectMapper.readTree(response.getBody())
+                    .path("choices").get(0)
+                    .path("message")
+                    .path("content")
+                    .asText();
 
         } catch (Exception e) {
-            return "Error connecting to AI service: " + e.getMessage() + "\n\n" +
-                   getPlaceholderResponse(question, role, personalData);
+            log.error("Failed to call Groq API", e);
+            return "The AI assistant is temporarily unavailable. Please try again later.";
         }
     }
 
-    private String getPlaceholderResponse(String question, String role, Map<String, Object> personalData) {
-        return "AI Assistant is configured but needs a valid API key.\n\n" +
-               "Question: " + question + "\n\n" +
-               "To enable AI, add your Groq API key to application.properties:\n" +
-               "groq.api.key=your_api_key_here";
+    private String getPlaceholderResponse(String question) {
+        return "AI Assistant is not configured.\n\n" +
+                "Question received: " + question + "\n\n" +
+                "To enable AI, set the GROQ_API_KEY.";
     }
 
     private String buildSystemMessage(String role) {
         return switch (role) {
             case "STUDENT" -> """
                 You are an AI assistant for the Student Management System.
-                Adopt a GUIDANCE persona: supportive, clear, and focused on the student's personal situation.
+                Adopt a GUIDANCE persona: supportive, clear, and focused.
                 Keep responses concise and helpful.
                 """;
             case "TEACHER" -> """
                 You are an AI assistant for the Student Management System.
-                Adopt an ADMINISTRATIVE SUPPORT persona: technical, procedural, and precise.
-                Keep responses concise and actionable.
+                Adopt an ADMINISTRATIVE SUPPORT persona: precise and actionable.
                 """;
-            default -> "You are a helpful assistant for a student management system.";
+            default -> "You are a helpful assistant.";
         };
     }
 
@@ -87,9 +101,9 @@ public class RegulationAssistantService {
         if (personalData == null || personalData.isEmpty()) {
             return "No personal data available.";
         }
-        
+
         StringBuilder sb = new StringBuilder("[PERSONAL DATA]\n");
-        personalData.forEach((key, value) -> sb.append(key).append(": ").append(value).append("\n"));
+        personalData.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\n"));
         return sb.toString();
     }
 }
