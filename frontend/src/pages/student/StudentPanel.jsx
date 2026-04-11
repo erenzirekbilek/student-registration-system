@@ -3,6 +3,33 @@ import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 // Lucide-style inline SVG icons (no emoji, no MUI)
 const Icons = {
@@ -213,6 +240,76 @@ const StudentPanel = () => {
   /* ─── tab labels ─── */
   const tabLabel = menuItems.find(m => m.id === activeTab)?.label ?? 'Dashboard';
 
+  /* ─── chart data for dashboard ─── */
+  const attendanceData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    datasets: [
+      {
+        label: 'Attendance %',
+        data: [95, 100, 88, 92, 100],
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
+  const courseProgressData = {
+    labels: courses.map(c => c.name?.split(' ')[0] || 'Course'),
+    datasets: [
+      {
+        label: 'Progress %',
+        data: courses.length > 0 ? courses.map(() => Math.floor(Math.random() * 30) + 70) : [],
+        backgroundColor: [
+          'rgba(99, 102, 241, 0.7)',
+          'rgba(139, 92, 246, 0.7)',
+          'rgba(168, 85, 247, 0.7)',
+          'rgba(192, 132, 252, 0.7)',
+        ],
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  const gradeDistributionData = {
+    labels: ['A', 'B', 'C', 'D', 'F'],
+    datasets: [
+      {
+        data: [25, 35, 25, 10, 5],
+        backgroundColor: [
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(14, 165, 233, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(249, 115, 22, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+        ],
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8' } },
+    },
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#64748b', padding: 15, usePointStyle: true } },
+    },
+    cutout: '65%',
+  };
+
   /* ─────────────────── RENDER CONTENT ─────────────────── */
   const renderContent = () => {
     switch (activeTab) {
@@ -234,6 +331,47 @@ const StudentPanel = () => {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Charts row */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Attendance Line Chart */}
+              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-slate-700">Weekly Attendance</h3>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded-full">+2.5%</span>
+                </div>
+                <div className="h-56">
+                  {courses.length > 0 ? (
+                    <Line data={attendanceData} options={chartOptions} />
+                  ) : (
+                    <EmptyState title="No data" description="Enroll in courses to see attendance" />
+                  )}
+                </div>
+              </div>
+
+              {/* Grade Distribution Doughnut */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <h3 className="text-sm font-semibold text-slate-700 mb-4">Grade Distribution</h3>
+                <div className="h-56">
+                  <Doughnut data={gradeDistributionData} options={doughnutOptions} />
+                </div>
+              </div>
+            </div>
+
+            {/* Course Progress Bar Chart */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-700">Course Progress</h3>
+                <span className="text-xs text-indigo-500 font-medium">Current Semester</span>
+              </div>
+              <div className="h-48">
+                {courses.length > 0 ? (
+                  <Bar data={courseProgressData} options={chartOptions} />
+                ) : (
+                  <EmptyState title="No courses" description="Enroll in courses to track progress" />
+                )}
+              </div>
             </div>
 
             {/* Lower panels */}
