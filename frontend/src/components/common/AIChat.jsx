@@ -85,7 +85,7 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30 flex items-center justify-center transition-all hover:scale-110 ${
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 shadow-lg shadow-primary-200 flex items-center justify-center transition-all hover:scale-110 ${
           isOpen ? 'hidden' : 'flex'
         }`}
       >
@@ -94,12 +94,12 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-6 right-6 z-50 w-96 h-[500px] bg-slate-800 rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`fixed bottom-6 right-6 z-50 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-surface-100 flex flex-col overflow-hidden transition-all duration-300 ${
           isOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
         }`}
       >
         {/* Header */}
-        <div className="px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-between">
+        <div className="px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <AutoAwesomeIcon className="text-white w-5 h-5" />
             <span className="text-white font-semibold">AI Assistant</span>
@@ -113,7 +113,7 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-50">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -122,8 +122,8 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-2xl ${
                   msg.role === 'user'
-                    ? 'bg-violet-600 text-white'
-                    : 'bg-slate-700 text-gray-100'
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white'
+                    : 'bg-white text-surface-700 border border-surface-100'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -132,11 +132,11 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-slate-700 px-4 py-2 rounded-2xl">
+              <div className="bg-white px-4 py-2 rounded-2xl border border-surface-100">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -145,7 +145,7 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
         </div>
 
         {/* Input */}
-        <div className="p-3 border-t border-white/10">
+        <div className="p-3 border-t border-surface-100 bg-white">
           <div className="flex space-x-2">
             <input
               type="text"
@@ -153,12 +153,12 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask a question..."
-              className="flex-1 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+              className="flex-1 px-4 py-2 bg-surface-50 border border-surface-200 rounded-xl text-surface-700 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm"
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || isLoading}
-              className="px-3 py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-600 disabled:cursor-not-allowed rounded-xl transition-colors"
+              className="px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:bg-surface-200 disabled:cursor-not-allowed rounded-xl transition-all"
             >
               <SendIcon className="text-white w-5 h-5" />
             </button>
