@@ -26,6 +26,13 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 - 🏫 Class management
 - 📊 Dashboard with statistics
 - ⚙️ Settings page with profile & password management
+- 📝 Grade and attendance management
+
+### For Admins
+- 🔐 Secure Admin login
+- 📊 Dashboard with system statistics
+- 👥 Manage all students, teachers, courses, classes
+- 📈 View analytics and reports
 
 ### System Features
 - 🎨 Modern responsive UI with light theme (consistent across all pages)
@@ -35,6 +42,12 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 - 🚀 Production-ready structure
 - 🔃 Collapsible sidebar navigation
 - ✅ CORS configuration for API access
+- 👨‍💼 Admin panel for centralized management
+- 📈 Analytics and dashboard statistics
+- 🔐 Password reset functionality
+- 🖼️ Profile image upload support
+- 📝 Enrollment management for students
+- 📅 Attendance tracking system
 
 ---
 
@@ -386,12 +399,13 @@ Frontend will start at: `http://localhost:5173`
 student-registration-system/
 ├── backend/
 │   ├── src/main/java/com/v1/backend/
-│   │   ├── config/         # Configuration files (CORS)
+│   │   ├── config/         # Configuration files (CORS, Rate Limit)
 │   │   ├── controller/    # REST API Controllers
 │   │   ├── dto/          # Data Transfer Objects
 │   │   ├── model/        # Entity Models
 │   │   ├── repository/   # Data Repositories
-│   │   └── service/      # Business Logic
+│   │   ├── service/      # Business Logic
+│   │   └── security/     # JWT Authentication
 │   └── src/main/resources/
 │       ├── application.properties
 │       └── db/                    # Liquibase migrations
@@ -402,12 +416,13 @@ student-registration-system/
 │   │   ├── components/   # Reusable Components
 │   │   ├── pages/        # Page Components
 │   │   │   ├── student/  # Student Pages
-│   │   │   └── teacher/  # Teacher Pages
+│   │   │   ├── teacher/  # Teacher Pages
+│   │   │   └── admin/    # Admin Pages
 │   │   ├── RTK/         # Redux Toolkit Store
 │   │   └── App.jsx       # Main App Component
 │   └── package.json
 │
-├── docker-compose.yml       # Docker Compose
+├── docker-compose.yml       # Docker Compose (Backend + Frontend + PostgreSQL)
 └── README.md
 ```
 
@@ -450,6 +465,47 @@ student-registration-system/
 | PUT | `/api/courses/{id}` | Update course |
 | DELETE | `/api/courses/{id}` | Delete course |
 
+### Enrollments
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| GET | `/api/enrollments` | Get all enrollments |
+| GET | `/api/enrollments/student/{id}` | Get student enrollments |
+| GET | `/api/enrollments/course/{id}` | Get course enrollments |
+| POST | `/api/enrollments` | Enroll student in course |
+| PUT | `/api/enrollments/{id}/grade` | Update student grade |
+| PUT | `/api/enrollments/{id}/attendance` | Update attendance |
+| PUT | `/api/enrollments/{id}/unenroll` | Unenroll student |
+| DELETE | `/api/enrollments/{id}` | Delete enrollment |
+
+### Attendance
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| GET | `/api/attendance` | Get all attendance records |
+| GET | `/api/attendance/student/{id}` | Get student attendance |
+| GET | `/api/attendance/course/{id}` | Get course attendance |
+| POST | `/api/attendance` | Mark attendance |
+
+### Admins
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| POST | `/api/admins/login` | Admin login |
+| GET | `/api/admins` | Get all admins |
+| GET | `/api/admins/stats` | Get dashboard statistics |
+| POST | `/api/admins` | Create admin |
+| PUT | `/api/admins/{id}` | Update admin |
+| DELETE | `/api/admins/{id}` | Delete admin |
+
+### Authentication
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| POST | `/api/auth/forgot-password` | Request password reset |
+| POST | `/api/auth/reset-password` | Reset password |
+
+### File Upload
+| Method | Endpoint | Description |
+|-------|----------|-------------|
+| POST | `/api/upload/profile` | Upload profile image |
+
 ---
 
 ## 🐳 Docker Setup
@@ -458,6 +514,20 @@ student-registration-system/
 # Build and run with Docker
 docker-compose up -d
 ```
+
+### Docker Services
+| Service | Port | Description |
+|---------|------|-------------|
+| Frontend | 80 | React app with Nginx |
+| Backend | 8080 | Spring Boot API |
+| PostgreSQL | 5432 | Database with pgvector |
+
+### Default Credentials
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@school.com | password123 |
+| Teacher | john.smith@school.com | password123 |
+| Student | alice.johnson@student.com | password123 |
 
 ---
 
@@ -481,6 +551,49 @@ This project is licensed under the MIT License.
 
 **Eren Zirekbilek**
 - GitHub: [@erenzirekbilek](https://github.com/erenzirekbilek)
+
+---
+
+## 🆕 Latest Updates (v2.0)
+
+### New Features Added
+
+1. **Enrollment Management**
+   - Students can enroll/unenroll from courses
+   - Teachers can manage course enrollments
+   - Grade and attendance tracking per enrollment
+
+2. **Attendance Tracking**
+   - Daily attendance marking system
+   - Track attendance by student, course, or date
+   - Notes support for attendance records
+
+3. **Admin Panel**
+   - Dedicated admin login at `/admin/login`
+   - Dashboard with system statistics
+   - Manage all students, teachers, courses, and classes
+
+4. **Password Reset**
+   - Token-based password reset system
+   - Available for all user types (student, teacher, admin)
+
+5. **Analytics & Reports**
+   - Dashboard statistics endpoint
+   - Students per class distribution
+   - Average grades per course
+   - Overall attendance statistics
+
+6. **Profile Image Upload**
+   - Upload profile photos for students and teachers
+   - API endpoint: `/api/upload/profile`
+
+7. **Rate Limiting**
+   - API rate limiting configuration ready
+   - 100 requests per minute per client
+
+### New Database Tables
+- `admins` - Admin users
+- `attendance` - Daily attendance records
 
 ---
 
