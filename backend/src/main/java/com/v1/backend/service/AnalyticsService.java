@@ -1,6 +1,7 @@
 package com.v1.backend.service;
 
 import com.v1.backend.dto.DashboardStats;
+import com.v1.backend.model.Enrollment;
 import com.v1.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
