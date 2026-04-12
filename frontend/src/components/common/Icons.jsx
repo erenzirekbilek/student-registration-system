@@ -103,6 +103,14 @@ export const ChatIcon = ({ size = 24, className = '' }) => (
   </svg>
 );
 
+export const SparklesIcon = ({ size = 24, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M12 3L13.5 6L17 6.5L14.5 9L15 12.5L12 11L9 12.5L9.5 9L7 6.5L10.5 6L12 3Z" fill="#f59e0b"/>
+    <path d="M5 14L6 16.5L8.5 17.5L6.5 19.5L6 22L4 20.5L2 19.5L3.5 17.5L5 14Z" fill="#f59e0b"/>
+    <path d="M19 14L20 16.5L22.5 17.5L20.5 19.5L20 22L18 20.5L16 19.5L17.5 17.5L19 14Z" fill="#f59e0b"/>
+  </svg>
+);
+
 export const SendIcon = ({ size = 24, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <path d="M22 2L11 13" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -244,6 +252,7 @@ export default {
   DeleteIcon,
   ChatIcon,
   SendIcon,
+  SparklesIcon,
   LockIcon,
   EyeIcon,
   EyeOffIcon,

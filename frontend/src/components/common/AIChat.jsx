@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { SendIcon, CloseIcon, ChatIcon } from './Icons';
+import { SendIcon, CloseIcon, ChatIcon, SparklesIcon } from './Icons';
 
 const AIChat = ({ userId, role = 'STUDENT' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +98,7 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
         {/* Header */}
         <div className="px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <AutoAwesomeIcon className="text-white w-5 h-5" />
+            <SparklesIcon className="text-white w-5 h-5" />
             <span className="text-white font-semibold">AI Assistant</span>
           </div>
           <button
