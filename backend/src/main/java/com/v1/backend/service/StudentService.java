@@ -59,7 +59,8 @@ public class StudentService {
                 s.getId(),
                 s.getName(),
                 s.getEmail(),
-                "STUDENT"
+                "STUDENT",
+                s.getClassId()
             ))
             .orElseThrow(() -> new BadRequestException("Invalid email or password"));
     }
