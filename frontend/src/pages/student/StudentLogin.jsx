@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStudentLoginMutation } from '../../RTK/userAPI';
-import SchoolIcon from '@mui/icons-material/School';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { SchoolIcon, EyeIcon, EyeOffIcon } from '../../components/common/Icons';
 
 const StudentLogin = () => {
   const [email, setEmail] = useState('');
@@ -132,8 +130,8 @@ const StudentLogin = () => {
                     tabIndex={-1}
                   >
                     {showPassword
-                      ? <VisibilityOffIcon style={{ fontSize: 16 }} />
-                      : <VisibilityIcon style={{ fontSize: 16 }} />
+                      ? <EyeOffIcon size={16} />
+                      : <EyeIcon size={16} />
                     }
                   </button>
                 </div>

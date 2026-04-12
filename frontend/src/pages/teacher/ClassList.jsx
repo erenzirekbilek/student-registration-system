@@ -3,9 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useGetClassesQuery, useAddClassMutation, useDeleteClassMutation } from '../../RTK/userAPI';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
-import SchoolIcon from '@mui/icons-material/School';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { SchoolIcon, AddIcon, DeleteIcon } from '../../components/common/Icons';
 
 const ClassList = () => {
   const navigate = useNavigate();

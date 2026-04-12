@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '../../RTK/userAPI';
 import Button from '../../components/common/Button';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import SchoolIcon from '@mui/icons-material/School';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { AddIcon, SearchIcon, SchoolIcon, MoreIcon, MailIcon, EditIcon, DeleteIcon } from '../../components/common/Icons';
 import { Menu, MenuItem, IconButton, Avatar } from '@mui/material';
 
 const TeacherList = () => {
@@ -165,7 +159,7 @@ const TeacherList = () => {
                         size="small"
                         sx={{ color: 'surface.400' }}
                       >
-                        <MoreVertIcon fontSize="small" />
+                        <MoreIcon size={20} />
                       </IconButton>
                     </td>
                   </tr>
@@ -214,7 +208,7 @@ const TeacherList = () => {
           <EditIcon sx={{ fontSize: 16 }} /> Edit Profile
         </MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: 'red.500', '&:hover': { color: 'red.600 !important', bgcolor: 'red.50' } }}>
-          <DeleteOutlineIcon sx={{ fontSize: 16 }} /> Remove Member
+          <DeleteIcon size={16} /> Remove Member
         </MenuItem>
       </Menu>
     </div>

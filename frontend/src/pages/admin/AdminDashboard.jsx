@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Grid, Card, CardContent, Typography, Button } from '@mui/material';
-import PeopleIcon from '@mui/icons-material/People';
-import SchoolIcon from '@mui/icons-material/School';
-import ClassIcon from '@mui/icons-material/Class';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import { UserIcon, SchoolIcon, ClassIcon, BookIcon } from '../../components/common/Icons';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -64,7 +61,7 @@ export default function AdminDashboard() {
             <Card sx={{ borderRadius: 2 }}>
               <CardContent className="flex items-center gap-4">
                 <div className="p-3 bg-blue-100 rounded-xl">
-                  <PeopleIcon sx={{ color: '#0ea5e9' }} />
+                  <UserIcon size={24} />
                 </div>
                 <div>
                   <Typography color="text.secondary" variant="body2">Total Students</Typography>
@@ -92,7 +89,7 @@ export default function AdminDashboard() {
             <Card sx={{ borderRadius: 2 }}>
               <CardContent className="flex items-center gap-4">
                 <div className="p-3 bg-green-100 rounded-xl">
-                  <ClassIcon sx={{ color: '#10b981' }} />
+                  <ClassIcon size={24} />
                 </div>
                 <div>
                   <Typography color="text.secondary" variant="body2">Total Classes</Typography>
@@ -106,7 +103,7 @@ export default function AdminDashboard() {
             <Card sx={{ borderRadius: 2 }}>
               <CardContent className="flex items-center gap-4">
                 <div className="p-3 bg-orange-100 rounded-xl">
-                  <AssignmentIcon sx={{ color: '#f97316' }} />
+                  <BookIcon size={24} />
                 </div>
                 <div>
                   <Typography color="text.secondary" variant="body2">Total Courses</Typography>

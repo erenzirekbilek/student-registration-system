@@ -1,8 +1,6 @@
 import { Link, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import SchoolIcon from '@mui/icons-material/School';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { SchoolIcon, UserIcon, ArrowForwardIcon } from '../components/common/Icons';
 
 const Home = () => {
   const [redirectTo, setRedirectTo] = useState(null);
@@ -94,7 +92,7 @@ const Home = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-accent-50 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative z-10 flex flex-col items-center">
               <div className="w-24 h-24 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-accent-100 group-hover:scale-110 transition-transform duration-300">
-                <PeopleAltIcon className="w-12 h-12 text-white" />
+                <UserIcon className="w-12 h-12 text-white" size={48} />
               </div>
               <h2 className="text-2xl font-bold text-surface-800 mb-3 font-display">Teacher Portal</h2>
               <p className="text-surface-500 text-center mb-6">

@@ -1,8 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
-import ChatIcon from '@mui/icons-material/Chat';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { SendIcon, CloseIcon, ChatIcon } from './Icons';
 
 const AIChat = ({ userId, role = 'STUDENT' }) => {
   const [isOpen, setIsOpen] = useState(false);

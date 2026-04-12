@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import SchoolIcon from '@mui/icons-material/School';
+import { SchoolIcon } from '../common/Icons';
 
 const Navbar = () => {
   const location = useLocation();

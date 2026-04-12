@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, TextField, Button, Alert } from '@mui/material';
-import SchoolIcon from '@mui/icons-material/School';
+import { SchoolIcon } from '../../components/common/Icons';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
