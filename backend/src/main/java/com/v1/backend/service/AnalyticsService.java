@@ -4,7 +4,6 @@ import com.v1.backend.dto.DashboardStats;
 import com.v1.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,7 +39,13 @@ public class AnalyticsService {
     private Map<String, Long> getStudentsPerClass() {
         return studentRepository.findAll().stream()
             .collect(Collectors.groupingBy(
-                s -> s.getClassId() != null ? "Class " + s.getClassId() : "No Class",
+                s -> {
+                    Long classId = s.getClassId();
+                    if (classId == null) return "No Class";
+                    return classRepository.findById(classId)
+                        .map(com.v1.backend.model.SchoolClass::getName)
+                        .orElse("Class " + classId);
+                },
                 Collectors.counting()
             ));
     }
@@ -49,7 +54,12 @@ public class AnalyticsService {
         return enrollmentRepository.findAll().stream()
             .filter(e -> e.getGrade() != null)
             .collect(Collectors.groupingBy(
-                e -> "Course " + e.getCourseId(),
+                e -> {
+                    Long courseId = e.getCourseId();
+                    return courseRepository.findById(courseId)
+                        .map(com.v1.backend.model.Course::getName)
+                        .orElse("Course " + courseId);
+                },
                 Collectors.averagingDouble(Enrollment::getGrade)
             ));
     }
