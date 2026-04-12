@@ -170,8 +170,8 @@ const StudentPanel = () => {
     const fetchData = async () => {
       try {
         const [cRes, sRes] = await Promise.all([
-          fetch('http://localhost:8080/api/courses'),
-          fetch('http://localhost:8080/api/students'),
+          fetch('/api/courses'),
+          fetch('/api/students'),
         ]);
         const cData = cRes.ok ? await cRes.json() : [];
         const sData = sRes.ok ? await sRes.json() : [];

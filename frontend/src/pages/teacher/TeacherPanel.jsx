@@ -215,9 +215,9 @@ const TeacherPanel = () => {
     const fetchData = async () => {
       try {
         const [cRes, sRes, clRes] = await Promise.all([
-          fetch(`http://localhost:8080/api/courses/teacher/${userData.id}`),
-          fetch('http://localhost:8080/api/students'),
-          fetch('http://localhost:8080/api/classes'),
+          fetch(`/api/courses/teacher/${userData.id}`),
+          fetch('/api/students'),
+          fetch('/api/classes'),
         ]);
         setCourses(cRes.ok ? await cRes.json() : []);
         setStudents(sRes.ok ? await sRes.json() : []);
