@@ -12,6 +12,8 @@ import TeacherList from './pages/teacher/TeacherList';
 import TeacherSignin from './pages/teacher/TeacherSignin';
 import StudentRegister from './pages/student/StudentRegister';
 import ClassList from './pages/teacher/ClassList';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -103,6 +105,8 @@ function App() {
         <Route path="/TeacherSignin" element={<TeacherSignin />} />
         <Route path="/TeacherRegister" element={<TeacherSignin />} />
         <Route path="/StudentRegister" element={<StudentRegister />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

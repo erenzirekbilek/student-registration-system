@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "students")
-public class Student {
+@Table(name = "admins")
+public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,22 +29,8 @@ public class Student {
     
     private String phone;
     
-    private String address;
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @Column(name = "class_id")
-    private Long classId;
-    
-    @Column(name = "student_number")
-    private String studentNumber;
-    
-    private Integer attendance;
-    
-    private String grade;
-    
-    private String profileImage;
     
     @PrePersist
     protected void onCreate() {
@@ -61,18 +47,6 @@ public class Student {
     public void setPassword(String password) { this.password = password; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Long getClassId() { return classId; }
-    public void setClassId(Long classId) { this.classId = classId; }
-    public String getStudentNumber() { return studentNumber; }
-    public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
-    public Integer getAttendance() { return attendance; }
-    public void setAttendance(Integer attendance) { this.attendance = attendance; }
-    public String getGrade() { return grade; }
-    public void setGrade(String grade) { this.grade = grade; }
-    public String getProfileImage() { return profileImage; }
-    public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
 }

@@ -31,6 +31,8 @@ public class Teacher {
     
     private String specialty;
     
+    private String profileImage;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -51,6 +53,8 @@ public class Teacher {
     public void setPhone(String phone) { this.phone = phone; }
     public String getSpecialty() { return specialty; }
     public void setSpecialty(String specialty) { this.specialty = specialty; }
+    public String getProfileImage() { return profileImage; }
+    public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

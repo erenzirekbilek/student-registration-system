@@ -150,6 +150,54 @@ const userApi = createApi({
                 method: "DELETE"
             }),
             invalidatesTags: ["Class"]
+        }),
+        getEnrollments: builder.query({
+            query: () => "/enrollments",
+            providesTags: ["Enrollment"]
+        }),
+        getEnrollmentsByStudent: builder.query({
+            query: (studentId) => `/enrollments/student/${studentId}`,
+            providesTags: ["Enrollment"]
+        }),
+        getEnrollmentsByCourse: builder.query({
+            query: (courseId) => `/enrollments/course/${courseId}`,
+            providesTags: ["Enrollment"]
+        }),
+        enrollStudent: builder.mutation({
+            query: (enrollment) => ({
+                url: "/enrollments",
+                method: "POST",
+                body: enrollment
+            }),
+            invalidatesTags: ["Enrollment"]
+        }),
+        updateEnrollmentGrade: builder.mutation({
+            query: ({ id, grade }) => ({
+                url: `/enrollments/${id}/grade?grade=${grade}`,
+                method: "PUT"
+            }),
+            invalidatesTags: ["Enrollment"]
+        }),
+        updateEnrollmentAttendance: builder.mutation({
+            query: ({ id, attendance }) => ({
+                url: `/enrollments/${id}/attendance?attendance=${attendance}`,
+                method: "PUT"
+            }),
+            invalidatesTags: ["Enrollment"]
+        }),
+        unenrollStudent: builder.mutation({
+            query: (id) => ({
+                url: `/enrollments/${id}/unenroll`,
+                method: "PUT"
+            }),
+            invalidatesTags: ["Enrollment"]
+        }),
+        deleteEnrollment: builder.mutation({
+            query: (id) => ({
+                url: `/enrollments/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Enrollment"]
         })
     })
 });
@@ -164,5 +212,8 @@ export const {
     useGetCoursesQuery, useGetCourseMutation, useAddCourseMutation,
     useUpdateCourseMutation, useDeleteCourseMutation, useGetCoursesByClassQuery,
     useGetCoursesByTeacherQuery, useGetClassesQuery, useGetClassQuery,
-    useAddClassMutation, useUpdateClassMutation, useDeleteClassMutation
+    useAddClassMutation, useUpdateClassMutation, useDeleteClassMutation,
+    useGetEnrollmentsQuery, useGetEnrollmentsByStudentQuery, useGetEnrollmentsByCourseQuery,
+    useEnrollStudentMutation, useUpdateEnrollmentGradeMutation, useUpdateEnrollmentAttendanceMutation,
+    useUnenrollStudentMutation, useDeleteEnrollmentMutation
 } = userApi;
