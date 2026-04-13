@@ -103,6 +103,36 @@ export const ChatIcon = ({ size = 24, className = '' }) => (
   </svg>
 );
 
+export const BotIcon = ({ size = 20, className = '' }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    {/* Ana Gövde / Kafa */}
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <circle cx="12" cy="5" r="2" />
+    <path d="M12 7v4" />
+    <line x1="8" y1="16" x2="8" y2="16" />
+    <line x1="16" y1="16" x2="16" y2="16" />
+    
+    {/* Gözler yerine modern çizgi detayları */}
+    <path d="M7 11V9a5 5 0 0 1 10 0v2" />
+  </svg>
+);
+
+export const MinimizeIcon = ({ size = 24, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <path d="M4 14H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
 export const SparklesIcon = ({ size = 24, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
     <path d="M12 3L13.5 6L17 6.5L14.5 9L15 12.5L12 11L9 12.5L9.5 9L7 6.5L10.5 6L12 3Z" fill="#f59e0b"/>
@@ -251,6 +281,7 @@ export default {
   EditIcon,
   DeleteIcon,
   ChatIcon,
+  BotIcon,
   SendIcon,
   SparklesIcon,
   LockIcon,
@@ -270,4 +301,5 @@ export default {
   ChartIcon,
   CalendarIcon,
   CheckIcon,
+  MinimizeIcon,
 };
