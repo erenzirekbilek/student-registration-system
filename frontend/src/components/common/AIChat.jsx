@@ -79,10 +79,24 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
 
       const data = await response.json();
 
+      const cleanContent = (text) => {
+        if (!text) return '';
+        return text
+          .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+          .replace(/<thought>[\s\S]*?<\/thought>/gi, '')
+          .replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '')
+          .replace(/<think>[\s\S]*?/gi, '')
+          .replace(/<\/snippet>/gi, '')
+          .replace(/^final_answer:\s*/gi, '')
+          .replace(/^Final Answer:\s*/gi, '')
+          .replace(/^\s*$/gm, '')
+          .trim();
+      };
+
       const aiMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: data.answer || 'I apologize, but I couldn\'t process your request at the moment.',
+        content: cleanContent(data.answer) || 'I apologize, but I couldn\'t process your request at the moment.',
         timestamp: new Date()
       };
 
@@ -229,10 +243,13 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
                       <BotIcon className="text-white w-5 h-5" />
                     </div>
                     <div className="bg-white px-5 py-3 rounded-2xl border border-surface-100 shadow-sm">
-                      <div className="flex space-x-1.5">
-                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                        <span className="text-xs text-surface-500 font-medium">AI thinking...</span>
                       </div>
                     </div>
                   </div>

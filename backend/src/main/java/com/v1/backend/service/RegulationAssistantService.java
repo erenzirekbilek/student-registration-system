@@ -21,7 +21,7 @@ public class RegulationAssistantService {
     @Value("${groq.api.key:}")
     private String groqApiKey;
 
-    private final String model = "llama3-70b-8192";
+    private final String model = "qwen/qwen3-32b";
     private final String baseUrl = "https://api.groq.com/openai/v1/chat/completions";
 
     private final RestTemplate restTemplate;
