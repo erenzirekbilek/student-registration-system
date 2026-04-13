@@ -591,9 +591,88 @@ This project is licensed under the MIT License.
    - API rate limiting configuration ready
    - 100 requests per minute per client
 
+8. **AI Assistant (Groq Integration)**
+   - Intelligent chatbot for students and teachers
+   - Context-aware responses using user's personal data
+   - Powered by Groq API with Qwen model
+   - Handles school regulations, grades, attendance queries
+
 ### New Database Tables
 - `admins` - Admin users
 - `attendance` - Daily attendance records
+
+---
+
+## 🤖 AI Assistant System
+
+The system includes an intelligent AI chatbot powered by **Groq API** to assist students and teachers with administrative queries.
+
+### Architecture
+
+```
+User Request → Frontend (AIChat.jsx) → Backend API (/api/ai/chat) → Groq API (LLM)
+                                   ↓
+                          RegulationAssistantService
+                                   ↓
+                        Processes & Filters Response
+```
+
+### Technology Stack
+- **LLM Provider**: Groq API
+- **Model**: Qwen Qwen3-32B (or Llama 3.1 70B)
+- **Backend**: Spring Boot Service
+- **Frontend**: React Component
+
+### Features
+- **Context-Aware**: Uses student's personal data (grades, attendance, courses) for personalized responses
+- **Role-Based**: Different personas for Students vs Teachers
+- **Response Filtering**: Removes thinking/reasoning tags for clean output
+- **Real-time Chat**: Interactive chat interface with loading states
+
+### API Endpoint
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/ai/chat` | Send question to AI assistant |
+
+**Request Headers:**
+- `X-User-Id`: Current user ID
+- `X-User-Role`: STUDENT, TEACHER, or ADMIN
+
+**Request Body:**
+```json
+{
+  "question": "What is my current attendance?",
+  "role": "STUDENT"
+}
+```
+
+**Response:**
+```json
+{
+  "answer": "Your current attendance is 92%. You have missed 4 out of 50 sessions."
+}
+```
+
+### Configuration
+
+In `application.properties`:
+```properties
+groq.api.key=your_groq_api_key_here
+```
+
+### Frontend Component
+The `AIChat.jsx` component provides:
+- Floating chat button
+- Minimizable chat panel
+- Quick suggestion buttons
+- Typing indicator ("AI thinking...")
+- Message history
+- Responsive design
+
+### Implementation Files
+- `RegulationAssistantService.java` - Backend AI service
+- `AIChat.jsx` - Frontend chat component
+- `AIChatController.java` - API controller
 
 ---
 
