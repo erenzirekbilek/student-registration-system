@@ -30,73 +30,24 @@ public class Enrollment {
         if (attendance == null) attendance = 0;
     }
 
-    // ===================== DATA ACCESS =====================
+    // ===================== DATA ACCESS ONLY =====================
     public Long getId() { return id; }
-    public Long getStudentId() { return studentId; }
-    public Long getCourseId() { return courseId; }
-    public Double getGrade() { return grade; }
-    public Integer getAttendance() { return attendance; }
-    public String getStatus() { return status; }
-    public LocalDateTime getEnrolledAt() { return enrolledAt; }
-
-    // ===================== TELL, DON'T ASK - Operations =====================
     public void setId(Long id) { this.id = id; }
+    
+    public Long getStudentId() { return studentId; }
     public void setStudentId(Long studentId) { this.studentId = studentId; }
+    
+    public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
     
-    // Grade operations
-    public void assignGrade(Double letterGrade) {
-        this.grade = letterGrade;
-    }
+    public Double getGrade() { return grade; }
+    public void setGrade(Double grade) { this.grade = grade; }
     
-    public boolean hasPassingGrade() {
-        return grade != null && grade >= 60;
-    }
+    public Integer getAttendance() { return attendance; }
+    public void setAttendance(Integer attendance) { this.attendance = attendance; }
     
-    public void clearGrade() {
-        this.grade = null;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     
-    // Attendance operations
-    public void incrementAttendance() {
-        this.attendance = (this.attendance == null ? 0 : this.attendance) + 1;
-    }
-    
-    public void resetAttendance() {
-        this.attendance = 0;
-    }
-    
-    public boolean hasPerfectAttendance() {
-        return attendance != null && attendance == 100;
-    }
-    
-    // Status operations
-    public void enroll() {
-        this.status = "ENROLLED";
-    }
-    
-    public void drop() {
-        this.status = "DROPPED";
-    }
-    
-    public void complete() {
-        this.status = "COMPLETED";
-    }
-    
-    public boolean isActive() {
-        return "ENROLLED".equals(status);
-    }
-    
-    public boolean isCompleted() {
-        return "COMPLETED".equals(status);
-    }
-    
-    // Calculate final status
-    public String calculateFinalStatus() {
-        if (!isActive() && !isCompleted()) return status;
-        if (hasPassingGrade() && hasPerfectAttendance()) return "Excellent";
-        if (hasPassingGrade()) return "Passed";
-        if (hasPerfectAttendance()) return "Attendace OK, Grade Low";
-        return "Needs Improvement";
-    }
+    public LocalDateTime getEnrolledAt() { return enrolledAt; }
 }
