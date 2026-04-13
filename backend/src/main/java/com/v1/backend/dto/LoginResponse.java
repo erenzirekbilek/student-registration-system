@@ -25,6 +25,6 @@ public class LoginResponse implements UserResponse {
     public Long getClassId() { return classId; }
 
     public static UserResponse of(String token, Long id, String name, String email, String role, Long classId) {
-        return new LoginResponseImpl(token, id, name, email, role, classId);
+        return new LoginResponse(token, id, name, email, role, classId);
     }
 }
