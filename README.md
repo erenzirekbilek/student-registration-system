@@ -447,6 +447,38 @@ if (student.hasExcessiveAbsences()) { ... }
 
 Models now have business methods: `encodePassword()`, `matchesPassword()`, `recordAttendance()`, `markPresent()`, `enrollInClass()`, `hasPassed()`, `getStatus()`, etc.
 
+### Exception Handling
+
+Provide context with exceptions - include operation and failure type:
+
+```java
+// Before: Generic
+throw new BadRequestException("Email already exists");
+
+// After: Contextual
+throw new BadRequestException("SAVE", "EMAIL", "Email already exists");
+```
+
+**Better Error Responses:**
+```json
+{
+  "status": 404,
+  "error": "NOT_FOUND",
+  "message": "Operation 'FIND' failed: Student with id '123' not found",
+  "path": "/api/students/123",
+  "operation": "FIND",
+  "context": "Student"
+}
+```
+
+**Exception Classes:**
+| Class | Fields | Purpose |
+|-------|--------|---------|
+| `BadRequestException` | operation, context | Validation errors |
+| `ResourceNotFoundException` | resourceType, resourceId | Missing entities |
+| `AuthenticationException` | operation, reason | Auth failures |
+| `GlobalExceptionHandler` | Detailed logging | Central handling |
+
 **Example in Service:**
 ```java
 // Before (Ask)

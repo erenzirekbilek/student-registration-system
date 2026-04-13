@@ -83,46 +83,42 @@ if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
 
 ## 2.6 Tell, Don't Ask
 
-Tell objects what to do, don't ask them for their data. Objects are about behavior, not just data containers:
+Objects should hide their data and expose operations. Don't let other modules know about internal structure:
 
 ```java
-// BEFORE: Asking for data
-if (student.getAttendance() >= 10) {
-    // do something
-}
+// BEFORE: Breaks Law of Demeter - knows internal structure
+student.setPassword(passwordEncoder.encode(student.getPassword()));
+if (student.getPassword().startsWith("$2")) { ... }
 
-// AFTER: Telling the object to do it
-if (student.hasExcessiveAbsences()) {
-    // do something
-}
+// AFTER: Object exposes operations
+student.encodePassword(passwordEncoder);
+if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
 ```
 
-**Models as Behavior-Rich Objects:**
+## 2.7 Exception Design
+
+Provide context with exceptions - include operation and failure type:
+
 ```java
-public class Student {
-    // ===================== DATA ACCESS =====================
-    // Minimal getters only for external reads
-    
-    // ===================== TELL, DON'T ASK =====================
-    public void recordAttendance(int sessionsMissed) { ... }
-    public void markPresent() { ... }
-    public boolean hasExcessiveAbsences() { ... }
-    public boolean isAcademicProbation() { ... }
-    public void enrollInClass(Long classId) { ... }
-    public void assignGrade(String grade) { ... }
-    public boolean hasPassed() { ... }
-    public String getStatus() { ... }
-    public void validateForEnrollment() { ... }
-}
+// BEFORE: Generic exception
+throw new BadRequestException("Email already exists");
+
+// AFTER: Contextual exception with operation and context
+throw new BadRequestException("SAVE", "EMAIL", "Email already exists");
 ```
 
-**Benefits:**
-- Business logic stays with the object
-- Easy to change rules (one place)
-- Testable in isolation
-- Self-validating entities
+**Exception Improvements:**
+| Exception | Context Fields | Use Case |
+|-----------|----------------|---------|
+| `BadRequestException` | operation, context | Invalid input, validation |
+| `ResourceNotFoundException` | resourceType, resourceId | Entity not found |
+| `AuthenticationException` | operation, reason | Auth failures |
 
----
+**GlobalExceptionHandler Benefits:**
+- Detailed logging with stack traces
+- Contextual error responses with operation/context
+- Type mismatch handling
+- Clear error messages for API consumers
 
 ## 3. Service Layer Design
 
@@ -292,4 +288,4 @@ db/changelog/
 
 ---
 
-*Last Updated: v2.0*
+*Last Updated: v2.1*
