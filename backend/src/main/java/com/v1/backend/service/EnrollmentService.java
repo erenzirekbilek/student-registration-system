@@ -7,18 +7,17 @@ import com.v1.backend.model.Enrollment;
 import com.v1.backend.repository.EnrollmentRepository;
 import com.v1.backend.repository.CourseRepository;
 import com.v1.backend.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EnrollmentService {
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private StudentRepository studentRepository;
+
+    private final EnrollmentRepository enrollmentRepository;
+    private final CourseRepository courseRepository;
+    private final StudentRepository studentRepository;
 
     public List<Enrollment> getAllEnrollments() {
         return enrollmentRepository.findAll();
@@ -38,22 +37,10 @@ public class EnrollmentService {
     }
 
     public Enrollment enrollStudent(EnrollmentRequest request) {
-        if (enrollmentRepository.existsByStudentIdAndCourseId(request.getStudentId(), request.getCourseId())) {
-            throw new BadRequestException("Student already enrolled in this course");
-        }
-        if (!studentRepository.existsById(request.getStudentId())) {
-            throw new ResourceNotFoundException("Student not found");
-        }
-        if (!courseRepository.existsById(request.getCourseId())) {
-            throw new ResourceNotFoundException("Course not found");
-        }
-        
-        Enrollment enrollment = new Enrollment();
-        enrollment.setStudentId(request.getStudentId());
-        enrollment.setCourseId(request.getCourseId());
-        enrollment.setStatus("ENROLLED");
-        enrollment.setAttendance(0);
-        return enrollmentRepository.save(enrollment);
+        validateStudentExists(request.getStudentId());
+        validateCourseExists(request.getCourseId());
+        validateNotAlreadyEnrolled(request.getStudentId(), request.getCourseId());
+        return createEnrollment(request);
     }
 
     public Enrollment updateGrade(Long id, Double grade) {
@@ -76,5 +63,32 @@ public class EnrollmentService {
 
     public void deleteEnrollment(Long id) {
         enrollmentRepository.deleteById(id);
+    }
+
+    private void validateStudentExists(Long studentId) {
+        if (!studentRepository.existsById(studentId)) {
+            throw new ResourceNotFoundException("Student not found");
+        }
+    }
+
+    private void validateCourseExists(Long courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course not found");
+        }
+    }
+
+    private void validateNotAlreadyEnrolled(Long studentId, Long courseId) {
+        if (enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
+            throw new BadRequestException("Student already enrolled in this course");
+        }
+    }
+
+    private Enrollment createEnrollment(EnrollmentRequest request) {
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudentId(request.getStudentId());
+        enrollment.setCourseId(request.getCourseId());
+        enrollment.setStatus("ENROLLED");
+        enrollment.setAttendance(0);
+        return enrollmentRepository.save(enrollment);
     }
 }

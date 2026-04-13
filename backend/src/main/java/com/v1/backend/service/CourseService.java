@@ -6,20 +6,18 @@ import com.v1.backend.model.Course;
 import com.v1.backend.model.Enrollment;
 import com.v1.backend.repository.CourseRepository;
 import com.v1.backend.repository.EnrollmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CourseService {
-    @Autowired
-    private CourseRepository courseRepository;
-    
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+
+    private final CourseRepository courseRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
@@ -47,23 +45,14 @@ public class CourseService {
     
     @Transactional
     public void enrollStudent(Long courseId, Long studentId) {
-        if (!courseRepository.existsById(courseId)) {
-            throw new ResourceNotFoundException("Course not found");
-        }
-        if (enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
-            throw new BadRequestException("Student already enrolled in this course");
-        }
-        
-        Enrollment enrollment = new Enrollment();
-        enrollment.setStudentId(studentId);
-        enrollment.setCourseId(courseId);
-        enrollmentRepository.save(enrollment);
+        validateCourseExists(courseId);
+        validateNotAlreadyEnrolled(studentId, courseId);
+        createEnrollment(studentId, courseId);
     }
     
     @Transactional
     public void unenrollStudent(Long courseId, Long studentId) {
-        Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId)
-            .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
+        Enrollment enrollment = findEnrollment(studentId, courseId);
         enrollmentRepository.delete(enrollment);
     }
     
@@ -73,5 +62,29 @@ public class CourseService {
     
     public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
         return enrollmentRepository.findByStudentId(studentId);
+    }
+
+    private void validateCourseExists(Long courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new ResourceNotFoundException("Course not found");
+        }
+    }
+
+    private void validateNotAlreadyEnrolled(Long studentId, Long courseId) {
+        if (enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
+            throw new BadRequestException("Student already enrolled in this course");
+        }
+    }
+
+    private void createEnrollment(Long studentId, Long courseId) {
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudentId(studentId);
+        enrollment.setCourseId(courseId);
+        enrollmentRepository.save(enrollment);
+    }
+
+    private Enrollment findEnrollment(Long studentId, Long courseId) {
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId)
+            .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
     }
 }

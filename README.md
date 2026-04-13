@@ -372,6 +372,52 @@ During development, we encountered and fixed several issues:
 
 ---
 
+## 💡 Clean Code Approach
+
+### Our Thinking Style
+
+We follow these core principles in our codebase:
+
+| Principle | Description | Implementation |
+|-----------|-------------|----------------|
+| **Single Responsibility** | Each method does one thing | Service methods split into focused helpers |
+| **Constructor Injection** | Dependencies via constructor | `@RequiredArgsConstructor` + `final` fields |
+| **Consistent Naming** | Clear, descriptive names | `validateCourseExists()`, `buildLoginResponse()` |
+| **Fail Fast** | Validate early | Check conditions before processing |
+| **DRY** | Don't repeat yourself | Common logic extracted to helper methods |
+
+### Example: Refactored Login
+
+**Before (Multiple responsibilities):**
+```java
+public LoginResponse login(String email, String password) {
+    return studentRepository.findByEmail(email)
+        .filter(s -> matchesPassword(password, s.getPassword()))
+        .map(s -> new LoginResponse(...))
+        .orElseThrow(() -> new BadRequestException("Invalid credentials"));
+}
+```
+
+**After (Single responsibility methods):**
+```java
+public LoginResponse login(String email, String password) {
+    Student student = findStudentByEmail(email);
+    validatePassword(password, student.getPassword());
+    return buildLoginResponse(student);
+}
+```
+
+### Benefits Achieved
+
+- **Readability**: Each method is self-documenting
+- **Testability**: Easy to unit test each method
+- **Maintainability**: Changes isolated to specific methods
+- **Reusability**: Helper methods can be reused
+
+See `APPROACH.md` for detailed technical documentation.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites

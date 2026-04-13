@@ -1,26 +1,22 @@
 package com.v1.backend.service;
 
 import com.v1.backend.dto.DashboardStats;
-import com.v1.backend.model.Enrollment;
 import com.v1.backend.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AnalyticsService {
-    @Autowired
-    private StudentRepository studentRepository;
-    @Autowired
-    private TeacherRepository teacherRepository;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private ClassRepository classRepository;
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final CourseRepository courseRepository;
+    private final ClassRepository classRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     public DashboardStats getDashboardStats() {
         DashboardStats stats = new DashboardStats();
@@ -61,7 +57,7 @@ public class AnalyticsService {
                         .map(com.v1.backend.model.Course::getName)
                         .orElse("Course " + courseId);
                 },
-                Collectors.averagingDouble(Enrollment::getGrade)
+                Collectors.averagingDouble(e -> e.getGrade())
             ));
     }
 

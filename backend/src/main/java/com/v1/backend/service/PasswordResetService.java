@@ -4,24 +4,21 @@ import com.v1.backend.exception.BadRequestException;
 import com.v1.backend.repository.StudentRepository;
 import com.v1.backend.repository.TeacherRepository;
 import com.v1.backend.repository.AdminRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 public class PasswordResetService {
-    @Autowired
-    private StudentRepository studentRepository;
-    @Autowired
-    private TeacherRepository teacherRepository;
-    @Autowired
-    private AdminRepository adminRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
     
     private final Map<String, ResetToken> resetTokens = new ConcurrentHashMap<>();
 

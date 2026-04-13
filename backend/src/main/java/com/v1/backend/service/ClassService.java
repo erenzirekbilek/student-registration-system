@@ -2,20 +2,24 @@ package com.v1.backend.service;
 
 import com.v1.backend.model.SchoolClass;
 import com.v1.backend.repository.ClassRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ClassService implements CommandLineRunner {
-    @Autowired
-    private ClassRepository classRepository;
+
+    private final ClassRepository classRepository;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (classRepository.count() == 0) {
+            log.info("Initializing default classes...");
             List<SchoolClass> defaultClasses = List.of(
                 createClass("Computer Engineering", "Computer Engineering"),
                 createClass("Software Engineering", "Computer Engineering"),
@@ -39,6 +43,7 @@ public class ClassService implements CommandLineRunner {
                 createClass("Construction Engineering", "Civil Engineering")
             );
             classRepository.saveAll(defaultClasses);
+            log.info("Created {} default classes", defaultClasses.size());
         }
     }
 

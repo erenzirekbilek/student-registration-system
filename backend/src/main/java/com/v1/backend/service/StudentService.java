@@ -5,7 +5,7 @@ import com.v1.backend.exception.BadRequestException;
 import com.v1.backend.model.Student;
 import com.v1.backend.repository.StudentRepository;
 import com.v1.backend.security.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,15 +13,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
-    @Autowired
-    private StudentRepository studentRepository;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    @Autowired
-    private JwtService jwtService;
+
+    private final StudentRepository studentRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
@@ -32,12 +29,8 @@ public class StudentService {
     }
 
     public Student saveStudent(Student student) {
-        if (student.getId() == null && studentRepository.existsByEmail(student.getEmail())) {
-            throw new BadRequestException("Email already exists");
-        }
-        if (student.getPassword() != null) {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-        }
+        checkEmailAvailability(student);
+        encodePasswordIfProvided(student);
         return studentRepository.save(student);
     }
 
@@ -46,26 +39,53 @@ public class StudentService {
     }
 
     public LoginResponse login(String email, String password) {
-        return studentRepository.findByEmail(email)
-            .filter(s -> {
-                // Support both BCrypt and plain text (legacy) passwords
-                if (s.getPassword().startsWith("$2")) {
-                    return passwordEncoder.matches(password, s.getPassword());
-                }
-                return Objects.equals(password, s.getPassword());
-            })
-            .map(s -> new LoginResponse(
-                jwtService.generateToken(email, "STUDENT"),
-                s.getId(),
-                s.getName(),
-                s.getEmail(),
-                "STUDENT",
-                s.getClassId()
-            ))
-            .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+        Student student = findStudentByEmail(email);
+        validatePassword(password, student.getPassword());
+        return buildLoginResponse(student);
     }
 
     public boolean existsByEmail(String email) {
         return studentRepository.existsByEmail(email);
+    }
+
+    private void checkEmailAvailability(Student student) {
+        if (student.getId() == null && studentRepository.existsByEmail(student.getEmail())) {
+            throw new BadRequestException("Email already exists");
+        }
+    }
+
+    private void encodePasswordIfProvided(Student student) {
+        if (student.getPassword() != null) {
+            student.setPassword(passwordEncoder.encode(student.getPassword()));
+        }
+    }
+
+    private Student findStudentByEmail(String email) {
+        return studentRepository.findByEmail(email)
+            .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+    }
+
+    private void validatePassword(String rawPassword, String storedPassword) {
+        if (!matchesPassword(rawPassword, storedPassword)) {
+            throw new BadRequestException("Invalid email or password");
+        }
+    }
+
+    private LoginResponse buildLoginResponse(Student student) {
+        return new LoginResponse(
+            jwtService.generateToken(student.getEmail(), "STUDENT"),
+            student.getId(),
+            student.getName(),
+            student.getEmail(),
+            "STUDENT",
+            student.getClassId()
+        );
+    }
+
+    private boolean matchesPassword(String rawPassword, String storedPassword) {
+        if (storedPassword.startsWith("$2")) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+        return Objects.equals(rawPassword, storedPassword);
     }
 }

@@ -1,18 +1,17 @@
 package com.v1.backend.service;
 
-import com.v1.backend.exception.BadRequestException;
-import com.v1.backend.exception.ResourceNotFoundException;
 import com.v1.backend.model.Attendance;
 import com.v1.backend.repository.AttendanceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AttendanceService {
-    @Autowired
-    private AttendanceRepository attendanceRepository;
+
+    private final AttendanceRepository attendanceRepository;
 
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
