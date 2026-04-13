@@ -81,28 +81,46 @@ student.encodePassword(passwordEncoder);
 if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
 ```
 
-**Models with Operations:**
+## 2.6 Tell, Don't Ask
+
+Tell objects what to do, don't ask them for their data. Objects are about behavior, not just data containers:
+
+```java
+// BEFORE: Asking for data
+if (student.getAttendance() >= 10) {
+    // do something
+}
+
+// AFTER: Telling the object to do it
+if (student.hasExcessiveAbsences()) {
+    // do something
+}
+```
+
+**Models as Behavior-Rich Objects:**
 ```java
 public class Student {
-    // Hidden - not accessible
-    String getPassword() { return password; }
-    void setPasswordInternal(String password) { this.password = password; }
+    // ===================== DATA ACCESS =====================
+    // Minimal getters only for external reads
     
-    // Exposed operations
-    public void encodePassword(PasswordEncoder encoder) { ... }
-    public boolean matchesPassword(String raw, PasswordEncoder encoder) { ... }
-    public void updateAttendance(Integer newAttendance) { ... }
-    public void updateGrade(String newGrade) { ... }
-    public void assignToClass(Long classId) { ... }
-    public boolean hasLowAttendance() { ... }
+    // ===================== TELL, DON'T ASK =====================
+    public void recordAttendance(int sessionsMissed) { ... }
+    public void markPresent() { ... }
+    public boolean hasExcessiveAbsences() { ... }
+    public boolean isAcademicProbation() { ... }
+    public void enrollInClass(Long classId) { ... }
+    public void assignGrade(String grade) { ... }
+    public boolean hasPassed() { ... }
+    public String getStatus() { ... }
+    public void validateForEnrollment() { ... }
 }
 ```
 
 **Benefits:**
-- Object controls its own data mutation
-- Easy to change encoding logic in one place
-- Other modules don't need to know internals
-- Testable and maintainable
+- Business logic stays with the object
+- Easy to change rules (one place)
+- Testable in isolation
+- Self-validating entities
 
 ---
 

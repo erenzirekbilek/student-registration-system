@@ -48,15 +48,29 @@ public class Student {
         createdAt = LocalDateTime.now();
     }
 
+    // ===================== DATA ACCESS (minimal) =====================
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getPhone() { return phone; }
+    public String getAddress() { return address; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public Long getClassId() { return classId; }
+    public String getStudentNumber() { return studentNumber; }
+    public Integer getAttendance() { return attendance; }
+    public String getGrade() { return grade; }
+    public String getProfileImage() { return profileImage; }
     
-    // Law of Demeter: Object hides its password data and exposes operations
-    String getPassword() { return password; }
+    public void setName(String name) { this.name = name; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public void setAddress(String address) { this.address = address; }
+    public void setClassId(Long classId) { this.classId = classId; }
+    public void setGrade(String grade) { this.grade = grade; }
+    public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+
+    // ===================== TELL, DON'T ASK - Operations =====================
+    // Object handles its own password logic
     void setPasswordInternal(String password) { this.password = password; }
     
     public void encodePassword(org.springframework.security.crypto.password.PasswordEncoder encoder) {
@@ -64,42 +78,64 @@ public class Student {
     }
     
     public boolean matchesPassword(String rawPassword, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        if (password == null) return false;
         if (password.startsWith("$2")) {
             return encoder.matches(rawPassword, password);
         }
         return rawPassword.equals(password);
     }
     
-    public void updateAttendance(Integer newAttendance) {
-        this.attendance = newAttendance;
+    // Object controls its attendance
+    public void recordAttendance(int sessionsMissed) {
+        this.attendance = (this.attendance == null ? 0 : this.attendance) + sessionsMissed;
     }
     
-    public void updateGrade(String newGrade) {
-        this.grade = newGrade;
+    public void markPresent() {
+        this.attendance = (this.attendance == null || this.attendance < 0) ? 0 : this.attendance;
     }
     
-    public void assignToClass(Long classId) {
+    public boolean hasExcessiveAbsences() {
+        return attendance != null && attendance >= 10;
+    }
+    
+    public boolean isAcademicProbation() {
+        return grade != null && (grade.equals("F") || grade.equals("D") || grade.equals("DD"));
+    }
+    
+    // Object manages class enrollment
+    public void enrollInClass(Long classId) {
         this.classId = classId;
     }
     
-    public boolean hasLowAttendance() {
-        return attendance != null && attendance < 10;
+    public void dropClass() {
+        this.classId = null;
     }
     
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Long getClassId() { return classId; }
-    public void setClassId(Long classId) { this.classId = classId; }
-    public String getStudentNumber() { return studentNumber; }
-    public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
-    public Integer getAttendance() { return attendance; }
-    public void setAttendance(Integer attendance) { this.attendance = attendance; }
-    public String getGrade() { return grade; }
-    public void setGrade(String grade) { this.grade = grade; }
-    public String getProfileImage() { return profileImage; }
-    public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+    public boolean isEnrolled() {
+        return classId != null;
+    }
+    
+    // Object manages grade evaluation
+    public void assignGrade(String letterGrade) {
+        this.grade = letterGrade;
+    }
+    
+    public boolean hasPassed() {
+        return grade != null && !grade.equals("F") && !grade.equals("D");
+    }
+    
+    // Object validates itself
+    public void validateForEnrollment() {
+        if (hasExcessiveAbsences()) {
+            throw new IllegalStateException("Cannot enroll - excessive absences");
+        }
+    }
+    
+    public String getStatus() {
+        if (!isEnrolled()) return "Not Enrolled";
+        if (hasExcessiveAbsences()) return "Academic Warning";
+        if (isAcademicProbation()) return "Probation";
+        if (hasPassed()) return "Good Standing";
+        return "Enrolled";
+    }
 }

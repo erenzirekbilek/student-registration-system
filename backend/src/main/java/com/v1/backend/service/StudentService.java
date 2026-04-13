@@ -31,9 +31,7 @@ public class StudentService {
 
     public Student saveStudent(Student student) {
         checkEmailAvailability(student);
-        if (student.getPassword() != null) {
-            student.encodePassword(passwordEncoder);
-        }
+        student.encodePassword(passwordEncoder);
         return studentRepository.save(student);
     }
 
@@ -43,12 +41,50 @@ public class StudentService {
 
     public UserResponse login(String email, String password) {
         Student student = findStudentByEmail(email);
-        validatePassword(password, student);
+        validateCredentials(password, student);
         return buildLoginResponse(student);
     }
 
     public boolean existsByEmail(String email) {
         return studentRepository.existsByEmail(email);
+    }
+
+    // ENROLLMENT (Tell, Don't Ask)
+    public void enrollStudentInClass(Long studentId, Long classId) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        student.enrollInClass(classId);
+        studentRepository.save(student);
+    }
+
+    public void dropStudentFromClass(Long studentId) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        student.dropClass();
+        studentRepository.save(student);
+    }
+
+    // ATTENDANCE (Tell, Don't Ask)
+    public void recordAbsence(Long studentId) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        student.recordAttendance(1);
+        studentRepository.save(student);
+    }
+
+    public void markPresent(Long studentId) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        student.markPresent();
+        studentRepository.save(student);
+    }
+
+    // GRADES (Tell, Don't Ask)
+    public void assignGrade(Long studentId, String grade) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        student.assignGrade(grade);
+        studentRepository.save(student);
+    }
+
+    public String getStudentStatus(Long studentId) {
+        Student student = findStudentByEmailOrThrow(studentId);
+        return student.getStatus();
     }
 
     private void checkEmailAvailability(Student student) {
@@ -62,7 +98,12 @@ public class StudentService {
             .orElseThrow(() -> new BadRequestException("Invalid email or password"));
     }
 
-    private void validatePassword(String rawPassword, Student student) {
+    private Student findStudentByEmailOrThrow(Long id) {
+        return studentRepository.findById(id)
+            .orElseThrow(() -> new BadRequestException("Student not found"));
+    }
+
+    private void validateCredentials(String rawPassword, Student student) {
         if (!student.matchesPassword(rawPassword, passwordEncoder)) {
             throw new BadRequestException("Invalid email or password");
         }

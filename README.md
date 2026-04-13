@@ -433,7 +433,30 @@ student.encodePassword(passwordEncoder);
 if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
 ```
 
-Models now have business methods: `encodePassword()`, `matchesPassword()`, `updateAttendance()`, `updateGrade()`, etc.
+### Tell, Don't Ask
+
+Tell objects what to do, don't ask for their data:
+
+```java
+// Before: Asking for data
+if (student.getAttendance() >= 10) { ... }
+
+// After: Telling object to decide
+if (student.hasExcessiveAbsences()) { ... }
+```
+
+Models now have business methods: `encodePassword()`, `matchesPassword()`, `recordAttendance()`, `markPresent()`, `enrollInClass()`, `hasPassed()`, `getStatus()`, etc.
+
+**Example in Service:**
+```java
+// Before (Ask)
+student.setAttendance(student.getAttendance() + 1);
+if (student.getAttendance() >= 10) { ... }
+
+// After (Tell)
+student.recordAttendance(1);
+student.validateForEnrollment();
+```
 
 ### Example: Refactored Login
 
