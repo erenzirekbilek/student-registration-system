@@ -7,7 +7,6 @@ import com.v1.backend.factory.UserResponseFactory;
 import com.v1.backend.model.Admin;
 import com.v1.backend.repository.AdminRepository;
 import com.v1.backend.security.JwtService;
-import com.v1.backend.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,13 +32,17 @@ public class AdminService {
 
     public Admin createAdmin(Admin admin) {
         checkEmailAvailability(admin);
-        encodePassword(admin);
+        admin.encodePassword(passwordEncoder);
         return adminRepository.save(admin);
     }
 
     public Admin updateAdmin(Long id, Admin admin) {
         Admin existing = getAdminById(id);
-        updateAdminFields(existing, admin);
+        existing.setName(admin.getName());
+        existing.setPhone(admin.getPhone());
+        if (admin.getPassword() != null && !admin.getPassword().isEmpty()) {
+            existing.encodePassword(passwordEncoder);
+        }
         return adminRepository.save(existing);
     }
 
@@ -49,7 +52,7 @@ public class AdminService {
 
     public UserResponse login(String email, String password) {
         Admin admin = findAdminByEmail(email);
-        validatePassword(password, admin.getPassword());
+        validatePassword(password, admin);
         return buildLoginResponse(admin);
     }
 
@@ -63,25 +66,13 @@ public class AdminService {
         }
     }
 
-    private void encodePassword(Admin admin) {
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-    }
-
-    private void updateAdminFields(Admin existing, Admin admin) {
-        existing.setName(admin.getName());
-        existing.setPhone(admin.getPhone());
-        if (admin.getPassword() != null && !admin.getPassword().isEmpty()) {
-            existing.setPassword(passwordEncoder.encode(admin.getPassword()));
-        }
-    }
-
     private Admin findAdminByEmail(String email) {
         return adminRepository.findByEmail(email)
             .orElseThrow(() -> new BadRequestException("Invalid email or password"));
     }
 
-    private void validatePassword(String rawPassword, String storedPassword) {
-        if (!PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder)) {
+    private void validatePassword(String rawPassword, Admin admin) {
+        if (!admin.matchesPassword(rawPassword, passwordEncoder)) {
             throw new BadRequestException("Invalid email or password");
         }
     }

@@ -6,7 +6,6 @@ import com.v1.backend.factory.UserResponseFactory;
 import com.v1.backend.model.Teacher;
 import com.v1.backend.repository.TeacherRepository;
 import com.v1.backend.security.JwtService;
-import com.v1.backend.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,9 @@ public class TeacherService {
 
     public Teacher saveTeacher(Teacher teacher) {
         checkEmailAvailability(teacher);
-        encodePasswordIfProvided(teacher);
+        if (teacher.getPassword() != null) {
+            teacher.encodePassword(passwordEncoder);
+        }
         return teacherRepository.save(teacher);
     }
 
@@ -42,7 +43,7 @@ public class TeacherService {
 
     public UserResponse login(String email, String password) {
         Teacher teacher = findTeacherByEmail(email);
-        validatePassword(password, teacher.getPassword());
+        validatePassword(password, teacher);
         return buildLoginResponse(teacher);
     }
 
@@ -56,19 +57,13 @@ public class TeacherService {
         }
     }
 
-    private void encodePasswordIfProvided(Teacher teacher) {
-        if (teacher.getPassword() != null) {
-            teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
-        }
-    }
-
     private Teacher findTeacherByEmail(String email) {
         return teacherRepository.findByEmail(email)
             .orElseThrow(() -> new BadRequestException("Invalid email or password"));
     }
 
-    private void validatePassword(String rawPassword, String storedPassword) {
-        if (!PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder)) {
+    private void validatePassword(String rawPassword, Teacher teacher) {
+        if (!teacher.matchesPassword(rawPassword, passwordEncoder)) {
             throw new BadRequestException("Invalid email or password");
         }
     }

@@ -28,9 +28,7 @@ public class Teacher {
     private String password;
     
     private String phone;
-    
     private String specialty;
-    
     private String profileImage;
     
     @Column(name = "created_at")
@@ -47,8 +45,30 @@ public class Teacher {
     public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    
+    // Law of Demeter: Object hides its password data and exposes operations
+    String getPassword() { return password; }
+    void setPasswordInternal(String password) { this.password = password; }
+    
+    public void encodePassword(org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        this.password = encoder.encode(this.password);
+    }
+    
+    public boolean matchesPassword(String rawPassword, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        if (password.startsWith("$2")) {
+            return encoder.matches(rawPassword, password);
+        }
+        return rawPassword.equals(password);
+    }
+    
+    public void updatePhone(String newPhone) {
+        this.phone = newPhone;
+    }
+    
+    public void updateSpecialty(String newSpecialty) {
+        this.specialty = newSpecialty;
+    }
+    
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
     public String getSpecialty() { return specialty; }
