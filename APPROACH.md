@@ -67,96 +67,42 @@ public class UserResponseFactoryImpl implements UserResponseFactory {
 
 ---
 
-## 2. Clean Code Principles
+## 2.5 Law of Demeter (Object Encapsulation)
 
-### 2.1 Don't Repeat Yourself (DRY)
-
-Every piece of knowledge must have a single, unambiguous, authoritative representation within the system. We extract common logic into utility classes:
+Objects should hide their data and expose operations. Don't let other modules know about internal structure:
 
 ```java
-// Before: Duplicate password matching logic in 3 services
-if (storedPassword.startsWith("$2")) {
-    return passwordEncoder.matches(rawPassword, storedPassword);
-}
-return Objects.equals(rawPassword, storedPassword);
+// BEFORE: Breaks Law of Demeter - knows internal structure
+student.setPassword(passwordEncoder.encode(student.getPassword()));
+if (student.getPassword().startsWith("$2")) { ... }
 
-// After: Single source of truth
-PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder);
+// AFTER: Object exposes operations
+student.encodePassword(passwordEncoder);
+if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
 ```
 
-**Utility Classes Created:**
-| Class | Purpose |
-|-------|---------|
-| `PasswordUtils` | Password matching (BCrypt + legacy support) |
-| `ValidationUtils` | Common validation patterns |
-| `EmailUtils` | Email validation with regex |
-| `EntityUtils` | Entity finding patterns |
-
-### 2.2 Single Responsibility Principle (SRP)
-
-Each service method does one thing:
-
+**Models with Operations:**
 ```java
-// BEFORE: login() does everything
-public LoginResponse login(String email, String password) {
-    return studentRepository.findByEmail(email)
-        .filter(s -> matchesPassword(password, s.getPassword()))  // find
-        .map(s -> new LoginResponse(...))   // build response
-        .orElseThrow(...);                  // error
-}
-
-// AFTER: Each method has single responsibility
-public LoginResponse login(String email, String password) {
-    Student student = findStudentByEmail(email);
-    validatePassword(password, student.getPassword());
-    return buildLoginResponse(student);
-}
-```
-
-### 2.3 Constructor Injection
-
-**Before (Field Injection):**
-```java
-@Service
-public class StudentService {
-    @Autowired
-    private StudentRepository studentRepository;
-}
-```
-
-**After (Constructor Injection):**
-```java
-@Service
-@RequiredArgsConstructor
-public class StudentService {
-    private final StudentRepository studentRepository;
-    private final PasswordEncoder passwordEncoder;
+public class Student {
+    // Hidden - not accessible
+    String getPassword() { return password; }
+    void setPasswordInternal(String password) { this.password = password; }
+    
+    // Exposed operations
+    public void encodePassword(PasswordEncoder encoder) { ... }
+    public boolean matchesPassword(String raw, PasswordEncoder encoder) { ... }
+    public void updateAttendance(Integer newAttendance) { ... }
+    public void updateGrade(String newGrade) { ... }
+    public void assignToClass(Long classId) { ... }
+    public boolean hasLowAttendance() { ... }
 }
 ```
 
 **Benefits:**
-- Immutable dependencies
-- Easier testing (mock injection)
-- Clear dependencies (compiler enforced)
-- Works without Spring container
-
-### 2.4 Method Naming Convention
-
-| Method Type | Naming Pattern | Example |
-|-------------|----------------|---------|
-| Public API | `VerbNoun` | `getAllStudents()` |
-| Private Helper | `verbNoun` | `validatePassword()` |
-| Query | `get/find/fetch` | `getStudentById()` |
-| Action | `save/update/delete` | `saveStudent()` |
-| Validation | `validate/check` | `validateCourseExists()` |
-
-### 2.5 Consistent Error Handling
-
-```java
-// Always use custom exceptions
-throw new BadRequestException("Email already exists");
-throw new ResourceNotFoundException("Course not found");
-```
+- Object controls its own data mutation
+- Easy to change encoding logic in one place
+- Other modules don't need to know internals
+- Testable and maintainable
 
 ---
 

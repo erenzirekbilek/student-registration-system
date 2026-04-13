@@ -419,6 +419,22 @@ UserResponseFactory ← Spring manages
 LoginResponseImpl (private) ← No one sees this
 ```
 
+### Law of Demeter
+
+Objects hide their data, expose operations:
+
+```java
+// Before (breaks LoD)
+student.setPassword(passwordEncoder.encode(student.getPassword()));
+if (student.getPassword().startsWith("$2")) { ... }
+
+// After (object encapsulates)
+student.encodePassword(passwordEncoder);
+if (student.matchesPassword(rawPassword, passwordEncoder)) { ... }
+```
+
+Models now have business methods: `encodePassword()`, `matchesPassword()`, `updateAttendance()`, `updateGrade()`, etc.
+
 ### Example: Refactored Login
 
 **Before (Multiple responsibilities):**
