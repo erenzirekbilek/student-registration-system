@@ -1,7 +1,7 @@
 package com.v1.backend.controller;
 
 import com.v1.backend.dto.LoginRequest;
-import com.v1.backend.dto.LoginResponse;
+import com.v1.backend.dto.UserResponse;
 import com.v1.backend.dto.DashboardStats;
 import com.v1.backend.model.Admin;
 import com.v1.backend.service.AdminService;
@@ -49,7 +49,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(adminService.login(request.getEmail(), request.getPassword()));
     }
 

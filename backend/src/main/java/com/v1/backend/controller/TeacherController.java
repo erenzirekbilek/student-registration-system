@@ -1,7 +1,7 @@
 package com.v1.backend.controller;
 
 import com.v1.backend.dto.LoginRequest;
-import com.v1.backend.dto.LoginResponse;
+import com.v1.backend.dto.UserResponse;
 import com.v1.backend.model.Teacher;
 import com.v1.backend.service.TeacherService;
 import jakarta.validation.Valid;
@@ -46,7 +46,7 @@ public class TeacherController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(teacherService.login(request.getEmail(), request.getPassword()));
     }
 
