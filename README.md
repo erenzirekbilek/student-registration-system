@@ -48,6 +48,7 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 - 🖼️ Profile image upload support
 - 📝 Enrollment management for students
 - 📅 Attendance tracking system
+- 🤖 **AI Assistant** - Groq-powered intelligent chatbot for students & teachers
 
 ---
 
@@ -61,6 +62,7 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 | PostgreSQL | Database |
 | JPA/Hibernate | ORM |
 | **Liquibase** | **Database Migrations** |
+| **Groq API** | **AI Assistant LLM** |
 
 ### Frontend
 | Technology | Description |
@@ -71,6 +73,13 @@ A modern, full-stack student management system built with Spring Boot (Backend) 
 | **Chart.js** | **Data Visualization** |
 | Vite | Build Tool |
 | React Router | Navigation |
+
+### AI/ML
+| Technology | Description |
+|------------|-------------|
+| Groq | LLM Inference Platform |
+| Qwen Qwen3-32B | Language Model |
+| Llama 3.1 70B | Alternative Model | |
 
 ---
 
