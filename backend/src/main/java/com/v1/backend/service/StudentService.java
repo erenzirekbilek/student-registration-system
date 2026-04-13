@@ -6,11 +6,11 @@ import com.v1.backend.factory.UserResponseFactory;
 import com.v1.backend.model.Student;
 import com.v1.backend.repository.StudentRepository;
 import com.v1.backend.security.JwtService;
+import com.v1.backend.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -68,7 +68,7 @@ public class StudentService {
     }
 
     private void validatePassword(String rawPassword, String storedPassword) {
-        if (!matchesPassword(rawPassword, storedPassword)) {
+        if (!PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder)) {
             throw new BadRequestException("Invalid email or password");
         }
     }
@@ -82,12 +82,5 @@ public class StudentService {
             "STUDENT",
             student.getClassId()
         );
-    }
-
-    private boolean matchesPassword(String rawPassword, String storedPassword) {
-        if (storedPassword.startsWith("$2")) {
-            return passwordEncoder.matches(rawPassword, storedPassword);
-        }
-        return Objects.equals(rawPassword, storedPassword);
     }
 }
