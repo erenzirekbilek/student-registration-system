@@ -1,7 +1,8 @@
 package com.v1.backend.service;
 
-import com.v1.backend.dto.LoginResponse;
+import com.v1.backend.dto.UserResponse;
 import com.v1.backend.exception.BadRequestException;
+import com.v1.backend.factory.UserResponseFactory;
 import com.v1.backend.model.Teacher;
 import com.v1.backend.repository.TeacherRepository;
 import com.v1.backend.security.JwtService;
@@ -19,6 +20,7 @@ public class TeacherService {
     private final TeacherRepository teacherRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserResponseFactory userResponseFactory;
 
     public List<Teacher> getAllTeachers() {
         return teacherRepository.findAll();
@@ -38,7 +40,7 @@ public class TeacherService {
         teacherRepository.deleteById(id);
     }
 
-    public LoginResponse login(String email, String password) {
+    public UserResponse login(String email, String password) {
         Teacher teacher = findTeacherByEmail(email);
         validatePassword(password, teacher.getPassword());
         return buildLoginResponse(teacher);
@@ -71,8 +73,8 @@ public class TeacherService {
         }
     }
 
-    private LoginResponse buildLoginResponse(Teacher teacher) {
-        return new LoginResponse(
+    private UserResponse buildLoginResponse(Teacher teacher) {
+        return userResponseFactory.create(
             jwtService.generateToken(teacher.getEmail(), "TEACHER"),
             teacher.getId(),
             teacher.getName(),

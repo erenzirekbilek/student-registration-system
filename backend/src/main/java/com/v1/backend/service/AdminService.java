@@ -1,8 +1,9 @@
 package com.v1.backend.service;
 
-import com.v1.backend.dto.LoginResponse;
+import com.v1.backend.dto.UserResponse;
 import com.v1.backend.exception.BadRequestException;
 import com.v1.backend.exception.ResourceNotFoundException;
+import com.v1.backend.factory.UserResponseFactory;
 import com.v1.backend.model.Admin;
 import com.v1.backend.repository.AdminRepository;
 import com.v1.backend.security.JwtService;
@@ -18,6 +19,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserResponseFactory userResponseFactory;
 
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
@@ -44,7 +46,7 @@ public class AdminService {
         adminRepository.deleteById(id);
     }
 
-    public LoginResponse login(String email, String password) {
+    public UserResponse login(String email, String password) {
         Admin admin = findAdminByEmail(email);
         validatePassword(password, admin.getPassword());
         return buildLoginResponse(admin);
@@ -83,8 +85,8 @@ public class AdminService {
         }
     }
 
-    private LoginResponse buildLoginResponse(Admin admin) {
-        return new LoginResponse(
+    private UserResponse buildLoginResponse(Admin admin) {
+        return userResponseFactory.create(
             jwtService.generateToken(admin.getEmail(), "ADMIN"),
             admin.getId(),
             admin.getName(),
