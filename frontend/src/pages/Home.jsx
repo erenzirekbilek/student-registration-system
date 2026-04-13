@@ -37,9 +37,7 @@ const Home = () => {
       {/* Navbar - StudentLogin ile aynı hizada (h-14) */}
       <nav className="fixed top-0 inset-x-0 z-50 h-14 bg-white/80 backdrop-blur-md border-b border-surface-100 flex items-center px-6">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
-            <Icons.School />
-          </div>
+          <img src="/icons.png" alt="SMS Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-primary-500/20" />
           <span className="text-sm font-semibold text-surface-700 tracking-tight text-[13px] sm:text-sm">
             Student Management System
           </span>
