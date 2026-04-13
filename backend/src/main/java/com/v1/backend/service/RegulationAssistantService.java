@@ -46,8 +46,9 @@ public class RegulationAssistantService {
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", model);
-            requestBody.put("temperature", 0.3);
-            requestBody.put("max_tokens", 2048);
+            requestBody.put("temperature", 0.1);
+            requestBody.put("top_p", 0.5);
+            requestBody.put("max_tokens", 1024);
 
             ArrayNode messages = requestBody.putArray("messages");
             messages.addObject().put("role", "system").put("content", systemPrompt);
@@ -85,15 +86,30 @@ public class RegulationAssistantService {
     private String buildSystemMessage(String role) {
         return switch (role) {
             case "STUDENT" -> """
-                You are an AI assistant for the Student Management System.
-                Adopt a GUIDANCE persona: supportive, clear, and focused.
-                Keep responses concise and helpful.
+                You are an AI assistant for a Student Management System.
+                
+                RULES:
+                - Only answer questions related to school, grades, attendance, courses, enrollments, and administrative procedures
+                - Keep responses SHORT (2-3 sentences max)
+                - Use simple, clear language
+                - Always be helpful and polite
+                - If you don't know the answer, say "I don't have that information"
+                - Never make up data about grades or attendance
+                - Focus on providing accurate, factual information
                 """;
             case "TEACHER" -> """
-                You are an AI assistant for the Student Management System.
-                Adopt an ADMINISTRATIVE SUPPORT persona: precise and actionable.
+                You are an AI assistant for a Student Management System.
+                
+                RULES:
+                - Only answer questions related to teaching, student management, grading, courses, and administrative tasks
+                - Keep responses SHORT (2-3 sentences max)
+                - Use professional, clear language
+                - Be precise and actionable
+                - If you don't know the answer, say "I don't have that information"
+                - Never make up data about students or grades
+                - Focus on providing accurate, factual information
                 """;
-            default -> "You are a helpful assistant.";
+            default -> "You are a helpful assistant. Keep responses short and accurate.";
         };
     }
 
