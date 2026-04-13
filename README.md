@@ -386,6 +386,39 @@ We follow these core principles in our codebase:
 | **Fail Fast** | Validate early | Check conditions before processing |
 | **DRY** | Don't repeat yourself | Common logic extracted to helper methods |
 
+### DRY Principle in Action
+
+Every piece of knowledge must have a single, unambiguous, authoritative representation:
+
+```java
+// Before: Same logic repeated in 3 services
+if (storedPassword.startsWith("$2")) {
+    return passwordEncoder.matches(rawPassword, storedPassword);
+}
+return Objects.equals(rawPassword, storedPassword);
+
+// After: Single source of truth
+PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder);
+```
+
+**Utility Classes:**
+- `PasswordUtils` - Password matching (BCrypt + legacy)
+- `ValidationUtils` - Common validation
+- `EmailUtils` - Email validation
+- `EntityUtils` - Entity finding
+
+### Abstract Factory Pattern
+
+Polymorphic object creation with encapsulation:
+
+```
+UserResponse (interface) ← Client sees this
+    ↑
+UserResponseFactory ← Spring manages
+    ↑
+LoginResponseImpl (private) ← No one sees this
+```
+
 ### Example: Refactored Login
 
 **Before (Multiple responsibilities):**

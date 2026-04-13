@@ -28,14 +28,71 @@ backend/src/main/java/com/v1/backend/
 |---------|---------------|---------|
 | **MVC** | Controller/Service/Repository | Separation of concerns |
 | **Singleton** | Services (@Service) | Single instance per application |
-| **Factory** | Entity creation | Consistent object creation |
+| **Factory** | UserResponseFactory, LoginResponse | Consistent object creation |
+| **Abstract Factory** | UserResponse polymorphic objects | Encapsulated creation |
 | **Repository** | Spring Data JPA | Data access abstraction |
+
+### 1.3 Abstract Factory Pattern
+
+We use Abstract Factory to create polymorphic objects with encapsulation:
+
+```java
+// Interface - public API
+public interface UserResponse {
+    String getToken();
+    Long getId();
+    String getName();
+    // ...
+}
+
+// Private implementation - no one sees this
+class LoginResponseImpl implements UserResponse {
+    // ...
+}
+
+// Factory for creation
+@Component
+public class UserResponseFactoryImpl implements UserResponseFactory {
+    public UserResponse create(...) {
+        return new LoginResponseImpl(...);
+    }
+}
+```
+
+**Benefits:**
+- No one sees the implementation class
+- Easy to change implementation
+- Polymorphic objects via interface
+- Spring manages the factory
 
 ---
 
 ## 2. Clean Code Principles
 
-### 2.1 Single Responsibility Principle (SRP)
+### 2.1 Don't Repeat Yourself (DRY)
+
+Every piece of knowledge must have a single, unambiguous, authoritative representation within the system. We extract common logic into utility classes:
+
+```java
+// Before: Duplicate password matching logic in 3 services
+if (storedPassword.startsWith("$2")) {
+    return passwordEncoder.matches(rawPassword, storedPassword);
+}
+return Objects.equals(rawPassword, storedPassword);
+
+// After: Single source of truth
+PasswordUtils.matches(rawPassword, storedPassword, passwordEncoder);
+```
+
+**Utility Classes Created:**
+| Class | Purpose |
+|-------|---------|
+| `PasswordUtils` | Password matching (BCrypt + legacy support) |
+| `ValidationUtils` | Common validation patterns |
+| `EmailUtils` | Email validation with regex |
+| `EntityUtils` | Entity finding patterns |
+
+### 2.2 Single Responsibility Principle (SRP)
 
 Each service method does one thing:
 
@@ -56,7 +113,7 @@ public LoginResponse login(String email, String password) {
 }
 ```
 
-### 2.2 Constructor Injection
+### 2.3 Constructor Injection
 
 **Before (Field Injection):**
 ```java
@@ -83,7 +140,7 @@ public class StudentService {
 - Clear dependencies (compiler enforced)
 - Works without Spring container
 
-### 2.3 Method Naming Convention
+### 2.4 Method Naming Convention
 
 | Method Type | Naming Pattern | Example |
 |-------------|----------------|---------|
@@ -93,7 +150,7 @@ public class StudentService {
 | Action | `save/update/delete` | `saveStudent()` |
 | Validation | `validate/check` | `validateCourseExists()` |
 
-### 2.4 Consistent Error Handling
+### 2.5 Consistent Error Handling
 
 ```java
 // Always use custom exceptions
@@ -271,4 +328,4 @@ db/changelog/
 
 ---
 
-*Last Updated: v1.8*
+*Last Updated: v2.0*
