@@ -29,6 +29,8 @@ public class RegulationAssistantService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final RegulationService regulationService;
+    private final AcademicCalendarService calendarService;
+    private final ExamScheduleService examService;
 
     @PostConstruct
     public void validateConfig() {
@@ -45,7 +47,11 @@ public class RegulationAssistantService {
 
         try {
             String systemPrompt = buildSystemMessage(role);
-            String userMessage = buildContextText(personalData) + "\n\n[REGULATIONS]\n" + getRegulationsContext() + "\n\nQuestion: " + question;
+            String userMessage = buildContextText(personalData) 
+                + "\n\n[REGULATIONS]\n" + getRegulationsContext() 
+                + "\n\n[ACADEMIC CALENDAR]\n" + getCalendarContext()
+                + "\n\n[EXAM SCHEDULE]\n" + getExamContext()
+                + "\n\nQuestion: " + question;
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", model);
@@ -96,6 +102,46 @@ public class RegulationAssistantService {
         } catch (Exception e) {
             log.warn("Could not fetch regulations", e);
             return "No school regulations available.";
+        }
+    }
+
+    private String getCalendarContext() {
+        try {
+            List<Map<String, Object>> events = calendarService.getAllEventsAsMap();
+            if (events == null || events.isEmpty()) {
+                return "No upcoming events in the academic calendar.";
+            }
+            return events.stream()
+                    .map(e -> String.format("%s: %s (%s) %s",
+                            e.get("eventType"),
+                            e.get("title"),
+                            e.get("startDate"),
+                            e.get("description") != null ? "- " + e.get("description") : ""))
+                    .collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            log.warn("Could not fetch calendar", e);
+            return "No calendar events available.";
+        }
+    }
+
+    private String getExamContext() {
+        try {
+            List<Map<String, Object>> exams = examService.getAllExamsAsMap();
+            if (exams == null || exams.isEmpty()) {
+                return "No exams scheduled.";
+            }
+            return exams.stream()
+                    .map(ex -> String.format("%s - %s (%s %s-%s, Room: %s)",
+                            ex.get("examType"),
+                            ex.get("courseName"),
+                            ex.get("examDate"),
+                            ex.get("startTime"),
+                            ex.get("endTime"),
+                            ex.get("room")))
+                    .collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            log.warn("Could not fetch exams", e);
+            return "No exam schedule available.";
         }
     }
 

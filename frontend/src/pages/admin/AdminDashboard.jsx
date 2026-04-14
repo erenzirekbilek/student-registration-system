@@ -4,7 +4,9 @@ import { Box, CircularProgress, Grid, Card, CardContent, Typography, Button } fr
 import { UserIcon, SchoolIcon, ClassIcon, BookIcon } from '../../components/common/Icons';
 import {
   useGetNoticesQuery, useCreateNoticeMutation, useDeleteNoticeMutation,
-  useGetRegulationsQuery, useCreateRegulationMutation, useDeleteRegulationMutation
+  useGetRegulationsQuery, useCreateRegulationMutation, useDeleteRegulationMutation,
+  useGetCalendarEventsQuery, useCreateCalendarEventMutation, useDeleteCalendarEventMutation,
+  useGetExamSchedulesQuery, useCreateExamScheduleMutation, useDeleteExamScheduleMutation
 } from '../../RTK/userAPI';
 
 export default function AdminDashboard() {
@@ -14,18 +16,30 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('notices');
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [showRegulationModal, setShowRegulationModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showExamModal, setShowExamModal] = useState(false);
   const [noticeForm, setNoticeForm] = useState({ title: '', content: '', noticeType: 'General', targetRole: 'ALL' });
   const [regulationForm, setRegulationForm] = useState({ title: '', content: '', category: 'General', articleNumber: '' });
+  const [calendarForm, setCalendarForm] = useState({ title: '', description: '', eventType: 'Event', startDate: '', endDate: '' });
+  const [examForm, setExamForm] = useState({ courseId: '', courseName: '', examDate: '', startTime: '', endTime: '', room: '', examType: 'Midterm' });
 
   const { data: noticesData, refetch: refetchNotices } = useGetNoticesQuery();
   const { data: regulationsData, refetch: refetchRegulations } = useGetRegulationsQuery();
+  const { data: calendarData, refetch: refetchCalendar } = useGetCalendarEventsQuery();
+  const { data: examsData, refetch: refetchExams } = useGetExamSchedulesQuery();
   const [createNotice] = useCreateNoticeMutation();
   const [deleteNotice] = useDeleteNoticeMutation();
   const [createRegulation] = useCreateRegulationMutation();
   const [deleteRegulation] = useDeleteRegulationMutation();
+  const [createCalendarEvent] = useCreateCalendarEventMutation();
+  const [deleteCalendarEvent] = useDeleteCalendarEventMutation();
+  const [createExamSchedule] = useCreateExamScheduleMutation();
+  const [deleteExamSchedule] = useDeleteExamScheduleMutation();
 
   const notices = noticesData || [];
   const regulations = regulationsData || [];
+  const calendarEvents = calendarData || [];
+  const examSchedules = examsData || [];
 
   useEffect(() => {
     const adminData = localStorage.getItem('adminData');
@@ -209,6 +223,20 @@ export default function AdminDashboard() {
             >
               Regulations
             </Button>
+            <Button 
+              variant={activeTab === 'calendar' ? 'contained' : 'outlined'} 
+              onClick={() => setActiveTab('calendar')}
+              sx={{ bgcolor: activeTab === 'calendar' ? '#7c3aed' : 'transparent', color: activeTab === 'calendar' ? 'white' : '#7c3aed', borderColor: '#7c3aed' }}
+            >
+              Academic Calendar
+            </Button>
+            <Button 
+              variant={activeTab === 'exams' ? 'contained' : 'outlined'} 
+              onClick={() => setActiveTab('exams')}
+              sx={{ bgcolor: activeTab === 'exams' ? '#7c3aed' : 'transparent', color: activeTab === 'exams' ? 'white' : '#7c3aed', borderColor: '#7c3aed' }}
+            >
+              Exam Schedule
+            </Button>
           </div>
 
           {activeTab === 'notices' && (
@@ -270,6 +298,66 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           )}
+
+          {activeTab === 'calendar' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Academic Calendar</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowCalendarModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Event
+                  </Button>
+                </div>
+                {calendarEvents.length === 0 ? (
+                  <Typography color="text.secondary">No events yet</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {calendarEvents.map((event) => (
+                      <div key={event.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{event.title}</Typography>
+                          <Typography variant="body2" color="text.secondary">{event.startDate} {event.endDate ? `- ${event.endDate}` : ''} | {event.eventType}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteCalendarEvent(event.id).then(refetchCalendar)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === 'exams' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Exam Schedule</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowExamModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Exam
+                  </Button>
+                </div>
+                {examSchedules.length === 0 ? (
+                  <Typography color="text.secondary">No exams scheduled</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {examSchedules.map((exam) => (
+                      <div key={exam.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{exam.courseName}</Typography>
+                          <Typography variant="body2" color="text.secondary">{exam.examDate} | {exam.startTime}-{exam.endTime} | {exam.room} | {exam.examType}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteExamSchedule(exam.id).then(refetchExams)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {showNoticeModal && (
@@ -308,6 +396,54 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <Button variant="contained" onClick={() => createRegulation(regulationForm).then(() => { setShowRegulationModal(false); setRegulationForm({ title: '', content: '', category: 'General', articleNumber: '' }); refetchRegulations(); })}>Save</Button>
                 <Button variant="outlined" onClick={() => setShowRegulationModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCalendarModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Calendar Event</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Event Title" value={calendarForm.title} onChange={e => setCalendarForm({...calendarForm, title: e.target.value})} />
+              <textarea className="w-full mb-3 px-3 py-2 border rounded" rows={2} placeholder="Description" value={calendarForm.description} onChange={e => setCalendarForm({...calendarForm, description: e.target.value})} />
+              <select className="w-full mb-3 px-3 py-2 border rounded" value={calendarForm.eventType} onChange={e => setCalendarForm({...calendarForm, eventType: e.target.value})}>
+                <option value="Registration">Registration</option>
+                <option value="Semester">Semester</option>
+                <option value="Holiday">Holiday</option>
+                <option value="Event">Event</option>
+                <option value="Deadline">Deadline</option>
+              </select>
+              <input type="date" className="w-full mb-3 px-3 py-2 border rounded" value={calendarForm.startDate} onChange={e => setCalendarForm({...calendarForm, startDate: e.target.value})} />
+              <input type="date" className="w-full mb-4 px-3 py-2 border rounded" value={calendarForm.endDate} onChange={e => setCalendarForm({...calendarForm, endDate: e.target.value})} />
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => createCalendarEvent(calendarForm).then(() => { setShowCalendarModal(false); setCalendarForm({ title: '', description: '', eventType: 'Event', startDate: '', endDate: '' }); refetchCalendar(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowCalendarModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showExamModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Exam Schedule</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Course Name" value={examForm.courseName} onChange={e => setExamForm({...examForm, courseName: e.target.value})} />
+              <input type="date" className="w-full mb-3 px-3 py-2 border rounded" value={examForm.examDate} onChange={e => setExamForm({...examForm, examDate: e.target.value})} />
+              <div className="flex gap-2 mb-3">
+                <input type="time" className="flex-1 px-3 py-2 border rounded" placeholder="Start Time" value={examForm.startTime} onChange={e => setExamForm({...examForm, startTime: e.target.value})} />
+                <input type="time" className="flex-1 px-3 py-2 border rounded" placeholder="End Time" value={examForm.endTime} onChange={e => setExamForm({...examForm, endTime: e.target.value})} />
+              </div>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Room" value={examForm.room} onChange={e => setExamForm({...examForm, room: e.target.value})} />
+              <select className="w-full mb-4 px-3 py-2 border rounded" value={examForm.examType} onChange={e => setExamForm({...examForm, examType: e.target.value})}>
+                <option value="Midterm">Midterm</option>
+                <option value="Final">Final</option>
+                <option value="Quiz">Quiz</option>
+                <option value="Practical">Practical</option>
+              </select>
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => createExamSchedule(examForm).then(() => { setShowExamModal(false); setExamForm({ courseId: '', courseName: '', examDate: '', startTime: '', endTime: '', room: '', examType: 'Midterm' }); refetchExams(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowExamModal(false)}>Cancel</Button>
               </div>
             </div>
           </div>

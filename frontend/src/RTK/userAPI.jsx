@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const userApi = createApi({
     reducerPath: "userApi",
     baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-    tagTypes: ["Student", "Teacher", "Course", "Class", "Attendance", "Notice", "Regulation"],
+    tagTypes: ["Student", "Teacher", "Course", "Class", "Attendance", "Notice", "Regulation", "Calendar", "Exam"],
     endpoints: (builder) => ({
         getStudents: builder.query({
             query: () => "/students",
@@ -271,6 +271,52 @@ const userApi = createApi({
                 method: "DELETE"
             }),
             invalidatesTags: ["Regulation"]
+        }),
+        getCalendarEvents: builder.query({
+            query: () => "/calendar",
+            providesTags: ["Calendar"]
+        }),
+        getCalendarByType: builder.query({
+            query: (eventType) => `/calendar/type/${eventType}`,
+            providesTags: ["Calendar"]
+        }),
+        createCalendarEvent: builder.mutation({
+            query: (event) => ({
+                url: "/calendar",
+                method: "POST",
+                body: event
+            }),
+            invalidatesTags: ["Calendar"]
+        }),
+        deleteCalendarEvent: builder.mutation({
+            query: (id) => ({
+                url: `/calendar/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Calendar"]
+        }),
+        getExamSchedules: builder.query({
+            query: () => "/exams",
+            providesTags: ["Exam"]
+        }),
+        getExamsByCourse: builder.query({
+            query: (courseId) => `/exams/course/${courseId}`,
+            providesTags: ["Exam"]
+        }),
+        createExamSchedule: builder.mutation({
+            query: (exam) => ({
+                url: "/exams",
+                method: "POST",
+                body: exam
+            }),
+            invalidatesTags: ["Exam"]
+        }),
+        deleteExamSchedule: builder.mutation({
+            query: (id) => ({
+                url: `/exams/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Exam"]
         })
     })
 });
@@ -292,5 +338,7 @@ export const {
     useGetAttendanceQuery, useGetAttendanceByStudentQuery, useGetAttendanceByCourseQuery,
     useMarkAttendanceMutation, useDeleteAttendanceMutation,
     useGetNoticesQuery, useGetNoticesByRoleQuery, useCreateNoticeMutation, useDeleteNoticeMutation,
-    useGetRegulationsQuery, useGetRegulationsByCategoryQuery, useCreateRegulationMutation, useDeleteRegulationMutation
+    useGetRegulationsQuery, useGetRegulationsByCategoryQuery, useCreateRegulationMutation, useDeleteRegulationMutation,
+    useGetCalendarEventsQuery, useGetCalendarByTypeQuery, useCreateCalendarEventMutation, useDeleteCalendarEventMutation,
+    useGetExamSchedulesQuery, useGetExamsByCourseQuery, useCreateExamScheduleMutation, useDeleteExamScheduleMutation
 } = userApi;

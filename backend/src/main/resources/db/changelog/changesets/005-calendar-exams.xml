@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="005-academic-calendar-table" author="liquibase">
+        <createTable tableName="academic_calendar">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="title" type="VARCHAR(255)" />
+            <column name="description" type="TEXT" />
+            <column name="event_type" type="VARCHAR(50)" />
+            <column name="start_date" type="DATE" />
+            <column name="end_date" type="DATE" />
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="005-exam-schedule-table" author="liquibase">
+        <createTable tableName="exam_schedule">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="course_id" type="BIGINT" />
+            <column name="course_name" type="VARCHAR(255)" />
+            <column name="exam_date" type="DATE" />
+            <column name="start_time" type="TIME" />
+            <column name="end_time" type="TIME" />
+            <column name="room" type="VARCHAR(50)" />
+            <column name="exam_type" type="VARCHAR(50)" />
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="005-insert-academic-calendar" author="liquibase">
+        <insert tableName="academic_calendar">
+            <column name="title">Fall Semester 2024 Start</column>
+            <column name="description">Fall semester classes begin</column>
+            <column name="event_type">Semester</column>
+            <column name="start_date">2024-09-02</column>
+            <column name="end_date">2024-09-02</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="academic_calendar">
+            <column name="title">Course Registration</column>
+            <column name="description">Last day to register for courses</column>
+            <column name="event_type">Registration</column>
+            <column name="start_date">2024-08-19</column>
+            <column name="end_date">2024-08-30</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="academic_calendar">
+            <column name="title">Midterm Exams</column>
+            <column name="description">Midterm examination period</column>
+            <column name="event_type">Exam</column>
+            <column name="start_date">2024-10-21</column>
+            <column name="end_date">2024-11-01</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="academic_calendar">
+            <column name="title">Thanksgiving Break</column>
+            <column name="description">University closed</column>
+            <column name="event_type">Holiday</column>
+            <column name="start_date">2024-11-28</column>
+            <column name="end_date">2024-11-29</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="academic_calendar">
+            <column name="title">Final Exams</column>
+            <column name="description">Final examination period</column>
+            <column name="event_type">Exam</column>
+            <column name="start_date">2024-12-09</column>
+            <column name="end_date">2024-12-20</column>
+            <column name="is_active">true</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="005-insert-exam-schedule" author="liquibase">
+        <insert tableName="exam_schedule">
+            <column name="course_name">Introduction to Programming</column>
+            <column name="exam_date">2024-10-25</column>
+            <column name="start_time">09:00</column>
+            <column name="end_time">11:00</column>
+            <column name="room">Lab 101</column>
+            <column name="exam_type">Midterm</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="exam_schedule">
+            <column name="course_name">Data Structures</column>
+            <column name="exam_date">2024-10-28</column>
+            <column name="start_time">14:00</column>
+            <column name="end_time">16:00</column>
+            <column name="room">Lab 102</column>
+            <column name="exam_type">Midterm</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="exam_schedule">
+            <column name="course_name">Physics I</column>
+            <column name="exam_date">2024-12-12</column>
+            <column name="start_time">10:00</column>
+            <column name="end_time">12:00</column>
+            <column name="room">Hall A</column>
+            <column name="exam_type">Final</column>
+            <column name="is_active">true</column>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

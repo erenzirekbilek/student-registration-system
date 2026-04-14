@@ -9,4 +9,5 @@
     <include file="db/changelog/changesets/002-seed-data.xml"/>
     <include file="db/changelog/changesets/003-admin-attendance.xml"/>
     <include file="db/changelog/changesets/004-notices-regulations.xml"/>
+    <include file="db/changelog/changesets/005-calendar-exams.xml"/>
 </databaseChangeLog>
