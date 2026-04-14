@@ -175,41 +175,6 @@ export default function AdminDashboard() {
           </Grid>
         </Grid>
 
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button 
-            variant="contained" 
-            fullWidth 
-            sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => setActiveTab('manage-students')}
-          >
-            Manage Students
-          </Button>
-          <Button 
-            variant="contained" 
-            fullWidth 
-            sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => setActiveTab('manage-teachers')}
-          >
-            Manage Teachers
-          </Button>
-          <Button 
-            variant="contained" 
-            fullWidth 
-            sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => setActiveTab('manage-courses')}
-          >
-            Manage Courses
-          </Button>
-          <Button 
-            variant="contained" 
-            fullWidth 
-            sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => setActiveTab('manage-classes')}
-          >
-            Manage Classes
-          </Button>
-        </div>
-
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card sx={{ borderRadius: 2 }}>
             <CardContent>
