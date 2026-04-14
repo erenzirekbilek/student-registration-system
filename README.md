@@ -769,24 +769,72 @@ The system includes an intelligent AI chatbot powered by **Groq API** to assist 
 ### Architecture
 
 ```
-User Request → Frontend (AIChat.jsx) → Backend API (/api/ai/chat) → Groq API (LLM)
-                                   ↓
-                          RegulationAssistantService
-                                   ↓
-                        Processes & Filters Response
+User Question → AIChat.jsx (Frontend)
+                      ↓
+              /api/ai/chat (Backend)
+                      ↓
+        RegulationAssistantService
+        ┌─────────────┼─────────────┐
+        ↓             ↓             ↓
+   Regulations    Calendar      User Data
+   (DB)          (DB)         (DB: attendance, grades)
+        └─────────────┼─────────────┘
+                      ↓
+              Groq API (LLM)
+                      ↓
+              Clean Response
 ```
+
+### How It Works
+
+1. **User sends question** via AIChat.jsx floating chat component
+2. **Backend receives** question with user role (STUDENT/TEACHER) and user ID
+3. **Context Gathering** (all from database):
+   - **Personal Data**: Attendance records, grades, student number (from `UserDataService`)
+   - **School Regulations**: All active regulations with article numbers and categories
+   - **Academic Calendar**: Events, holidays, registration deadlines
+   - **Exam Schedule**: Midterm, final exam dates, times, rooms
+4. **System Prompt Building**: Role-based instructions (STUDENT vs TEACHER)
+5. **LLM Processing**: Groq API (Qwen3-32B model) generates response
+6. **Response Filtering**: Removes thinking/reasoning tags, returns clean text
+
+### Data Sources
+
+| Source | Database Table | Purpose |
+|--------|---------------|---------|
+| Personal Data | `students`, `attendance` | Grades, attendance %, recent records |
+| Regulations | `regulations` | School rules, policies, article numbers |
+| Calendar | `academic_calendar` | Semester dates, holidays, deadlines |
+| Exams | `exam_schedule` | Exam dates, times, rooms, types |
+
+### Example Questions
+
+**Students can ask:**
+- "What is my current attendance percentage?"
+- "When are the midterm exams?"
+- "What is the attendance policy?"
+- "When does course registration end?"
+- "What are my recent grades?"
+- "What happens if I miss more than 3 classes?"
+
+**Teachers can ask:**
+- "What are my course schedules?"
+- "How many students are enrolled in my courses?"
+- "What is the exam policy?"
 
 ### Technology Stack
 - **LLM Provider**: Groq API
-- **Model**: Qwen Qwen3-32B (or Llama 3.1 70B)
-- **Backend**: Spring Boot Service
-- **Frontend**: React Component
+- **Model**: Qwen Qwen3-32B (or configurable)
+- **Backend**: Spring Boot + Spring AI pattern
+- **Frontend**: React + Tailwind CSS
 
 ### Features
 - **Context-Aware**: Uses student's personal data (grades, attendance, courses) for personalized responses
 - **Role-Based**: Different personas for Students vs Teachers
+- **Multi-Source**: Combines regulations, calendar, exams, and personal data
 - **Response Filtering**: Removes thinking/reasoning tags for clean output
 - **Real-time Chat**: Interactive chat interface with loading states
+- **Quick Suggestions**: Pre-defined questions for easy access
 
 ### API Endpoint
 | Method | Endpoint | Description |
@@ -814,24 +862,20 @@ User Request → Frontend (AIChat.jsx) → Backend API (/api/ai/chat) → Groq A
 
 ### Configuration
 
+Get your free Groq API key from [console.groq.com](https://console.groq.com):
+
 In `application.properties`:
 ```properties
 groq.api.key=your_groq_api_key_here
 ```
 
-### Frontend Component
-The `AIChat.jsx` component provides:
-- Floating chat button
-- Minimizable chat panel
-- Quick suggestion buttons
-- Typing indicator ("AI thinking...")
-- Message history
-- Responsive design
-
 ### Implementation Files
-- `RegulationAssistantService.java` - Backend AI service
+- `RegulationAssistantService.java` - Main AI service (gathers context, calls LLM)
+- `UserDataService.java` - Personal student data (attendance, grades)
+- `AcademicCalendarService.java` - Academic calendar events
+- `ExamScheduleService.java` - Exam schedule data
+- `AIChatController.java` - REST API controller
 - `AIChat.jsx` - Frontend chat component
-- `AIChatController.java` - API controller
 
 ---
 
