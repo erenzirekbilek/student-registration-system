@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '../../RTK/userAPI';
 import Button from '../../components/common/Button';
+import Skeleton, { SkeletonTable } from '../../components/common/Skeleton';
 import { AddIcon, SearchIcon, SchoolIcon, MoreIcon, MailIcon, EditIcon, DeleteIcon } from '../../components/common/Icons';
 import { Menu, MenuItem, IconButton, Avatar } from '@mui/material';
 
@@ -39,8 +40,22 @@ const TeacherList = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary-500"></div>
+      <div className="min-h-screen bg-surface-50 text-surface-600 font-sans">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-surface-100 bg-white/80 backdrop-blur-xl h-14">
+          <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 bg-surface-200 rounded-lg" />
+              <div className="w-24 h-4 bg-surface-200 rounded" />
+            </div>
+          </div>
+        </nav>
+        <div className="max-w-6xl mx-auto px-6 pt-28">
+          <div className="space-y-4 mb-8">
+            <Skeleton variant="title" />
+            <Skeleton variant="text" width="40%" />
+          </div>
+          <SkeletonTable rows={8} columns={4} />
+        </div>
       </div>
     );
   }

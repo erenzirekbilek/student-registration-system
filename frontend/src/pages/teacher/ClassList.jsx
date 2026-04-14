@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useGetClassesQuery, useAddClassMutation, useDeleteClassMutation } from '../../RTK/userAPI';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
+import Skeleton, { SkeletonCard } from '../../components/common/Skeleton';
 import { SchoolIcon, AddIcon, DeleteIcon } from '../../components/common/Icons';
 
 const ClassList = () => {
@@ -48,7 +49,27 @@ const ClassList = () => {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-surface-50 flex items-center justify-center text-surface-600">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-surface-50 font-sans">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-surface-100 bg-white/80 backdrop-blur-lg h-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 items-center">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-surface-200 rounded-xl" />
+                <div className="w-48 h-5 bg-surface-200 rounded" />
+              </div>
+            </div>
+          </div>
+        </nav>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} showImage={false} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
