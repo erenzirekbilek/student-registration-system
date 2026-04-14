@@ -41,6 +41,7 @@ public class AdminService {
         existing.setName(admin.getName());
         existing.setPhone(admin.getPhone());
         if (admin.getPassword() != null && !admin.getPassword().isEmpty()) {
+            existing.setPassword(admin.getPassword());
             existing.encodePassword(passwordEncoder);
         }
         return adminRepository.save(existing);

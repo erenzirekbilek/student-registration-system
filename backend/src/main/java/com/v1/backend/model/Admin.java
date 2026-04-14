@@ -44,8 +44,8 @@ public class Admin {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     
-    // Law of Demeter: Object hides its password data and exposes operations
-    String getPassword() { return password; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     void setPasswordInternal(String password) { this.password = password; }
     
     public void encodePassword(org.springframework.security.crypto.password.PasswordEncoder encoder) {

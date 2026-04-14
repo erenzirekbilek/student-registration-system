@@ -109,13 +109,6 @@ const StudentLogin = () => {
           <span className="text-sm font-semibold text-surface-700 tracking-tight">Student Management System</span>
         </Link>
         <div className="ml-auto flex items-center gap-4">
-          <Link to="/TeacherList" className="text-xs text-surface-400 hover:text-primary-600 transition-colors">
-            Teachers →
-          </Link>
-          <button onClick={() => navigate('/TeacherSignin')}
-            className="text-xs font-medium text-surface-500 hover:text-primary-600 transition-colors">
-            Teacher? →
-          </button>
         </div>
       </nav>
 

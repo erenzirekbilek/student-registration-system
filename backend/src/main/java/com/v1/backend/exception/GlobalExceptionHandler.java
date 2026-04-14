@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             LocalDateTime.now(),
             ex.getResourceType(),
-            ex.getResourceId()
+            ex.getResourceIdString()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             LocalDateTime.now(),
             ex.getOperation(),
-            ex.getContext()
+            ex.getContextString()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             LocalDateTime.now(),
             ex.getOperation(),
-            ex.getReason()
+            ex.getReasonString()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }

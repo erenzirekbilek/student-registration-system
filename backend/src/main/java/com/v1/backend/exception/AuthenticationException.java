@@ -36,4 +36,8 @@ public class AuthenticationException extends RuntimeException {
         return String.format("Authentication failed during '%s': %s (reason: %s)", 
             operation, getMessage(), reason);
     }
+    
+    public String getReasonString() {
+        return reason != null ? reason : "";
+    }
 }

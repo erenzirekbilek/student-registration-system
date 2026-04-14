@@ -80,11 +80,6 @@ const TeacherSignin = () => {
           </div>
           <span className="text-sm font-semibold text-slate-700 tracking-tight">Student Management System</span>
         </Link>
-        <div className="ml-auto">
-          <Link to="/TeacherLogin" className="text-xs font-medium text-slate-500 hover:text-violet-600 transition-colors">
-            Sign in instead →
-          </Link>
-        </div>
       </nav>
 
       {/* Page body */}

@@ -84,4 +84,39 @@ public class Student {
     
     public String getProfileImage() { return profileImage; }
     public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+    
+    public void encodePassword(org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        this.password = encoder.encode(this.password);
+    }
+    
+    public boolean matchesPassword(String rawPassword, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        if (password.startsWith("$2")) {
+            return encoder.matches(rawPassword, password);
+        }
+        return rawPassword.equals(password);
+    }
+    
+    public void enrollInClass(Long classId) {
+        this.classId = classId;
+    }
+    
+    public void dropClass() {
+        this.classId = null;
+    }
+    
+    public void recordAttendance(Integer status) {
+        this.attendance = status;
+    }
+    
+    public void markPresent() {
+        this.attendance = 1;
+    }
+    
+    public void assignGrade(String grade) {
+        this.grade = grade;
+    }
+    
+    public String getStatus() {
+        return "Name: " + name + ", Email: " + email + ", Class: " + classId + ", Grade: " + grade;
+    }
 }
