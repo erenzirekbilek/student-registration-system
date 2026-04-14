@@ -6,7 +6,11 @@ import {
   useGetNoticesQuery, useCreateNoticeMutation, useDeleteNoticeMutation,
   useGetRegulationsQuery, useCreateRegulationMutation, useDeleteRegulationMutation,
   useGetCalendarEventsQuery, useCreateCalendarEventMutation, useDeleteCalendarEventMutation,
-  useGetExamSchedulesQuery, useCreateExamScheduleMutation, useDeleteExamScheduleMutation
+  useGetExamSchedulesQuery, useCreateExamScheduleMutation, useDeleteExamScheduleMutation,
+  useGetStudentsQuery, useAddStudentMutation, useDeleteStudentMutation,
+  useGetTeachersQuery, useAddTeacherMutation, useDeleteTeacherMutation,
+  useGetCoursesQuery, useAddCourseMutation, useDeleteCourseMutation,
+  useGetClassesQuery, useAddClassMutation, useDeleteClassMutation
 } from '../../RTK/userAPI';
 
 export default function AdminDashboard() {
@@ -18,15 +22,27 @@ export default function AdminDashboard() {
   const [showRegulationModal, setShowRegulationModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showExamModal, setShowExamModal] = useState(false);
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const [showTeacherModal, setShowTeacherModal] = useState(false);
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [showClassModal, setShowClassModal] = useState(false);
   const [noticeForm, setNoticeForm] = useState({ title: '', content: '', noticeType: 'General', targetRole: 'ALL' });
   const [regulationForm, setRegulationForm] = useState({ title: '', content: '', category: 'General', articleNumber: '' });
   const [calendarForm, setCalendarForm] = useState({ title: '', description: '', eventType: 'Event', startDate: '', endDate: '' });
   const [examForm, setExamForm] = useState({ courseId: '', courseName: '', examDate: '', startTime: '', endTime: '', room: '', examType: 'Midterm' });
+  const [studentForm, setStudentForm] = useState({ name: '', email: '', password: '', classId: '' });
+  const [teacherForm, setTeacherForm] = useState({ name: '', email: '', password: '', specialty: '' });
+  const [courseForm, setCourseForm] = useState({ name: '', description: '', teacherId: '', classId: '', credit: 3, schedule: '', room: '' });
+  const [classForm, setClassForm] = useState({ name: '', department: '', section: '', year: 2024 });
 
   const { data: noticesData, refetch: refetchNotices } = useGetNoticesQuery();
   const { data: regulationsData, refetch: refetchRegulations } = useGetRegulationsQuery();
   const { data: calendarData, refetch: refetchCalendar } = useGetCalendarEventsQuery();
   const { data: examsData, refetch: refetchExams } = useGetExamSchedulesQuery();
+  const { data: studentsData, refetch: refetchStudents } = useGetStudentsQuery();
+  const { data: teachersData, refetch: refetchTeachers } = useGetTeachersQuery();
+  const { data: coursesData, refetch: refetchCourses } = useGetCoursesQuery();
+  const { data: classesData, refetch: refetchClasses } = useGetClassesQuery();
   const [createNotice] = useCreateNoticeMutation();
   const [deleteNotice] = useDeleteNoticeMutation();
   const [createRegulation] = useCreateRegulationMutation();
@@ -35,11 +51,23 @@ export default function AdminDashboard() {
   const [deleteCalendarEvent] = useDeleteCalendarEventMutation();
   const [createExamSchedule] = useCreateExamScheduleMutation();
   const [deleteExamSchedule] = useDeleteExamScheduleMutation();
+  const [addStudent] = useAddStudentMutation();
+  const [deleteStudent] = useDeleteStudentMutation();
+  const [addTeacher] = useAddTeacherMutation();
+  const [deleteTeacher] = useDeleteTeacherMutation();
+  const [addCourse] = useAddCourseMutation();
+  const [deleteCourse] = useDeleteCourseMutation();
+  const [addClass] = useAddClassMutation();
+  const [deleteClass] = useDeleteClassMutation();
 
   const notices = noticesData || [];
   const regulations = regulationsData || [];
   const calendarEvents = calendarData || [];
   const examSchedules = examsData || [];
+  const students = studentsData || [];
+  const teachers = teachersData || [];
+  const courses = coursesData || [];
+  const classes = classesData || [];
 
   useEffect(() => {
     const adminData = localStorage.getItem('adminData');
@@ -152,7 +180,7 @@ export default function AdminDashboard() {
             variant="contained" 
             fullWidth 
             sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => navigate('/admin/students')}
+            onClick={() => setActiveTab('manage-students')}
           >
             Manage Students
           </Button>
@@ -160,7 +188,7 @@ export default function AdminDashboard() {
             variant="contained" 
             fullWidth 
             sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => navigate('/admin/teachers')}
+            onClick={() => setActiveTab('manage-teachers')}
           >
             Manage Teachers
           </Button>
@@ -168,7 +196,7 @@ export default function AdminDashboard() {
             variant="contained" 
             fullWidth 
             sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => navigate('/admin/courses')}
+            onClick={() => setActiveTab('manage-courses')}
           >
             Manage Courses
           </Button>
@@ -176,7 +204,7 @@ export default function AdminDashboard() {
             variant="contained" 
             fullWidth 
             sx={{ py: 2, bgcolor: '#7c3aed', '&:hover': { bgcolor: '#6d28d9' } }}
-            onClick={() => navigate('/admin/classes')}
+            onClick={() => setActiveTab('manage-classes')}
           >
             Manage Classes
           </Button>
@@ -358,6 +386,126 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           )}
+
+          {activeTab === 'manage-students' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Manage Students</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowStudentModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Student
+                  </Button>
+                </div>
+                {students.length === 0 ? (
+                  <Typography color="text.secondary">No students</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {students.map((s) => (
+                      <div key={s.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{s.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">{s.email} | Class ID: {s.classId}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteStudent(s.id).then(refetchStudents)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === 'manage-teachers' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Manage Teachers</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowTeacherModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Teacher
+                  </Button>
+                </div>
+                {teachers.length === 0 ? (
+                  <Typography color="text.secondary">No teachers</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {teachers.map((t) => (
+                      <div key={t.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{t.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">{t.email} | {t.specialty}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteTeacher(t.id).then(refetchTeachers)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === 'manage-courses' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Manage Courses</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowCourseModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Course
+                  </Button>
+                </div>
+                {courses.length === 0 ? (
+                  <Typography color="text.secondary">No courses</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {courses.map((c) => (
+                      <div key={c.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{c.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">Class: {c.classId} | Teacher: {c.teacherId} | {c.schedule}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteCourse(c.id).then(refetchCourses)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === 'manage-classes' && (
+            <Card sx={{ borderRadius: 2 }}>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <Typography variant="h6">Manage Classes</Typography>
+                  <Button variant="contained" size="small" onClick={() => setShowClassModal(true)} sx={{ bgcolor: '#10b981' }}>
+                    + Add Class
+                  </Button>
+                </div>
+                {classes.length === 0 ? (
+                  <Typography color="text.secondary">No classes</Typography>
+                ) : (
+                  <div className="space-y-2">
+                    {classes.map((cl) => (
+                      <div key={cl.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <Typography fontWeight="bold">{cl.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">{cl.department} | Section {cl.section} | Year {cl.year}</Typography>
+                        </div>
+                        <Button color="error" size="small" onClick={() => deleteClass(cl.id).then(refetchClasses)}>
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {showNoticeModal && (
@@ -444,6 +592,73 @@ export default function AdminDashboard() {
               <div className="flex gap-2">
                 <Button variant="contained" onClick={() => createExamSchedule(examForm).then(() => { setShowExamModal(false); setExamForm({ courseId: '', courseName: '', examDate: '', startTime: '', endTime: '', room: '', examType: 'Midterm' }); refetchExams(); })}>Save</Button>
                 <Button variant="outlined" onClick={() => setShowExamModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showStudentModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Student</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Name" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Email" value={studentForm.email} onChange={e => setStudentForm({...studentForm, email: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Password" type="password" value={studentForm.password} onChange={e => setStudentForm({...studentForm, password: e.target.value})} />
+              <input className="w-full mb-4 px-3 py-2 border rounded" placeholder="Class ID" type="number" value={studentForm.classId} onChange={e => setStudentForm({...studentForm, classId: e.target.value})} />
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => addStudent(studentForm).then(() => { setShowStudentModal(false); setStudentForm({ name: '', email: '', password: '', classId: '' }); refetchStudents(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowStudentModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showTeacherModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Teacher</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Name" value={teacherForm.name} onChange={e => setTeacherForm({...teacherForm, name: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Email" value={teacherForm.email} onChange={e => setTeacherForm({...teacherForm, email: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Password" type="password" value={teacherForm.password} onChange={e => setTeacherForm({...teacherForm, password: e.target.value})} />
+              <input className="w-full mb-4 px-3 py-2 border rounded" placeholder="Specialty" value={teacherForm.specialty} onChange={e => setTeacherForm({...teacherForm, specialty: e.target.value})} />
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => addTeacher(teacherForm).then(() => { setShowTeacherModal(false); setTeacherForm({ name: '', email: '', password: '', specialty: '' }); refetchTeachers(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowTeacherModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCourseModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Course</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Course Name" value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Description" value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Teacher ID" type="number" value={courseForm.teacherId} onChange={e => setCourseForm({...courseForm, teacherId: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Class ID" type="number" value={courseForm.classId} onChange={e => setCourseForm({...courseForm, classId: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Credit" type="number" value={courseForm.credit} onChange={e => setCourseForm({...courseForm, credit: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Schedule" value={courseForm.schedule} onChange={e => setCourseForm({...courseForm, schedule: e.target.value})} />
+              <input className="w-full mb-4 px-3 py-2 border rounded" placeholder="Room" value={courseForm.room} onChange={e => setCourseForm({...courseForm, room: e.target.value})} />
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => addCourse(courseForm).then(() => { setShowCourseModal(false); setCourseForm({ name: '', description: '', teacherId: '', classId: '', credit: 3, schedule: '', room: '' }); refetchCourses(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowCourseModal(false)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showClassModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <Typography variant="h6" mb={3}>Add Class</Typography>
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Class Name" value={classForm.name} onChange={e => setClassForm({...classForm, name: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Department" value={classForm.department} onChange={e => setClassForm({...classForm, department: e.target.value})} />
+              <input className="w-full mb-3 px-3 py-2 border rounded" placeholder="Section" value={classForm.section} onChange={e => setClassForm({...classForm, section: e.target.value})} />
+              <input className="w-full mb-4 px-3 py-2 border rounded" placeholder="Year" type="number" value={classForm.year} onChange={e => setClassForm({...classForm, year: e.target.value})} />
+              <div className="flex gap-2">
+                <Button variant="contained" onClick={() => addClass(classForm).then(() => { setShowClassModal(false); setClassForm({ name: '', department: '', section: '', year: 2024 }); refetchClasses(); })}>Save</Button>
+                <Button variant="outlined" onClick={() => setShowClassModal(false)}>Cancel</Button>
               </div>
             </div>
           </div>
