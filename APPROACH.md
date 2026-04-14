@@ -120,6 +120,41 @@ throw new BadRequestException("SAVE", "EMAIL", "Email already exists");
 - Type mismatch handling
 - Clear error messages for API consumers
 
+## 2.8 Don't Return Null
+
+Avoid returning null to prevent NullPointerExceptions. Use empty strings instead:
+
+```java
+// BEFORE: Returns null, invites errors
+ex.getResourceId() != null ? ex.getResourceId().toString() : null
+ex.getContext()
+
+// AFTER: Returns empty string, safe to use
+ex.getResourceIdString()  // returns ""
+ex.getContextString()     // returns ""
+```
+
+**Implementation:**
+```java
+// In exception classes - provide helper methods
+public String getResourceIdString() {
+    return resourceId != null ? resourceId.toString() : "";
+}
+
+public String getContextString() {
+    return context != null ? context : "";
+}
+
+public String getReasonString() {
+    return reason != null ? reason : "";
+}
+```
+
+**Benefits:**
+- No NullPointerExceptions
+- Cleaner code in handlers
+- Consistent API responses
+
 ## 3. Service Layer Design
 
 ### 3.1 Structure Pattern
@@ -288,4 +323,11 @@ db/changelog/
 
 ---
 
-*Last Updated: v2.1*
+## 11. Recent Updates
+
+- v2.2: Don't Return Null - Added helper methods to exception classes to avoid returning null
+- v2.2: UI Consistency - Unified StudentRegister, StudentLogin, TeacherSignin pages with consistent UI
+
+---
+
+*Last Updated: v2.2*
