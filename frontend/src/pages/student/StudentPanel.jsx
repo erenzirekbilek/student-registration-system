@@ -4,6 +4,12 @@ import Button from '../../components/common/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
 import {
+  useGetAttendanceByStudentQuery,
+  useGetCoursesQuery,
+  useGetStudentsQuery,
+  useGetNoticesQuery
+} from '../../RTK/userAPI';
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -152,6 +158,16 @@ const StudentPanel = () => {
   const [courses, setCourses] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const { data: coursesData } = useGetCoursesQuery();
+  const { data: studentsData } = useGetStudentsQuery();
+  const { data: attendanceRawData } = useGetAttendanceByStudentQuery(userData?.id, {
+    skip: !userData?.id
+  });
+  const { data: noticesData } = useGetNoticesQuery();
+  
+  const attendanceData = attendanceRawData || [];
+  const notices = noticesData || [];
 
   useEffect(() => {
     const stored = localStorage.getItem('studentData');
@@ -167,21 +183,14 @@ const StudentPanel = () => {
 
   useEffect(() => {
     if (!userData?.classId) { setLoading(false); return; }
-    const fetchData = async () => {
-      try {
-        const [cRes, sRes] = await Promise.all([
-          fetch('/api/courses'),
-          fetch('/api/students'),
-        ]);
-        const cData = cRes.ok ? await cRes.json() : [];
-        const sData = sRes.ok ? await sRes.json() : [];
-        setCourses(cData.filter(c => c.classId === userData.classId));
-        setAllStudents(sData);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    };
-    fetchData();
-  }, [userData]);
+    if (coursesData) {
+      setCourses(coursesData.filter(c => c.classId === userData.classId));
+    }
+    if (studentsData) {
+      setAllStudents(studentsData);
+    }
+    setLoading(false);
+  }, [userData, coursesData, studentsData]);
 
   const handleLogout = () => {
     localStorage.removeItem('studentData');
@@ -241,7 +250,7 @@ const StudentPanel = () => {
   const tabLabel = menuItems.find(m => m.id === activeTab)?.label ?? 'Dashboard';
 
   /* ─── chart data for dashboard ─── */
-  const attendanceData = {
+  const attendanceChartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     datasets: [
       {
@@ -343,7 +352,7 @@ const StudentPanel = () => {
                 </div>
                 <div className="h-56">
                   {courses.length > 0 ? (
-                    <Line data={attendanceData} options={chartOptions} />
+                    <Line data={attendanceChartData} options={chartOptions} />
                   ) : (
                     <EmptyState title="No data" description="Enroll in courses to see attendance" />
                   )}
@@ -511,28 +520,117 @@ const StudentPanel = () => {
           </div>
         );
 
+      /* ── ATTENDANCE ── */
+      case 'attendance':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">My Attendance Records</h3>
+              <p className="text-xs text-slate-400 mb-4">View your attendance history by course</p>
+              
+              {courses.length === 0 ? (
+                <EmptyState title="No courses" description="Enroll in courses to see attendance records" />
+              ) : (
+                <div className="space-y-4">
+                  {courses.map((course) => {
+                    const courseAttendance = attendanceData.filter(a => a.courseId === course.id);
+                    const totalDays = courseAttendance.length;
+                    const presentDays = courseAttendance.filter(a => a.status === 'PRESENT').length;
+                    const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+                    
+                    return (
+                      <div key={course.id} className="border border-slate-100 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="text-sm font-semibold text-slate-700">{course.name}</h4>
+                            <p className="text-xs text-slate-400">{course.description || 'No description'}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`text-lg font-bold ${percentage >= 80 ? 'text-emerald-600' : percentage >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+                              {percentage}%
+                            </span>
+                            <p className="text-[10px] text-slate-400">{presentDays}/{totalDays} days</p>
+                          </div>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all ${percentage >= 80 ? 'bg-emerald-500' : percentage >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-50">
+                <h3 className="text-sm font-semibold text-slate-700">Attendance History</h3>
+              </div>
+              {attendanceData.length === 0 ? (
+                <EmptyState title="No attendance records" description="Your attendance history will appear here" />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-50">
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Date</th>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Course</th>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {attendanceData.slice(0, 20).map((att) => {
+                        const course = courses.find(c => c.id === att.courseId);
+                        return (
+                          <tr key={att.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-3.5 text-slate-600">{att.date}</td>
+                            <td className="px-6 py-3.5 font-medium text-slate-700">{course?.name || 'Unknown'}</td>
+                            <td className="px-6 py-3.5">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700' : 
+                                att.status === 'ABSENT' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
+                              }`}>
+                                {att.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-3.5 text-slate-400 text-xs">{att.notes || '-'}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       /* ── NOTICES ── */
       case 'notices':
         return (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-50">
               <h3 className="text-sm font-semibold text-slate-700">Announcements</h3>
-              <p className="text-xs text-slate-400 mt-0.5">{allStudents.length} entries</p>
+              <p className="text-xs text-slate-400 mt-0.5">{notices.length} announcement{notices.length !== 1 ? 's' : ''}</p>
             </div>
-            {allStudents.length === 0
+            {notices.length === 0
               ? <EmptyState title="No notices available" description="New announcements from your institution will appear here." />
               : (
                 <div className="divide-y divide-slate-50">
-                  {allStudents.slice(0, 6).map((s, i) => (
-                    <div key={i} className="px-6 py-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">STUDENT</span>
-                          <p className="text-sm font-semibold text-slate-700">{s.name}</p>
+                  {notices.map((notice, i) => (
+                    <div key={i} className="px-6 py-4 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">{notice.noticeType || 'Notice'}</span>
+                          <p className="text-sm font-semibold text-slate-700">{notice.title}</p>
                         </div>
-                        <p className="text-xs text-slate-400">Class ID: {s.classId || 'N/A'}</p>
+                        <span className="text-[10px] text-slate-400">{notice.createdAt ? new Date(notice.createdAt).toLocaleDateString() : ''}</span>
                       </div>
-                      <p className="text-xs text-slate-400">{s.email}</p>
+                      <p className="text-xs text-slate-500 line-clamp-2">{notice.content}</p>
                     </div>
                   ))}
                 </div>

@@ -3,6 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
 import {
+  useGetAttendanceByCourseQuery,
+  useGetCoursesByTeacherQuery,
+  useGetStudentsQuery,
+  useMarkAttendanceMutation,
+  useGetCoursesQuery,
+  useGetNoticesQuery
+} from '../../RTK/userAPI';
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -52,6 +60,16 @@ const Icons = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
       <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  Attendance: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  ),
+  Notices: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
     </svg>
   ),
   Assignments: () => (
@@ -203,6 +221,22 @@ const TeacherPanel = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [gradeForm, setGradeForm] = useState({ assignmentId: '', score: '', feedback: '' });
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', courseId: '', dueDate: '', totalPoints: 100 });
+  const [selectedCourseForAttendance, setSelectedCourseForAttendance] = useState(null);
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceRecords, setAttendanceRecords] = useState({});
+  
+  const { data: coursesData } = useGetCoursesQuery();
+  const { data: studentsData } = useGetStudentsQuery();
+  const { data: teacherCoursesData } = useGetCoursesByTeacherQuery(userData?.id, { skip: !userData?.id });
+  const { data: courseAttendanceData } = useGetAttendanceByCourseQuery(selectedCourseForAttendance, { skip: !selectedCourseForAttendance });
+  const [markAttendance] = useMarkAttendanceMutation();
+  const { data: noticesData } = useGetNoticesQuery();
+  
+  const courseAttendance = courseAttendanceData || [];
+  const notices = noticesData || [];
+  
+  const teacherCourses = teacherCoursesData || courses?.filter(c => c.teacherId === userData?.id) || [];
+  const courseStudents = students?.filter(s => s.classId === courses?.find(c => c.id === selectedCourseForAttendance)?.classId) || [];
 
   useEffect(() => {
     const stored = localStorage.getItem('teacherData');
@@ -212,23 +246,40 @@ const TeacherPanel = () => {
 
   useEffect(() => {
     if (!userData?.id) { setLoading(false); return; }
-    const fetchData = async () => {
-      try {
-        const [cRes, sRes, clRes] = await Promise.all([
-          fetch(`/api/courses/teacher/${userData.id}`),
-          fetch('/api/students'),
-          fetch('/api/classes'),
-        ]);
-        setCourses(cRes.ok ? await cRes.json() : []);
-        setStudents(sRes.ok ? await sRes.json() : []);
-        setClasses(clRes.ok ? await clRes.json() : []);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    };
-    fetchData();
-  }, [userData]);
+    if (coursesData) setCourses(coursesData);
+    if (studentsData) setStudents(studentsData);
+    if (teacherCoursesData) setCourses(teacherCoursesData);
+    setLoading(false);
+  }, [userData, coursesData, studentsData, teacherCoursesData]);
 
   const handleLogout = () => { localStorage.removeItem('teacherData'); navigate('/TeacherLogin'); };
+
+  const markStudentAttendance = (studentId, status) => {
+    setAttendanceRecords(prev => ({ ...prev, [studentId]: status }));
+  };
+
+  const saveAttendance = async () => {
+    const course = courses?.find(c => c.id === selectedCourseForAttendance);
+    if (!course) return;
+    
+    const classStudents = students?.filter(s => s.classId === course.classId) || [];
+    
+    for (const student of classStudents) {
+      const status = attendanceRecords[student.id];
+      if (status) {
+        await markAttendance({
+          studentId: student.id,
+          courseId: selectedCourseForAttendance,
+          date: attendanceDate,
+          status: status,
+          notes: ''
+        }).unwrap();
+      }
+    }
+    
+    setAttendanceRecords({});
+    setSelectedCourseForAttendance(null);
+  };
 
   if (!userData || loading) return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -253,6 +304,8 @@ const TeacherPanel = () => {
     { id: 'courses',     label: 'My Courses',  Icon: Icons.Courses },
     { id: 'classes',     label: 'Classes',     Icon: Icons.Classes },
     { id: 'students',    label: 'My Students', Icon: Icons.Students },
+    { id: 'attendance',  label: 'Attendance',   Icon: Icons.Attendance },
+    { id: 'notices',     label: 'Notices',     Icon: Icons.Notices },
     { id: 'assignments', label: 'Assignments', Icon: Icons.Assignments },
     { id: 'grades',      label: 'Grade Book',  Icon: Icons.Grades },
     { id: 'settings',    label: 'Settings',    Icon: Icons.Settings },
@@ -567,6 +620,175 @@ const TeacherPanel = () => {
           </div>
         );
 
+      /* ── ATTENDANCE ── */
+      case 'attendance':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700">Take Attendance</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Mark attendance for your courses</p>
+                </div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Select Course</label>
+                  <select 
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                    value={selectedCourseForAttendance || ''}
+                    onChange={(e) => setSelectedCourseForAttendance(Number(e.target.value))}
+                  >
+                    <option value="">Choose a course...</option>
+                    {courses.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Date</label>
+                  <input 
+                    type="date" 
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                    value={attendanceDate}
+                    onChange={(e) => setAttendanceDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {selectedCourseForAttendance && (
+                <div className="border border-slate-100 rounded-xl overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Student</th>
+                        <th className="px-6 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase">Present</th>
+                        <th className="px-6 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase">Absent</th>
+                        <th className="px-6 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase">Late</th>
+                        <th className="px-6 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase">Excused</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {courseStudents.map(student => (
+                        <tr key={student.id} className="hover:bg-slate-50">
+                          <td className="px-6 py-3">
+                            <div>
+                              <p className="text-sm font-medium text-slate-700">{student.name}</p>
+                              <p className="text-xs text-slate-400">{student.email}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <button
+                              onClick={() => markStudentAttendance(student.id, 'PRESENT')}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                attendanceRecords[student.id] === 'PRESENT' 
+                                  ? 'bg-emerald-500 border-emerald-500 text-white' 
+                                  : 'border-slate-200 hover:border-emerald-300'
+                              }`}
+                            >
+                              ✓
+                            </button>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <button
+                              onClick={() => markStudentAttendance(student.id, 'ABSENT')}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                attendanceRecords[student.id] === 'ABSENT' 
+                                  ? 'bg-red-500 border-red-500 text-white' 
+                                  : 'border-slate-200 hover:border-red-300'
+                              }`}
+                            >
+                              ✕
+                            </button>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <button
+                              onClick={() => markStudentAttendance(student.id, 'LATE')}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                attendanceRecords[student.id] === 'LATE' 
+                                  ? 'bg-amber-500 border-amber-500 text-white' 
+                                  : 'border-slate-200 hover:border-amber-300'
+                              }`}
+                            >
+                              △
+                            </button>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <button
+                              onClick={() => markStudentAttendance(student.id, 'EXCUSED')}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                attendanceRecords[student.id] === 'EXCUSED' 
+                                  ? 'bg-slate-500 border-slate-500 text-white' 
+                                  : 'border-slate-200 hover:border-slate-300'
+                              }`}
+                            >
+                              ?
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              
+              {selectedCourseForAttendance && courseStudents.length > 0 && (
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={saveAttendance}
+                    disabled={!attendanceDate}
+                    className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 text-white text-sm font-medium rounded-xl transition-colors"
+                  >
+                    Save Attendance
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-50">
+                <h3 className="text-sm font-semibold text-slate-700">Attendance Records</h3>
+              </div>
+              {courseAttendance.length === 0 ? (
+                <EmptyState title="No records" description="Take attendance to see records here" />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-50">
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Date</th>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Student</th>
+                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {courseAttendance.slice(0, 20).map(att => {
+                        const student = students.find(s => s.id === att.studentId);
+                        return (
+                          <tr key={att.id} className="hover:bg-slate-50">
+                            <td className="px-6 py-3.5 text-slate-600">{att.date}</td>
+                            <td className="px-6 py-3.5 font-medium text-slate-700">{student?.name || 'Unknown'}</td>
+                            <td className="px-6 py-3.5">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700' : 
+                                att.status === 'ABSENT' ? 'bg-red-50 text-red-700' : 
+                                att.status === 'LATE' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-700'
+                              }`}>
+                                {att.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       /* ── ASSIGNMENTS ── */
       case 'assignments':
         return (
@@ -759,6 +981,38 @@ const TeacherPanel = () => {
                 </div>
               </Modal>
             )}
+          </div>
+        );
+
+      /* ── NOTICES ── */
+      case 'notices':
+        return (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-700">School Notices</h3>
+                <p className="text-xs text-slate-400 mt-0.5">{notices.length} announcement{notices.length !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
+            {notices.length === 0
+              ? <EmptyState icon={<Icons.Notices />} title="No notices" description="No announcements available at this time." />
+              : (
+                <div className="divide-y divide-slate-50">
+                  {notices.map((notice, i) => (
+                    <div key={i} className="px-6 py-4 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">{notice.noticeType || 'Notice'}</span>
+                          <p className="text-sm font-semibold text-slate-700">{notice.title}</p>
+                        </div>
+                        <span className="text-[10px] text-slate-400">{notice.createdAt ? new Date(notice.createdAt).toLocaleDateString() : ''}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 line-clamp-2">{notice.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
           </div>
         );
 

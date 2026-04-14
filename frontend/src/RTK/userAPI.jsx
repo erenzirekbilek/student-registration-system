@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const userApi = createApi({
     reducerPath: "userApi",
     baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-    tagTypes: ["Student", "Teacher", "Course", "Class"],
+    tagTypes: ["Student", "Teacher", "Course", "Class", "Attendance", "Notice", "Regulation"],
     endpoints: (builder) => ({
         getStudents: builder.query({
             query: () => "/students",
@@ -198,6 +198,79 @@ const userApi = createApi({
                 method: "DELETE"
             }),
             invalidatesTags: ["Enrollment"]
+        }),
+        getAttendance: builder.query({
+            query: () => "/attendance",
+            providesTags: ["Attendance"]
+        }),
+        getAttendanceByStudent: builder.query({
+            query: (studentId) => `/attendance/student/${studentId}`,
+            providesTags: ["Attendance"]
+        }),
+        getAttendanceByCourse: builder.query({
+            query: (courseId) => `/attendance/course/${courseId}`,
+            providesTags: ["Attendance"]
+        }),
+        markAttendance: builder.mutation({
+            query: ({ studentId, courseId, date, status, notes }) => ({
+                url: "/attendance",
+                method: "POST",
+                params: { studentId, courseId, date, status, notes }
+            }),
+            invalidatesTags: ["Attendance"]
+        }),
+        deleteAttendance: builder.mutation({
+            query: (id) => ({
+                url: `/attendance/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Attendance"]
+        }),
+        getNotices: builder.query({
+            query: () => "/notices",
+            providesTags: ["Notice"]
+        }),
+        getNoticesByRole: builder.query({
+            query: (role) => `/notices/role/${role}`,
+            providesTags: ["Notice"]
+        }),
+        createNotice: builder.mutation({
+            query: (notice) => ({
+                url: "/notices",
+                method: "POST",
+                body: notice
+            }),
+            invalidatesTags: ["Notice"]
+        }),
+        deleteNotice: builder.mutation({
+            query: (id) => ({
+                url: `/notices/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Notice"]
+        }),
+        getRegulations: builder.query({
+            query: () => "/regulations",
+            providesTags: ["Regulation"]
+        }),
+        getRegulationsByCategory: builder.query({
+            query: (category) => `/regulations/category/${category}`,
+            providesTags: ["Regulation"]
+        }),
+        createRegulation: builder.mutation({
+            query: (regulation) => ({
+                url: "/regulations",
+                method: "POST",
+                body: regulation
+            }),
+            invalidatesTags: ["Regulation"]
+        }),
+        deleteRegulation: builder.mutation({
+            query: (id) => ({
+                url: `/regulations/${id}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ["Regulation"]
         })
     })
 });
@@ -215,5 +288,9 @@ export const {
     useAddClassMutation, useUpdateClassMutation, useDeleteClassMutation,
     useGetEnrollmentsQuery, useGetEnrollmentsByStudentQuery, useGetEnrollmentsByCourseQuery,
     useEnrollStudentMutation, useUpdateEnrollmentGradeMutation, useUpdateEnrollmentAttendanceMutation,
-    useUnenrollStudentMutation, useDeleteEnrollmentMutation
+    useUnenrollStudentMutation, useDeleteEnrollmentMutation,
+    useGetAttendanceQuery, useGetAttendanceByStudentQuery, useGetAttendanceByCourseQuery,
+    useMarkAttendanceMutation, useDeleteAttendanceMutation,
+    useGetNoticesQuery, useGetNoticesByRoleQuery, useCreateNoticeMutation, useDeleteNoticeMutation,
+    useGetRegulationsQuery, useGetRegulationsByCategoryQuery, useCreateRegulationMutation, useDeleteRegulationMutation
 } = userApi;

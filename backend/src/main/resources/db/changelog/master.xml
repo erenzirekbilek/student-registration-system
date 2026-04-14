@@ -8,4 +8,5 @@
     <include file="db/changelog/changesets/001-initial-schema.xml"/>
     <include file="db/changelog/changesets/002-seed-data.xml"/>
     <include file="db/changelog/changesets/003-admin-attendance.xml"/>
+    <include file="db/changelog/changesets/004-notices-regulations.xml"/>
 </databaseChangeLog>

@@ -11,7 +11,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +28,7 @@ public class RegulationAssistantService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final RegulationService regulationService;
 
     @PostConstruct
     public void validateConfig() {
@@ -42,7 +45,7 @@ public class RegulationAssistantService {
 
         try {
             String systemPrompt = buildSystemMessage(role);
-            String userMessage = buildContextText(personalData) + "\n\nQuestion: " + question;
+            String userMessage = buildContextText(personalData) + "\n\n[REGULATIONS]\n" + getRegulationsContext() + "\n\nQuestion: " + question;
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", model);
@@ -74,6 +77,25 @@ public class RegulationAssistantService {
         } catch (Exception e) {
             log.error("Failed to call Groq API", e);
             return "The AI assistant is temporarily unavailable. Please try again later.";
+        }
+    }
+
+    private String getRegulationsContext() {
+        try {
+            List<Map<String, Object>> regulations = regulationService.getAllRegulationsAsMap();
+            if (regulations == null || regulations.isEmpty()) {
+                return "No school regulations available.";
+            }
+            return regulations.stream()
+                    .map(r -> String.format("Article %s [%s]: %s - %s",
+                            r.get("articleNumber"),
+                            r.get("category"),
+                            r.get("title"),
+                            r.get("content")))
+                    .collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            log.warn("Could not fetch regulations", e);
+            return "No school regulations available.";
         }
     }
 

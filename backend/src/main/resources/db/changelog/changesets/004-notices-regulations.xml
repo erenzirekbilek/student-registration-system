@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="004-insert-admin" author="liquibase">
+        <insert tableName="admins">
+            <column name="name">System Admin</column>
+            <column name="email">admin@school.com</column>
+            <column name="password">admin123</column>
+            <column name="phone">+1234567899</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="004-insert-notices" author="liquibase">
+        <insert tableName="notices">
+            <column name="title">Welcome to the New Semester!</column>
+            <column name="content">Dear Students and Teachers, We are excited to welcome you to the new semester. Please check your course schedules and enrollment status. For any issues, contact the administration office.</column>
+            <column name="notice_type">General</column>
+            <column name="target_role">ALL</column>
+            <column name="created_by">1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="notices">
+            <column name="title">Midterm Exam Schedule</column>
+            <column name="content">The midterm exams will be held between November 15-20. Please check the detailed schedule on the student portal. Bring your student ID to all exams.</column>
+            <column name="notice_type">Exam</column>
+            <column name="target_role">STUDENT</column>
+            <column name="created_by">1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="notices">
+            <column name="title">Teacher Meeting - Next Week</column>
+            <column name="content">All teachers are requested to attend the monthly meeting on Monday at 2 PM in the staff room. Agenda includes semester planning and new policies.</column>
+            <column name="notice_type">Event</column>
+            <column name="target_role">TEACHER</column>
+            <column name="created_by">1</column>
+            <column name="is_active">true</column>
+        </insert>
+    </changeSet>
+
+    <changeSet id="004-insert-regulations" author="liquibase">
+        <insert tableName="regulations">
+            <column name="title">Attendance Policy</column>
+            <column name="content">Students must attend at least 80% of classes to be eligible for final exams. More than 3 unexcused absences may result in grade reduction.</column>
+            <column name="category">Attendance</column>
+            <column name="article_number">5.1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="regulations">
+            <column name="title">Grading System</column>
+            <column name="content">Grades are distributed as follows: A (90-100), B (80-89), C (70-79), D (60-69), F (below 60). Plus/minus grading may be applied.</column>
+            <column name="category">Grading</column>
+            <column name="article_number">6.1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="regulations">
+            <column name="title">Exam Conduct</column>
+            <column name="content">Cheating during exams results in immediate failure and disciplinary action. Electronic devices are not allowed unless specified. Bring valid ID to all exams.</column>
+            <column name="category">Exams</column>
+            <column name="article_number">7.1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="regulations">
+            <column name="title">Course Withdrawal</column>
+            <column name="content">Students may withdraw from a course within the first 8 weeks with permission from the advisor. Withdrawals after the deadline result in a grade of F.</column>
+            <column name="category">Enrollment</column>
+            <column name="article_number">4.1</column>
+            <column name="is_active">true</column>
+        </insert>
+        <insert tableName="regulations">
+            <column name="title">Academic Integrity</column>
+            <column name="content">Plagiarism and academic dishonesty are strictly prohibited. First offense results in grade F, repeat offenses may lead to suspension.</column>
+            <column name="category">Academic</column>
+            <column name="article_number">8.1</column>
+            <column name="is_active">true</column>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
