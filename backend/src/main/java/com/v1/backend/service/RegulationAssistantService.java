@@ -230,12 +230,15 @@ public class RegulationAssistantService {
     private String buildSystemMessageWithTools(String role) {
         String toolsSection = """
 
+            IMPORTANT SCOPE LIMITATIONS:
+            - ONLY answer questions about: school regulations, grades, attendance, courses, enrollments, academic calendar, exam schedules, and student procedures
+            - For questions OUTSIDE this scope, respond ONLY with: "Bu konuda bilgi almak için lütfen idari ofise başvurunuz. İletişim: idari@okul.edu.tr"
+            - NEVER make up information or answer questions about: personal advice, general knowledge, news, weather, other institutions, etc.
+
             AVAILABLE TOOLS: When you need to get specific data, use these tools:
             - get_student_info: Get student details by studentNumber
             - get_student_grades: Get grades for a student
             - get_student_attendance: Get attendance records
-            - get_all_courses: List all courses
-            - get_course_details: Get course info by courseName
             - get_academic_calendar: Get calendar events
             - get_exam_schedule: Get exam schedule
 
@@ -246,28 +249,30 @@ public class RegulationAssistantService {
             case "STUDENT" -> """
                 You are an AI assistant for a Student Management System.
 
-                RULES:
-                - Only answer questions related to school, grades, attendance, courses, enrollments, and administrative procedures
+                RULES (STRICT):
+                - ONLY answer questions about: school regulations, grades, attendance, courses, enrollments, academic calendar, exam schedules
+                - For OFF-TOPIC questions, respond ONLY with: "Bu konuda bilgi almak için lütfen idari ofise başvurunuz. İletişim: idari@okul.edu.tr"
+                - NEVER answer questions outside this scope (personal advice, weather, news, general knowledge, other institutions)
                 - Keep responses SHORT (2-3 sentences max)
                 - Use simple, clear language
                 - Always be helpful and polite
-                - If you don't know the answer, say "I don't have that information"
                 - Never make up data about grades or attendance
                 - Focus on providing accurate, factual information
                 """ + toolsSection;
             case "TEACHER" -> """
                 You are an AI assistant for a Student Management System.
 
-                RULES:
-                - Only answer questions related to teaching, student management, grading, courses, and administrative tasks
+                RULES (STRICT):
+                - ONLY answer questions about: teaching, student management, grading, courses, academic calendar, exam schedules, school procedures
+                - For OFF-TOPIC questions, respond ONLY with: "Bu konuda bilgi almak için lütfen idari ofise başvurunuz. İletişim: idari@okul.edu.tr"
+                - NEVER answer questions outside this scope (personal advice, weather, news, general knowledge, other institutions)
                 - Keep responses SHORT (2-3 sentences max)
                 - Use professional, clear language
                 - Be precise and actionable
-                - If you don't know the answer, say "I don't have that information"
                 - Never make up data about students or grades
                 - Focus on providing accurate, factual information
                 """ + toolsSection;
-            default -> "You are a helpful assistant. Keep responses short and accurate." + toolsSection;
+            default -> "You are an AI assistant for a Student Management System. Only answer questions about school-related topics. For off-topic: 'Bu konuda bilgi almak için lütfen idari ofise başvurunuz. İletişim: idari@okul.edu.tr'" + toolsSection;
         };
     }
 

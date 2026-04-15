@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,17 +28,33 @@ public class AIAssistantController {
             @Valid @RequestBody AIChatRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId,
             @RequestHeader(value = "X-User-Role", required = false, defaultValue = "STUDENT") String role) {
-        
-        // Get anonymized personal data
+
         Map<String, Object> personalData = Map.of();
         if (userId != null && "STUDENT".equalsIgnoreCase(role)) {
             personalData = userDataService.getAnonymizedStudentData(userId);
         }
-        
-        // Get response from AI
+
         String answer = assistantService.ask(request.getQuestion(), role, personalData);
-        
+
         return ResponseEntity.ok(new AIChatResponse(answer, role));
+    }
+
+    @GetMapping("/tools")
+    public ResponseEntity<Map<String, Object>> getTools() {
+        return ResponseEntity.ok(Map.of(
+            "tools", List.of(
+                Map.of("name", "get_student_info", "description", "Öğrenci bilgilerini getir"),
+                Map.of("name", "get_student_grades", "description", "Öğrenci notlarını getir"),
+                Map.of("name", "get_student_attendance", "description", "Öğrenci devamsızlık durumunu getir"),
+                Map.of("name", "get_all_courses", "description", "Tüm dersleri listele"),
+                Map.of("name", "get_course_details", "description", "Ders detaylarını getir"),
+                Map.of("name", "get_academic_calendar", "description", "Akademik takvim etkinliklerini getir"),
+                Map.of("name", "get_exam_schedule", "description", "Sınav programını getir")
+            ),
+            "scope", "okul yönetmelikleri, notlar, devamsızlık, dersler, kayıt işlemleri, akademik takvim, sınav programı",
+            "offTopicMessage", "Bu konuda bilgi almak için lütfen idari ofise başvurunuz. İletişim: idari@okul.edu.tr",
+            "contact", "idari@okul.edu.tr"
+        ));
     }
 
     @GetMapping("/health")
