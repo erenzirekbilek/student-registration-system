@@ -552,6 +552,35 @@ Frontend will start at: `http://localhost:5173`
 
 ---
 
+## 📸 Project Screenshots
+
+### Home Page
+![Home](images/Home.png)
+
+### Student Features
+| Screen | Description |
+|--------|-------------|
+| Student Dashboard | Personal dashboard with grades, attendance, and courses |
+| My Courses | View enrolled courses and class details |
+| Grades | View grades and academic performance |
+| Attendance | Track attendance records |
+| Notices | School announcements and notices |
+
+### Teacher Features
+| Screen | Description |
+|--------|-------------|
+| Teacher Dashboard | Statistics and quick actions |
+| Student List | Manage enrolled students |
+
+### Admin Features
+| Screen | Description |
+|--------|-------------|
+| Admin Dashboard | System-wide statistics |
+| Student Management | Full student CRUD operations |
+| Course Management | Course creation and assignment |
+
+---
+
 ## 📁 Project Structure
 
 ```
