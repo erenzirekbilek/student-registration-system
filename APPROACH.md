@@ -201,23 +201,88 @@ private void validateNotAlreadyEnrolled(Long studentId, Long courseId) {
 ### 4.1 Architecture
 
 ```
-User → AIChat.jsx → /api/ai/chat → RegulationAssistantService → Groq API
+User → AIChat.jsx → /api/ai/chat → RegulationAssistantService → Groq API → Tool Calls → Database
 ```
 
-### 4.2 Optimization Settings
+### 4.2 MCP Tool Integration
+
+The AI assistant uses the Model Context Protocol (MCP) to call real database tools:
+
+```
+User Question → Groq (with tool definitions) → AI decides to call tools → Backend executes tools → Database query → Tool result → AI generates answer → User
+```
+
+**Available Tools:**
+| Tool | Purpose | Parameters |
+|------|---------|------------|
+| `get_student_info` | Get student details | studentNumber |
+| `get_student_grades` | Get grades from enrollments | studentNumber |
+| `get_student_attendance` | Get attendance % | studentNumber |
+| `get_all_courses` | List all courses | - |
+| `get_course_details` | Get course info | courseName |
+| `get_academic_calendar` | Get calendar events | - |
+| `get_exam_schedule` | Get exam schedule | - |
+
+### 4.3 How Tool Calling Works
+
+1. **Tool Definition**: The AI receives tool schemas in the request
+2. **Tool Decision**: AI decides when to call a tool based on user question
+3. **Tool Execution**: Backend executes `MCPToolService.executeTool()`
+4. **Result Processing**: Tool results are fed back to AI for final response
+
+```java
+// Step 1: Send tools to Groq
+ArrayNode tools = requestBody.putArray("tools");
+tools.add(createToolDefinition("get_student_info", ...));
+
+// Step 2: Process tool calls from response
+if (assistantMessage.has("tool_calls")) {
+    return processToolCalls(assistantMessage, personalData);
+}
+
+// Step 3: Execute tool via MCPToolService
+Map<String, Object> result = mcpToolService.executeTool(toolName, arguments);
+```
+
+### 4.4 Optimization Settings
 
 ```java
 requestBody.put("temperature", 0.1);   // Lower = more consistent
 requestBody.put("top_p", 0.5);         // Controls randomness
-requestBody.put("max_tokens", 1024);   // Focused responses
+requestBody.put("max_tokens", 2048);   // Increased for tool results
 ```
 
-### 4.3 System Prompt Strategy
+### 4.5 System Prompt Strategy
 
 ```
 - Role-specific prompts (STUDENT vs TEACHER)
 - Clear rules for response format
 - Constraints to prevent misinformation
+- Available tools list for tool selection
+```
+
+### 4.6 Standalone MCP Server
+
+For external MCP clients (like Claude Desktop), a standalone server is included:
+
+```
+mcp-server/
+├── package.json
+└── server.js          # MCP server using @modelcontextprotocol/sdk
+```
+
+Run: `cd mcp-server && npm install && npm start`
+
+**Use with Claude Desktop:**
+```json
+{
+  "mcpServers": {
+    "student-management": {
+      "command": "node",
+      "args": ["path/to/server.js"]
+    }
+  }
+}
 ```
 
 ---
@@ -325,9 +390,11 @@ db/changelog/
 
 ## 11. Recent Updates
 
+- v2.3: MCP Tool Integration - AI can now call database tools for real-time data (grades, attendance, courses)
+- v2.3: Standalone MCP Server - Added mcp-server/ for external MCP clients (Claude Desktop)
 - v2.2: Don't Return Null - Added helper methods to exception classes to avoid returning null
 - v2.2: UI Consistency - Unified StudentRegister, StudentLogin, TeacherSignin pages with consistent UI
 
 ---
 
-*Last Updated: v2.2*
+*Last Updated: v2.3*
