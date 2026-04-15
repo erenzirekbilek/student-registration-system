@@ -1,5 +1,6 @@
 package com.v1.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -11,8 +12,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +31,7 @@ public class RegulationAssistantService {
     private final RegulationService regulationService;
     private final AcademicCalendarService calendarService;
     private final ExamScheduleService examService;
+    private final MCPToolService mcpToolService;
 
     @PostConstruct
     public void validateConfig() {
@@ -40,28 +41,38 @@ public class RegulationAssistantService {
     }
 
     public String ask(String question, String role, Map<String, Object> personalData) {
-
         if (groqApiKey == null || groqApiKey.isBlank() || groqApiKey.startsWith("${")) {
             return getPlaceholderResponse(question);
         }
 
         try {
-            String systemPrompt = buildSystemMessage(role);
-            String userMessage = buildContextText(personalData) 
-                + "\n\n[REGULATIONS]\n" + getRegulationsContext() 
-                + "\n\n[ACADEMIC CALENDAR]\n" + getCalendarContext()
-                + "\n\n[EXAM SCHEDULE]\n" + getExamContext()
-                + "\n\nQuestion: " + question;
+            String systemPrompt = buildSystemMessageWithTools(role);
 
             ObjectNode requestBody = objectMapper.createObjectNode();
             requestBody.put("model", model);
             requestBody.put("temperature", 0.1);
             requestBody.put("top_p", 0.5);
-            requestBody.put("max_tokens", 1024);
+            requestBody.put("max_tokens", 2048);
 
             ArrayNode messages = requestBody.putArray("messages");
             messages.addObject().put("role", "system").put("content", systemPrompt);
+
+            String userMessage = buildContextText(personalData)
+                + "\n\nQuestion: " + question;
             messages.addObject().put("role", "user").put("content", userMessage);
+
+            ArrayNode tools = requestBody.putArray("tools");
+            tools.add(createToolDefinition("get_student_info", "Get information about a specific student",
+                Map.of("studentNumber", Map.of("type", "string", "description", "The student's unique number"))));
+            tools.add(createToolDefinition("get_student_grades", "Get grades for a specific student",
+                Map.of("studentNumber", Map.of("type", "string", "description", "The student's unique number"))));
+            tools.add(createToolDefinition("get_student_attendance", "Get attendance for a specific student",
+                Map.of("studentNumber", Map.of("type", "string", "description", "The student's unique number"))));
+            tools.add(createToolDefinition("get_all_courses", "Get all available courses", Map.of()));
+            tools.add(createToolDefinition("get_course_details", "Get details about a specific course",
+                Map.of("courseName", Map.of("type", "string", "description", "The name of the course"))));
+            tools.add(createToolDefinition("get_academic_calendar", "Get academic calendar events", Map.of()));
+            tools.add(createToolDefinition("get_exam_schedule", "Get exam schedule", Map.of()));
 
             String requestBodyJson = objectMapper.writeValueAsString(requestBody);
 
@@ -71,18 +82,83 @@ public class RegulationAssistantService {
 
             HttpEntity<String> entity = new HttpEntity<>(requestBodyJson, headers);
 
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(baseUrl, entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(baseUrl, entity, String.class);
 
-            return objectMapper.readTree(response.getBody())
-                    .path("choices").get(0)
-                    .path("message")
-                    .path("content")
-                    .asText();
+            var responseJson = objectMapper.readTree(response.getBody());
+            var firstChoice = responseJson.path("choices").get(0);
+            var assistantMessage = firstChoice.path("message");
+
+            if (assistantMessage.has("tool_calls") && assistantMessage.path("tool_calls").size() > 0) {
+                return processToolCalls((ObjectNode) assistantMessage, personalData);
+            }
+
+            return assistantMessage.path("content").asText("I couldn't process your request.");
 
         } catch (Exception e) {
             log.error("Failed to call Groq API", e);
             return "The AI assistant is temporarily unavailable. Please try again later.";
+        }
+    }
+
+    private ObjectNode createToolDefinition(String name, String description, Map<String, Map<String, String>> params) {
+        ObjectNode tool = objectMapper.createObjectNode();
+        tool.put("type", "function");
+
+        ObjectNode function = tool.putObject("function");
+        function.put("name", name);
+        function.put("description", description);
+
+        ObjectNode properties = function.putObject("parameters");
+        properties.put("type", "object");
+        ObjectNode props = properties.putObject("properties");
+
+        if (params.isEmpty()) {
+            properties.putArray("required");
+            return tool;
+        }
+
+        ArrayNode required = properties.putArray("required");
+        for (var entry : params.entrySet()) {
+            required.add(entry.getKey());
+            ObjectNode prop = props.putObject(entry.getKey());
+            prop.put("type", entry.getValue().get("type"));
+            prop.put("description", entry.getValue().get("description"));
+        }
+
+        return tool;
+    }
+
+    private String processToolCalls(ObjectNode assistantMessage, Map<String, Object> personalData) {
+        try {
+            ArrayNode toolCalls = (ArrayNode) assistantMessage.path("tool_calls");
+            StringBuilder results = new StringBuilder();
+
+            for (var toolCall : toolCalls) {
+                String toolName = toolCall.path("function").path("name").asText();
+                JsonNode argsNode = toolCall.path("function").path("arguments");
+                Map<String, Object> arguments;
+                if (argsNode.isObject()) {
+                    arguments = objectMapper.convertValue(argsNode, Map.class);
+                } else if (argsNode.isTextual()) {
+                    arguments = objectMapper.readValue(argsNode.asText(), Map.class);
+                } else {
+                    arguments = Map.of();
+                }
+
+                if ("get_student_info".equals(toolName) || "get_student_grades".equals(toolName) || "get_student_attendance".equals(toolName)) {
+                    String studentNum = (String) personalData.get("Student number");
+                    arguments.put("studentNumber", studentNum);
+                }
+
+                Map<String, Object> result = mcpToolService.executeTool(toolName, arguments);
+                results.append("[").append(toolName).append("] ").append(objectMapper.writeValueAsString(result)).append("\n");
+            }
+
+            return "Based on the data:\n" + results.toString();
+
+        } catch (Exception e) {
+            log.error("Failed to process tool calls", e);
+            return "I encountered an error retrieving the requested information.";
         }
     }
 
@@ -151,11 +227,25 @@ public class RegulationAssistantService {
                 "To enable AI, set the GROQ_API_KEY.";
     }
 
-    private String buildSystemMessage(String role) {
+    private String buildSystemMessageWithTools(String role) {
+        String toolsSection = """
+
+            AVAILABLE TOOLS: When you need to get specific data, use these tools:
+            - get_student_info: Get student details by studentNumber
+            - get_student_grades: Get grades for a student
+            - get_student_attendance: Get attendance records
+            - get_all_courses: List all courses
+            - get_course_details: Get course info by courseName
+            - get_academic_calendar: Get calendar events
+            - get_exam_schedule: Get exam schedule
+
+            IMPORTANT: Only use tools when you need specific data. Otherwise, answer from your knowledge.
+            """;
+
         return switch (role) {
             case "STUDENT" -> """
                 You are an AI assistant for a Student Management System.
-                
+
                 RULES:
                 - Only answer questions related to school, grades, attendance, courses, enrollments, and administrative procedures
                 - Keep responses SHORT (2-3 sentences max)
@@ -164,10 +254,10 @@ public class RegulationAssistantService {
                 - If you don't know the answer, say "I don't have that information"
                 - Never make up data about grades or attendance
                 - Focus on providing accurate, factual information
-                """;
+                """ + toolsSection;
             case "TEACHER" -> """
                 You are an AI assistant for a Student Management System.
-                
+
                 RULES:
                 - Only answer questions related to teaching, student management, grading, courses, and administrative tasks
                 - Keep responses SHORT (2-3 sentences max)
@@ -176,8 +266,8 @@ public class RegulationAssistantService {
                 - If you don't know the answer, say "I don't have that information"
                 - Never make up data about students or grades
                 - Focus on providing accurate, factual information
-                """;
-            default -> "You are a helpful assistant. Keep responses short and accurate.";
+                """ + toolsSection;
+            default -> "You are a helpful assistant. Keep responses short and accurate." + toolsSection;
         };
     }
 
