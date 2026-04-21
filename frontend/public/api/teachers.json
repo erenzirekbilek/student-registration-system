@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "teacherId": "TCH001",
+    "name": "Dr. Ayşe Özkan",
+    "email": "ayse.ozkan@email.com",
+    "department": "Matematik",
+    "phone": "+90 555 111 22 33",
+    "createdAt": "2023-09-01T08:00:00Z",
+    "updatedAt": "2023-09-01T08:00:00Z"
+  },
+  {
+    "id": 2,
+    "teacherId": "TCH002",
+    "name": "Prof. Mehmet Yılmaz",
+    "email": "mehmet.yilmaz@email.com",
+    "department": "Fizik",
+    "phone": "+90 555 222 33 44",
+    "createdAt": "2023-09-01T08:00:00Z",
+    "updatedAt": "2023-09-01T08:00:00Z"
+  },
+  {
+    "id": 3,
+    "teacherId": "TCH003",
+    "name": "Dr. Fatma Demir",
+    "email": "fatma.demir@email.com",
+    "department": "Kimya",
+    "phone": "+90 555 333 44 55",
+    "createdAt": "2023-09-01T08:00:00Z",
+    "updatedAt": "2023-09-01T08:00:00Z"
+  }
+]

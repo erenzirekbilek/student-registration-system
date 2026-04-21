@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "studentNumber": "STU001",
+    "name": "Ahmet Yılmaz",
+    "email": "ahmet.yilmaz@email.com",
+    "phone": "+90 555 123 45 67",
+    "grade": "10",
+    "classId": 1,
+    "attendance": "95",
+    "createdAt": "2024-01-15T08:30:00Z",
+    "updatedAt": "2024-01-15T08:30:00Z"
+  },
+  {
+    "id": 2,
+    "studentNumber": "STU002",
+    "name": "Elif Şahin",
+    "email": "elif.sahin@email.com",
+    "phone": "+90 555 234 56 78",
+    "grade": "11",
+    "classId": 2,
+    "attendance": "92",
+    "createdAt": "2024-01-16T09:15:00Z",
+    "updatedAt": "2024-01-16T09:15:00Z"
+  },
+  {
+    "id": 3,
+    "studentNumber": "STU003",
+    "name": "Mehmet Demir",
+    "email": "mehmet.demir@email.com",
+    "phone": "+90 555 345 67 89",
+    "grade": "9",
+    "classId": 3,
+    "attendance": "88",
+    "createdAt": "2024-01-17T10:00:00Z",
+    "updatedAt": "2024-01-17T10:00:00Z"
+  }
+]
