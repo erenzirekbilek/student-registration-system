@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useGetTeachersQuery, useDeleteTeacherMutation } from '../../RTK/userAPI';
 import Button from '../../components/common/Button';
 import Skeleton, { SkeletonTable } from '../../components/common/Skeleton';
-import { AddIcon, SearchIcon, SchoolIcon, MoreIcon, MailIcon, EditIcon, DeleteIcon } from '../../components/common/Icons';
+import { AddIcon, SearchIcon, SchoolIcon, MoreIcon, EditIcon, DeleteIcon, MailIcon } from '../../components/common/Icons';
 import { Menu, MenuItem, IconButton, Avatar } from '@mui/material';
 
 const TeacherList = () => {
@@ -158,7 +158,7 @@ const TeacherList = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center text-xs text-surface-500">
-                        <MailOutlineIcon className="w-3.5 h-3.5 mr-2 opacity-40" />
+                        <MailIcon className="w-3.5 h-3.5 mr-2 opacity-40" />
                         {teacher.email}
                       </div>
                     </td>

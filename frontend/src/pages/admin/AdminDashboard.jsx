@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, CircularProgress, Grid, Card, CardContent, Typography, Button } from '@mui/material';
+import { CircularProgress, Grid, Card, CardContent, Typography, Button } from '@mui/material';
 import { UserIcon, SchoolIcon, ClassIcon, BookIcon } from '../../components/common/Icons';
 import {
   useGetNoticesQuery, useCreateNoticeMutation, useDeleteNoticeMutation,

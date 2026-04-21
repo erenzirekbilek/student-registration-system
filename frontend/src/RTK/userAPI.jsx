@@ -63,21 +63,27 @@ let attendance = [...mockAttendance];
 let enrollments = [...mockEnrollments];
 let notices = [...mockNotices];
 
-const mockBaseQuery = (arg, api, extraOptions) => {
-  const { url, method = 'GET', body } = arg || {};
+const mockBaseQuery = (arg) => {
+  const { url, body } = arg || {};
   
   if (url === '/students') return { data: students };
   if (url === '/students/login') {
     const student = students.find(s => s.email === body?.email && s.password === body?.password);
     if (!student) return { error: { status: 401, data: "Invalid credentials" } };
-    const { password, ...userData } = student;
+    
+    // ÇÖZÜM: Object.assign ile kopyalayıp password'ü sil
+    const userData = Object.assign({}, student);
+    delete userData.password;
     return { data: userData };
   }
   if (url === '/teachers') return { data: teachers };
   if (url === '/teachers/login') {
     const teacher = teachers.find(t => t.email === body?.email && t.password === body?.password);
     if (!teacher) return { error: { status: 401, data: "Invalid credentials" } };
-    const { password, ...userData } = teacher;
+    
+    // ÇÖZÜM: Object.assign ile kopyalayıp password'ü sil
+    const userData = Object.assign({}, teacher);
+    delete userData.password;
     return { data: userData };
   }
   if (url === '/courses') return { data: courses };
@@ -117,8 +123,8 @@ const mockBaseQuery = (arg, api, extraOptions) => {
 const mockUserApi = createApi({
   reducerPath: "userApi",
   baseQuery: mockBaseQuery,
-  tagTypes: ["Student", "Teacher", "Course", "Class", "Attendance", "Enrollment", "Notice"],
-  endpoints: () => ({
+  tagTypes: ["Student", "Teacher", "Course", "Class", "Attendance", "Enrollment", "Notice", "Regulation", "Calendar", "Exam"],
+  endpoints: (builder) => ({
     getStudents: builder.query({ query: () => ({ url: '/students' }), providesTags: ["Student"] }),
     getStudent: builder.query({ query: (id) => ({ url: `/students/${id}` }), providesTags: ["Student"] }),
     addStudent: builder.mutation({ query: (student) => ({ url: '/students', method: 'POST', body: student }), invalidatesTags: ["Student"] }),
@@ -180,7 +186,7 @@ export default mockUserApi;
 export const {
   useGetStudentsQuery, useGetStudentQuery, useAddStudentMutation, useUpdateStudentMutation, useDeleteStudentMutation, useStudentLoginMutation,
   useGetTeachersQuery, useGetTeacherQuery, useAddTeacherMutation, useUpdateTeacherMutation, useDeleteTeacherMutation, useTeacherLoginMutation,
-  useGetCoursesQuery, useGetCourseMutation, useAddCourseMutation, useUpdateCourseMutation, useDeleteCourseMutation, useGetCoursesByClassQuery, useGetCoursesByTeacherQuery,
+  useGetCoursesQuery, useGetCourseQuery, useAddCourseMutation, useUpdateCourseMutation, useDeleteCourseMutation, useGetCoursesByClassQuery, useGetCoursesByTeacherQuery,
   useGetClassesQuery, useGetClassQuery, useAddClassMutation, useUpdateClassMutation, useDeleteClassMutation,
   useGetAttendanceQuery, useGetAttendanceByStudentQuery, useGetAttendanceByCourseQuery, useMarkAttendanceMutation,
   useGetEnrollmentsQuery, useGetEnrollmentsByStudentQuery, useEnrollStudentMutation,

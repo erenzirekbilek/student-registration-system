@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
@@ -171,6 +172,12 @@ const EmptyState = ({ icon, title, description }) => (
   </div>
 );
 
+EmptyState.propTypes = {
+  icon: PropTypes.node,
+  title: PropTypes.string,
+  description: PropTypes.string
+};
+
 const Field = ({ label, type = 'text', value, onChange, placeholder, required }) => (
   <div>
     <label className="block text-xs font-medium text-slate-500 mb-1.5">{label}</label>
@@ -180,6 +187,15 @@ const Field = ({ label, type = 'text', value, onChange, placeholder, required })
     />
   </div>
 );
+
+Field.propTypes = {
+  label: PropTypes.string,
+  type: PropTypes.string,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  required: PropTypes.bool
+};
 
 /* ─── Modal wrapper ─── */
 const Modal = ({ title, onClose, onSubmit, children }) => (
@@ -202,6 +218,13 @@ const Modal = ({ title, onClose, onSubmit, children }) => (
   </div>
 );
 
+Modal.propTypes = {
+  title: PropTypes.string,
+  onClose: PropTypes.func,
+  onSubmit: PropTypes.func,
+  children: PropTypes.node
+};
+
 /* ─── Main component ─── */
 const TeacherPanel = () => {
   const navigate = useNavigate();
@@ -210,7 +233,7 @@ const TeacherPanel = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState([]);
+  const [classes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showGradeModal, setShowGradeModal] = useState(false);
@@ -235,7 +258,6 @@ const TeacherPanel = () => {
   const courseAttendance = courseAttendanceData || [];
   const notices = noticesData || [];
   
-  const teacherCourses = teacherCoursesData || courses?.filter(c => c.teacherId === userData?.id) || [];
   const courseStudents = students?.filter(s => s.classId === courses?.find(c => c.id === selectedCourseForAttendance)?.classId) || [];
 
   useEffect(() => {
