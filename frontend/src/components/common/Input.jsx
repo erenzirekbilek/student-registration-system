@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Input = ({ label, type = 'text', value, onChange, placeholder, required = false, error, className = '', inputClassName = '', ...props }) => {
   return (
     <div className={`mb-4 ${className}`}>
@@ -21,6 +23,18 @@ const Input = ({ label, type = 'text', value, onChange, placeholder, required = 
       {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
     </div>
   );
+};
+
+Input.propTypes = {
+  label: PropTypes.string,
+  type: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  required: PropTypes.bool,
+  error: PropTypes.string,
+  className: PropTypes.string,
+  inputClassName: PropTypes.string,
 };
 
 export default Input;

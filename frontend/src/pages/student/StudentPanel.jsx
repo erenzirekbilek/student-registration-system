@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate, Link } from 'react-router-dom';
-import Button from '../../components/common/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AIChat from '../../components/common/AIChat';
 import {
@@ -133,6 +133,16 @@ const Icons = {
       <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
     </svg>
   ),
+  User: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+  ChevronDown: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  ),
 };
 
 const gradeColor = (grade) => {
@@ -150,22 +160,31 @@ const EmptyState = ({ icon, title, description }) => (
   </div>
 );
 
+EmptyState.propTypes = {
+  icon: PropTypes.node,
+  title: PropTypes.string,
+  description: PropTypes.string
+};
+
 const StudentPanel = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [courses, setCourses] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
+  const dropdownRef = useRef(null);
+
   const { data: coursesData } = useGetCoursesQuery();
   const { data: studentsData } = useGetStudentsQuery();
   const { data: attendanceRawData } = useGetAttendanceByStudentQuery(userData?.id, {
     skip: !userData?.id
   });
   const { data: noticesData } = useGetNoticesQuery();
-  
+
   const attendanceData = attendanceRawData || [];
   const notices = noticesData || [];
 
@@ -191,6 +210,17 @@ const StudentPanel = () => {
     }
     setLoading(false);
   }, [userData, coursesData, studentsData]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('studentData');
@@ -527,7 +557,7 @@ const StudentPanel = () => {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
               <h3 className="text-sm font-semibold text-slate-700 mb-4">My Attendance Records</h3>
               <p className="text-xs text-slate-400 mb-4">View your attendance history by course</p>
-              
+
               {courses.length === 0 ? (
                 <EmptyState title="No courses" description="Enroll in courses to see attendance records" />
               ) : (
@@ -537,7 +567,7 @@ const StudentPanel = () => {
                     const totalDays = courseAttendance.length;
                     const presentDays = courseAttendance.filter(a => a.status === 'PRESENT').length;
                     const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
-                    
+
                     return (
                       <div key={course.id} className="border border-slate-100 rounded-xl p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -553,7 +583,7 @@ const StudentPanel = () => {
                           </div>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-2">
-                          <div 
+                          <div
                             className={`h-2 rounded-full transition-all ${percentage >= 80 ? 'bg-emerald-500' : percentage >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
                             style={{ width: `${percentage}%` }}
                           />
@@ -591,7 +621,7 @@ const StudentPanel = () => {
                             <td className="px-6 py-3.5 font-medium text-slate-700">{course?.name || 'Unknown'}</td>
                             <td className="px-6 py-3.5">
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700' : 
+                                att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700' :
                                 att.status === 'ABSENT' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
                               }`}>
                                 {att.status}
@@ -712,12 +742,77 @@ const StudentPanel = () => {
         </Link>
 
         <div className="ml-auto flex items-center gap-3">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs font-semibold text-slate-700">{name}</p>
-            <p className="text-[11px] text-slate-400">{email}</p>
-          </div>
-          <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
-            <span className="text-indigo-700 font-bold text-sm">{(name || 'S')[0].toUpperCase()}</span>
+          {/* User dropdown */}
+          <div ref={dropdownRef} className="relative flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-semibold text-slate-700">{name}</p>
+              <p className="text-[11px] text-slate-400">{email}</p>
+            </div>
+
+            <button
+              onClick={() => setIsDropdownOpen(v => !v)}
+              className={`flex items-center gap-1.5 w-8 h-8 rounded-xl bg-indigo-100 justify-center hover:bg-indigo-200 transition-colors focus:outline-none ${isDropdownOpen ? 'ring-2 ring-indigo-300' : ''}`}
+            >
+              <span className="text-indigo-700 font-bold text-sm">{(name || 'S')[0].toUpperCase()}</span>
+            </button>
+
+            {/* Dropdown menu */}
+            {isDropdownOpen && (
+              <div className="absolute top-11 right-0 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/60 z-50 overflow-hidden">
+                {/* User info header */}
+                <div className="px-4 py-3.5 border-b border-slate-100 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                    <span className="text-indigo-700 font-bold text-sm">{(name || 'S')[0].toUpperCase()}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-700 truncate">{name}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{email}</p>
+                  </div>
+                </div>
+
+                {/* Menu items */}
+                <div className="p-1.5 space-y-0.5">
+                  <button
+                    onClick={() => { setActiveTab('dashboard'); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                  >
+                    <span className="text-slate-400"><Icons.Dashboard /></span>
+                    Dashboard
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('settings'); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                  >
+                    <span className="text-slate-400"><Icons.Settings /></span>
+                    Ayarlar
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('notices'); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                  >
+                    <span className="text-slate-400"><Icons.Notices /></span>
+                    Duyurular
+                    {notices.length > 0 && (
+                      <span className="ml-auto text-[10px] font-bold bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full">
+                        {notices.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="my-1 border-t border-slate-100" />
+
+                  <button
+                    onClick={() => { handleLogout(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-500 hover:bg-rose-50 rounded-xl transition-colors text-left"
+                  >
+                    <Icons.Logout />
+                    Çıkış Yap
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </nav>

@@ -1,20 +1,31 @@
 import { Link, useLocation } from 'react-router-dom';
-import { SchoolIcon } from '../common/Icons';
+import AccountDropdown from './AccountDropdown';
 
 const Navbar = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
+  const studentData = localStorage.getItem('studentData');
+  const teacherData = localStorage.getItem('teacherData');
+  
+  const userData = studentData ? JSON.parse(studentData) : teacherData ? JSON.parse(teacherData) : null;
+  const userType = studentData ? 'student' : teacherData ? 'teacher' : null;
+
+  const isLoggedIn = !!userData;
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-surface-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="flex items-center space-x-3 group">
-            <img src="/icons.png" alt="SMS Logo" className="w-10 h-10 rounded-xl shadow-md group-hover:scale-105 transition-transform" />
-            <span className="text-xl font-bold text-surface-800 group-hover:text-primary-600 transition-colors">
-              SMS
-            </span>
-          </Link>
+          <div className="flex items-center space-x-6">
+            <Link to="/" className="flex items-center space-x-3 group">
+              <img src="/icons.png" alt="SMS Logo" className="w-10 h-10 rounded-xl shadow-md group-hover:scale-105 transition-transform" />
+              <span className="text-xl font-bold text-surface-800 group-hover:text-primary-600 transition-colors">
+                SMS
+              </span>
+            </Link>
+            <AccountDropdown userData={userData} userType={userType} isLoggedIn={isLoggedIn} />
+          </div>
           <div className="flex items-center space-x-2">
             <Link 
               to="/" 

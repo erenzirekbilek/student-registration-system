@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 export const StudentIcon = ({ size = 24, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
@@ -104,25 +104,22 @@ export const ChatIcon = ({ size = 24, className = '' }) => (
 );
 
 export const BotIcon = ({ size = 20, className = '' }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className={className}
   >
-    {/* Ana Gövde / Kafa */}
     <rect x="3" y="11" width="18" height="10" rx="2" />
     <circle cx="12" cy="5" r="2" />
     <path d="M12 7v4" />
     <line x1="8" y1="16" x2="8" y2="16" />
     <line x1="16" y1="16" x2="16" y2="16" />
-    
-    {/* Gözler yerine modern çizgi detayları */}
     <path d="M7 11V9a5 5 0 0 1 10 0v2" />
   </svg>
 );
@@ -265,6 +262,47 @@ export const CheckIcon = ({ size = 24, className = '' }) => (
     <path d="M20 6L9 17L4 12" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
+const iconPropTypes = {
+  size: PropTypes.number,
+  className: PropTypes.string,
+};
+
+StudentIcon.propTypes = iconPropTypes;
+TeacherIcon.propTypes = iconPropTypes;
+BookIcon.propTypes = iconPropTypes;
+CourseIcon.propTypes = iconPropTypes;
+GradeIcon.propTypes = iconPropTypes;
+ExamIcon.propTypes = iconPropTypes;
+AttendanceIcon.propTypes = iconPropTypes;
+ClassIcon.propTypes = iconPropTypes;
+SchoolIcon.propTypes = iconPropTypes;
+AddIcon.propTypes = iconPropTypes;
+SearchIcon.propTypes = iconPropTypes;
+EditIcon.propTypes = iconPropTypes;
+DeleteIcon.propTypes = iconPropTypes;
+ChatIcon.propTypes = iconPropTypes;
+BotIcon.propTypes = iconPropTypes;
+MinimizeIcon.propTypes = iconPropTypes;
+SparklesIcon.propTypes = iconPropTypes;
+SendIcon.propTypes = iconPropTypes;
+LockIcon.propTypes = iconPropTypes;
+EyeIcon.propTypes = iconPropTypes;
+EyeOffIcon.propTypes = iconPropTypes;
+UserIcon.propTypes = iconPropTypes;
+MailIcon.propTypes = iconPropTypes;
+MoreIcon.propTypes = iconPropTypes;
+CloseIcon.propTypes = iconPropTypes;
+ArrowForwardIcon.propTypes = iconPropTypes;
+MenuIcon.propTypes = iconPropTypes;
+LogoutIcon.propTypes = iconPropTypes;
+SettingsIcon.propTypes = iconPropTypes;
+DashboardIcon.propTypes = iconPropTypes;
+NotificationIcon.propTypes = iconPropTypes;
+EnrollmentIcon.propTypes = iconPropTypes;
+ChartIcon.propTypes = iconPropTypes;
+CalendarIcon.propTypes = iconPropTypes;
+CheckIcon.propTypes = iconPropTypes;
 
 export default {
   StudentIcon,
