@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { SendIcon, CloseIcon, BotIcon, UserIcon, MinimizeIcon } from './Icons';
+import PropTypes from 'prop-types';
+import { SendIcon, CloseIcon, BotIcon, MinimizeIcon } from './Icons';
 
 const AIChat = ({ userId, role = 'STUDENT' }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,6 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
     'Danışmanla iletişime geç'
   ];
 
-  // AI yanıtındaki "düşünce balonlarını" temizleyen profesyonel temizleyici
   const cleanAIResponse = (text) => {
     if (!text) return '';
     return text
@@ -68,7 +68,7 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
       });
 
       const data = await response.json();
-      
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: 'assistant',
@@ -102,15 +102,15 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
       {/* Main Chat Panel */}
       <div
         className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-          isOpen 
-            ? isMinimized 
-              ? 'bottom-8 right-8 w-72 h-16' 
+          isOpen
+            ? isMinimized
+              ? 'bottom-8 right-8 w-72 h-16'
               : 'bottom-8 right-8 w-[400px] h-[600px]'
             : 'bottom-8 right-8 w-0 h-0 opacity-0 pointer-events-none'
         } bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-100 flex flex-col overflow-hidden`}
       >
         {/* Header */}
-        <div 
+        <div
           className="p-5 bg-white/80 backdrop-blur-md border-b border-slate-50 flex items-center justify-between cursor-pointer"
           onClick={() => setIsMinimized(!isMinimized)}
         >
@@ -158,11 +158,11 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
               ))}
               {isLoading && (
                 <div className="flex justify-start items-center gap-2 animate-pulse">
-                   <div className="bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-sm flex gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
-                      <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                      <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                   </div>
+                  <div className="bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-sm flex gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -211,6 +211,11 @@ const AIChat = ({ userId, role = 'STUDENT' }) => {
       </div>
     </>
   );
+};
+
+AIChat.propTypes = {
+  userId: PropTypes.string,
+  role: PropTypes.string
 };
 
 export default AIChat;
